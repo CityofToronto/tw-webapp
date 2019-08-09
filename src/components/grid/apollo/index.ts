@@ -3,17 +3,17 @@ export {
   getColumns,
   getRows,
   getIdFromData,
-} from './query';
+} from './lib/query';
 
 export {
   countRows,
-} from './aggregate';
+} from './lib/aggregate';
 
 export {
   deleteEntry,
-} from './delete';
+} from './lib/delete';
 
 export {
   update,
   add,
-} from './mutate';
+} from './lib/mutate';

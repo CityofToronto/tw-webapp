@@ -1,23 +1,15 @@
-import { GridApi, ColumnApi } from 'ag-grid-community';
-import { add, update, deleteEntry } from '../apollo';
-import { AddQuery } from '../apollo/types';
+import { GridApi, ColumnApi, RowNode } from 'ag-grid-community';
+import {
+  add, update, deleteEntry, getRelationships,
+} from '../apollo';
+import { AddQuery, UpdateQuery } from '../apollo/types';
 
 interface GridInst {
   gridApi: GridApi,
 }
 
 export default class GridInstance {
-  private gridApi: GridApi;
-
-  columnApi: ColumnApi;
-
-  private tableName: string;
-
-  constructor(_gridApi: GridApi, _columnApi: ColumnApi, _tableName: string) {
-    this.gridApi = _gridApi;
-    this.columnApi = _columnApi;
-    this.tableName = _tableName;
-  }
+  constructor(private gridApi: GridApi, private columnApi: ColumnApi, public tableName: string) {}
 
   purgeCache(): void {
     this.gridApi.purgeServerSideCache();
@@ -27,43 +19,51 @@ export default class GridInstance {
     return this.gridApi.getSelectedRows();
   }
 
-  addRows({ rowData, callBack }:AddQuery) {
+  addRows({ tableName, newData, callBack }:AddQuery) {
     add({
-      tableName: this.tableName,
-      rowData,
+      tableName,
+      newData,
       callBack,
     });
   }
 
+  get columnDefs() {
+    return this.columnApi.getAllColumns().map(column => column.getColDef());
+  }
+
   removeRows() {
+    const callBack = () => {
+      this.purgeCache();
+      this.gridApi.deselectAll();
+    };
+
     const rows = this.getSelectedRows();
     if (rows.length === 0) {
       return;
     }
-    rows.forEach(row => {
+    rows.forEach((row) => {
       deleteEntry({
         id: row.id,
         tableName: this.tableName,
+        callBack,
+        unsuccessfulCallBack: () => {},
       });
     });
-    this.gridApi.deselectAll();
-    this.gridApi.purgeServerSideCache();
+    
   }
 
-  updateRow({ rowNode, rowData, callBack }) {
+  updateRow(
+    { rowNode, newData, callBack }:
+    { rowNode: RowNode; newData: object; callBack(): void },
+  ) {
     update({
       tableName: this.tableName,
-      data: rowData,
+      newData,
       id: rowNode.data.id,
       callBack,
+      unsuccessfulCallBack: () => {},
     });
-    rowNode.setData(rowData);
-  }
-
-  cloneRows() {
-    const rows = this.getSelectedRows();
-    if (rows.length < 2 && rows.length > 0) {
-    }
+    rowNode.setData(newData);
   }
 
   sizeColumnsToFit() {
@@ -71,7 +71,7 @@ export default class GridInstance {
   }
 
   autoSizeColumns() {
-    const allColumnIds = this.columnApi.getAllColumns().map(col => col.colId);
+    const allColumnIds = this.columnApi.getAllColumns().map(col => col.getColId());
     this.columnApi.autoSizeColumns(allColumnIds);
   }
 }

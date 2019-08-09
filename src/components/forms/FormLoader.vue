@@ -3,24 +3,16 @@
     v-model="display"
     max-width="600px"
   >
-    <!-- <component
-      :is="component"
-      v-if="display"
-      :data="data"
-      :display="display"
-      :trade-type="'Helper'"
-      @close-form="closeForm"
-      @save-form="saveForm"
-    /> -->
     <DynamicForm
       :column-defs="columnDefs"
+      :table-name="tableName"
+      @close-form="closeForm"
+      @save-form="saveForm"
     />
   </v-dialog>
 </template>
 <script>
 import DynamicForm from './DynamicForm.vue';
-
-const emptyObject = {}
 
 export default {
   name: 'FormLoader',
@@ -30,7 +22,7 @@ export default {
   props: {
     data: {
       required: false,
-      default: emptyObject,
+      default: () => {},
       type: Object,
     },
     display: {
@@ -41,7 +33,7 @@ export default {
       required: true,
       type: Array,
     },
-    type: {
+    tableName: {
       required: true,
       type: String,
     },

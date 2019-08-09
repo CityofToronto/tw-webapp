@@ -1,3 +1,5 @@
+import { ColDef } from 'ag-grid-community';
+
 export const sideBar = {
   toolPanels: [
     {
@@ -11,24 +13,11 @@ export const sideBar = {
   defaultToolPanel: '',
 };
 
-export const columnTypes = {
-  textColumn: {
-    valueParser: 'newValue',
-    filter: 'agTextColumnFilter',
-  },
-  booleanColumn: {
-    valueParser: 'newValue === "true"',
-    filter: 'agSetColumnFilter',
-    filterParams: {
-      debounceMs: 200,
-      values: [true, false],
-    },
-  },
-  numberColumn: {
-    valueParser: 'Number(newValue)',
-    filter: 'agNumberColumnFilter',
-  },
-};
+interface ColumnTypes {
+  [key: string]: ColDef,
+}
+
+
 
 export const rowModelType = 'serverSide';
 // Number of rows in a block

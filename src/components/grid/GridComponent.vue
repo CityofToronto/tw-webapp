@@ -106,7 +106,9 @@ export default class GridComponent extends Props {
 
   @Watch('getRowId')
   onRowIdChanged() {
-    this.gridApi.purgeServerSideCache();
+    if (this.relation) {
+      this.gridApi.purgeServerSideCache();
+    }
   }
 
   created() {
@@ -136,10 +138,8 @@ export default class GridComponent extends Props {
     // So the data is fetched after the columns are defined
 
     getColumnDefs({ tableName: this.tableName, editable: this.editable })
-      .then(response => {
+      .then((response) => {
         this.columnDefs = response;
-
-        // response;
 
         if (this.draggable) {
           this.columnDefs.shift();
@@ -168,7 +168,7 @@ export default class GridComponent extends Props {
         const gridInstance = new GridInstance(this.gridApi, this.columnApi, this.tableName);
 
         // This only wants to work asynchronously!!
-        const sizeGridTimeout = new Promise((resolve => {
+        const sizeGridTimeout = new Promise(((resolve) => {
           setTimeout(() => {
             resolve();
           }, 50);
@@ -180,7 +180,7 @@ export default class GridComponent extends Props {
 
         this.$emit('set-grid-instance', gridInstance);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
       });
   };
@@ -192,7 +192,7 @@ export default class GridComponent extends Props {
       event,
       tableName: this.tableName,
     })
-      .catch(error => {
+      .catch((error) => {
         this.$store.dispatch('notification/setNotification', {
           message: error.message,
           color: 'error',
@@ -231,16 +231,24 @@ $virtual-item-height: 5px;
   overflow: visible !important;
   padding: 0px 0px !important;
 }
+
+// Adds a border left of the ag-grid sidebar
 .ag-theme-material .ag-side-bar {
   border-left-width: 0.5px;
   border-left-color: #e2e2e2;
+}
+
+// Styling for grid dropdown list
+.ag-theme-material .ag-rich-select .ag-rich-select-list {
+  height: auto !important;
+  padding-bottom:10px;
 }
 .ag-theme-material .ag-menu .ag-menu-separator {
   height: 8px;
 }
 
 .ag-theme-material .ag-header-cell-label {
-justify-content: center;
+  justify-content: center;
 }
 
 .ag-theme-material .ag-header-cell {
@@ -257,6 +265,7 @@ justify-content: center;
   top: 40%
 }
 
+// Styling for the in grid buttons pinned on the left
 .grid-button {
   font-size:18px !important;
   color: #BDBDBD !important;

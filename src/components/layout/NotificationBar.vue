@@ -8,7 +8,6 @@
     :left="getNotification.left"
     color="error"
     dark
-    auto-height
   >
     {{ getNotification.message }}
     <v-btn

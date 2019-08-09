@@ -13,13 +13,24 @@
       v-else
       class="grid"
     >
-      <form-loader
-        :display="formVisible"
-        :type="formName"
-        :data="formData"
-        @save="save"
-        @close="formVisible = false"
-      />
+      <v-dialog
+        v-model="formVisible"
+        scrollable
+        persistent :overlay="false"
+        max-width="500px"
+        transition="dialog-transition"
+      >
+        <dynamic-form
+          v-if="formVisible"
+          :form-display="formVisible"
+          :form-data="formData"
+          :column-defs="columnDefs"
+          :tableName="formName"
+          @save-form="save"
+          @close-form="formVisible = false"
+        />
+      </v-dialog>
+
       <grid-toolbar
         :simple="simpleToolbar"
         :mini="miniToolbar"
@@ -30,6 +41,7 @@
         @click:remove="removeRow"
         @click:fit="fitColumns"
         @click:clone="cloneRow"
+        @click:size="sizeColumns"
       />
       <grid-component
         v-if="gridType !== 'drag'"
@@ -58,8 +70,9 @@
 import _ from 'lodash';
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
+import { ColDef, RowNode } from 'ag-grid-community';
 
-import FormLoader from '../forms/FormLoader.vue';
+import DynamicForm from '../forms/DynamicForm.vue';
 import GridComponent from './GridComponent.vue';
 import GridToolbar from './GridToolbar.vue';
 import DragGridComponent from './DragGridComponent.vue';
@@ -120,7 +133,7 @@ const Props = Vue.extend({
 interface Query {
   tableName: string,
   dependsOn?: string,
-  rowData: [],
+  rowData: Record<string, any>,
   id?: number,
   request?: object,
   columns?: string[],
@@ -132,7 +145,7 @@ interface Query {
     GridToolbar,
     GridComponent,
     DragGridComponent,
-    FormLoader,
+    DynamicForm,
   },
 })
 export default class GridWithToolbar extends Props {
@@ -146,9 +159,11 @@ export default class GridWithToolbar extends Props {
 
   formData: object = {};
 
-  currentNode: object = {};
+  currentNode!: RowNode;
 
   operation: string = '';
+
+  // columnDefs: ColDef[] = [];
 
 
   get relationalData() {
@@ -170,11 +185,16 @@ export default class GridWithToolbar extends Props {
   }
 
   get formName() {
-    return `${this.tableName[0].toUpperCase() + this.tableName.slice(1)}Form`;
+    return `${this.tableName[0].toUpperCase() + this.tableName.slice(1)}`;
+  }
+
+  get columnDefs() {
+    return this.gridInstance.columnDefs;
   }
 
   addRow() {
     this.operation = 'add';
+    this.formData = {};
     this.formVisible = true;
   }
 
@@ -199,14 +219,15 @@ export default class GridWithToolbar extends Props {
         newData.procedureNumber = data.procedureNumber ? `${data.procedureNumber} - Copy`
           : null;
         this.gridInstance.addRows({
-          rowData: newData,
+          tableName: this.gridInstance.tableName,
+          newData,
           callBack,
         });
       });
     }
   }
 
-  editRow(rowNode) {
+  editRow(rowNode: RowNode) {
     this.operation = 'edit';
     this.formData = rowNode.data;
     this.currentNode = rowNode;
@@ -221,20 +242,26 @@ export default class GridWithToolbar extends Props {
     this.gridInstance.sizeColumnsToFit();
   }
 
-  setGridInstance(gridInstance: GridInstance) {
-    this.gridInstance = gridInstance;
+  sizeColumns() {
+    this.gridInstance.autoSizeColumns();
   }
 
-  save(formData) {
+  setGridInstance(gridInstance: GridInstance) {
+    this.gridInstance = gridInstance;
+    ;
+  }
+
+  save(formData: any) {
     if (this.operation === 'edit') {
       this.gridInstance.updateRow({
-        rowData: _.clone(formData),
+        newData: _.clone(formData),
         rowNode: this.currentNode,
         callBack: this.close,
       });
     } else if (this.operation === 'add') {
       this.gridInstance.addRows({
-        rowData: _.clone(formData),
+        tableName: this.gridInstance.tableName,
+        newData: _.clone(formData),
         callBack: this.close,
       });
     }
@@ -242,8 +269,7 @@ export default class GridWithToolbar extends Props {
 
   close() {
     this.formVisible = false;
-    this.formData = null;
-
+    this.formData = {};
     this.gridInstance.purgeCache();
   }
 }
