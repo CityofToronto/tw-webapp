@@ -12,7 +12,7 @@
     :context="context"
     :animate-rows="true"
     :row-data-managed="draggable"
-    :pagination="false"
+    :pagination="autoHeight ? false : true"
 
     @grid-ready="onGridReady"
     @cell-value-changed="cellValueChanged"
@@ -193,7 +193,7 @@ export default class GridComponent extends Props {
       tableName: this.tableName,
     })
       .catch((error) => {
-        this.$store.dispatch('notification/setNotification', {
+        this.$store.dispatch('notification/pushNotification', {
           message: error.message,
           color: 'error',
           position: 'bottom',
@@ -208,7 +208,7 @@ export default class GridComponent extends Props {
 
   rowClicked(event: RowEvent): void {
     if (!this.relation) {
-      this.$store.dispatch('setTableData', {
+      this.$store.dispatch('display/pushTableData', {
         tableName: this.tableName,
         id: event.data.id,
       });
