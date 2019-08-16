@@ -2,34 +2,15 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import notification from './modules/notification';
+import { createVuexStore, useStore } from 'vuex-simple';
+import Store from './store';
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
-  modules: { notification },
-  state: {
-    table: {
-      name: 'activity',
-      id: 45,
-    },
-  },
-  getters: {
-    getRowId: state => state.table.id,
-    getTableName: state => state.table.name,
-  },
-  mutations: {
-    setTableData(state, { tableName, id }) {
-      state.table.name = tableName;
-      state.table.id = id;
-    },
-  },
-  actions: {
-    setTableData({ commit }, { tableName, id }) {
-      commit('setTableData', {
-        tableName,
-        id,
-      });
-    },
-  },
+export const storeInstance = new Store();
+
+export default createVuexStore(storeInstance, {
+  strict: false,
+  modules: {},
+  plugins: [],
 });

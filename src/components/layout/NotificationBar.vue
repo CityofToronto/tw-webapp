@@ -2,14 +2,11 @@
   <v-snackbar
     v-model="notificationVisible"
     :timeout="10000"
-    :bottom="getNotification.bottom"
-    :top="getNotification.top"
-    :right="getNotification.right"
-    :left="getNotification.left"
     color="error"
+    top
     dark
   >
-    {{ getNotification.message }}
+    {{ notification.message }}
     <v-btn
       dark
       text
@@ -37,16 +34,16 @@ export default {
         return this.$store.state.notification.visible;
       },
       set() {
-        this.clearNotification();
+        this.popNotification();
       },
     },
     ...mapGetters('notification', [
-      'getNotification',
+      'notification',
     ]),
   },
   methods: {
     ...mapActions('notification', [
-      'clearNotification',
+      'popNotification',
     ]),
   },
 };

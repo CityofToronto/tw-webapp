@@ -1,6 +1,7 @@
-import store from '@/store';
-import { QueryError } from '../types';
+import { QueryError, RowData } from '@/apollo/types';
+import { storeInstance } from '@/store';
 
+// This the mappings from AgGrid to GraphQL Query
 const mapping = new Map([
   ['equals', '_eq'],
   ['notEqual', '_neq'],
@@ -17,10 +18,18 @@ const mapping = new Map([
 
 ]);
 
-export const stringify = data => Object.entries(data).map(([key, value]) => `${key}: "${value}"`).join();
+export const stringify = (data: RowData): string => Object.entries(data)
+  .filter(([, value]): boolean => value !== '') // Remove blank values (usually just id on new row)
+  .map(([key, value]): string => `${key}: "${value}"`)
+  .join();
 
+/**
+ * Takes in an error object
+ * Then an error bar is displayed
+ * Through a Vuetify snackbar
+ */
 export const dispatchError = (error: QueryError): never => {
-  store.dispatch('notification/setNotification', {
+  storeInstance.notification.pushNotification({
     message: error.message,
     color: 'error',
     position: 'bottom',
@@ -47,7 +56,7 @@ const parse = (type: object): string => {
     return `${mapping.get(operator)}: [{${parseSingular(key, condition1)}}, {${parseSingular(key, condition2)}}]`;
   };
 
-  const parseSet = (key, value) => `${key}: {_in: [${value.values.map(x => `"${x}"`).join(',')}]}`;
+  const parseSet = (key, value) => `${key}: {_in: [${value.values.map((x) => `"${x}"`).join(',')}]}`;
 
   const filterFunctions = {
     text: type.operator ? parseMultiple : parseSingular,

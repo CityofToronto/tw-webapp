@@ -17,16 +17,11 @@
         <grid-with-toolbar
           :key="$route.params.table"
           :table-name="$route.params.table"
-          :grid-title="$route.params.table"
-          :grid-side-bar="true"
-          :grid-auto-height="false"
-          :panel-visible="infoPanel"
-          @toggle-panel="infoPanel = !infoPanel"
+          :grid-type="GridTypes.Full"
         />
       </v-sheet>
 
       <drawer-right
-        v-if="true"
         :right-side-drawer="infoPanel"
       />
     </v-flex>
@@ -34,21 +29,27 @@
 </template>
 
 <script>
-import GridWithToolbar from '../components/grid/GridWithToolbar.vue';
-import DrawerRight from '../components/layout/DrawerRight.vue';
+import { Component, Vue, Prop } from 'vue-property-decorator';
+import { useStore } from 'vuex-simple';
+import GridWithToolbar, { GridType } from '@/components/grid/GridWithToolbar.vue';
+import DrawerRight from '@/components/layout/DrawerRight.vue';
 
-export default {
+
+@Component({
   components: {
     GridWithToolbar,
     DrawerRight,
-
   },
-  data() {
-    return {
-      infoPanel: false,
-    };
-  },
+})
+export default class ReviewPanel extends Vue {
+  // We can't use enums directly in the template!
+  GridTypes = GridType;
 
+  store = useStore(this.$store);
+
+  get infoPanel() {
+    return this.store.display.reviewPanelState;
+  }
 };
 
 </script>

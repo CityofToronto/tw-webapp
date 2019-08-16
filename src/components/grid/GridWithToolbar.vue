@@ -15,9 +15,9 @@
     >
       <v-dialog
         v-model="formVisible"
-        scrollable
-        persistent :overlay="false"
         max-width="500px"
+        persistent
+        :overlay="false"
         transition="dialog-transition"
       >
         <dynamic-form
@@ -25,42 +25,34 @@
           :form-display="formVisible"
           :form-data="formData"
           :column-defs="columnDefs"
-          :tableName="formName"
+          :table-name="tableName"
           @save-form="save"
           @close-form="formVisible = false"
         />
       </v-dialog>
 
       <grid-toolbar
-        :simple="simpleToolbar"
-        :mini="miniToolbar"
-        :grid-title="gridTitle"
-        :panel-visible="panelVisible"
-        @click:toggle="$emit('toggle-panel')"
-        @click:add="addRow"
-        @click:remove="removeRow"
-        @click:fit="fitColumns"
-        @click:clone="cloneRow"
-        @click:size="sizeColumns"
+        :toolbar-items="componentProperties.toolbarProps.controls"
+        :grid-title="componentProperties.gridTitle"
+        @toolbarClick="clickHandler"
       />
       <grid-component
         v-if="gridType !== 'drag'"
         :table-name="tableName"
-        :show-side-bar="gridSideBar"
-        :auto-height="gridAutoHeight"
-        :relation="relation"
-        :draggable="draggable"
-        :editable="editable"
-        :pagination="true"
+        :show-side-bar="componentProperties.gridProps.showSidebar"
+        :auto-height="componentProperties.gridProps.autoHeight"
+        :draggable="componentProperties.gridProps.draggable"
+        :editable="componentProperties.gridProps.editable"
+        :pagination="componentProperties.gridProps.pagination"
+        :query-type="componentProperties.gridProps.queryType"
+
         @set-grid-instance="setGridInstance"
         @edit="editRow"
       />
       <drag-grid-component
         v-else
-        :id="'63'"
         :table-name="tableName"
         :depends-on="dependsOn"
-        :relation="relation"
       />
     </div>
   </div>
@@ -68,76 +60,33 @@
 
 <script lang="ts">
 import _ from 'lodash';
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
-import { ColDef, RowNode } from 'ag-grid-community';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { RowNode } from 'ag-grid-community';
+import { useStore } from 'vuex-simple';
+import Store from '@/store/store';
 
-import DynamicForm from '../forms/DynamicForm.vue';
-import GridComponent from './GridComponent.vue';
-import GridToolbar from './GridToolbar.vue';
-import DragGridComponent from './DragGridComponent.vue';
-import GridInstance from './js/grid.instance';
+import DynamicForm from './subcomponents/DynamicForm.vue';
+import GridComponent from './subcomponents/GridComponent.vue';
+import GridToolbar, { ToolbarOperations } from './subcomponents/GridToolbar.vue';
+import DragGridComponent from './subcomponents/DragGridComponent.vue';
+import GridInstance from './js/GridInstance';
+import { QueryType } from '@/apollo/types';
 
-const Props = Vue.extend({
-  props: {
-    draggable: {
-      required: false,
-      type: Boolean,
-      default: false,
-    },
-    editable: {
-      required: false,
-      type: Boolean,
-      default: true,
-    },
-    miniToolbar: {
-      required: false,
-      default: false,
-      type: Boolean,
-    },
-    tableName: {
-      required: true,
-      type: String,
-    },
-    gridTitle: {
-      required: true,
-      type: String,
-    },
-    gridSideBar: {
-      required: false,
-      default: false,
-      type: Boolean,
-    },
-    gridAutoHeight: {
-      required: false,
-      default: true,
-      type: Boolean,
-    },
-    gridType: {
-      required: false,
-      default: 'full',
-      type: String,
-    },
-    panelVisible: {
-      required: false,
-      type: Boolean,
-    },
-    simpleToolbar: {
-      required: false,
-      default: false,
-      type: Boolean,
-    },
-  },
-});
+export enum GridType {Full, OneToMany, ManyToMany, Draggable};
 
-interface Query {
-  tableName: string,
-  dependsOn?: string,
-  rowData: Record<string, any>,
-  id?: number,
-  request?: object,
-  columns?: string[],
-  relationshipType?: string,
+interface GridComponentOptions {
+  gridTitle: string;
+  gridProps: {
+    autoHeight: boolean;
+    editable: boolean;
+    showSidebar: boolean;
+    draggable: boolean;
+    pagination: boolean;
+    queryType: QueryType;
+  };
+  toolbarProps: {
+    controls: string[];
+  };
 }
 
 @Component({
@@ -148,10 +97,10 @@ interface Query {
     DynamicForm,
   },
 })
-export default class GridWithToolbar extends Props {
-  @Prop(String) readonly relation!: string;
+export default class GridWithToolbar extends Vue {
+  @Prop(String) readonly tableName!: string;
 
-  @Prop(String) readonly dependsOn!: String | null;
+  @Prop({ default: GridType.Full }) readonly gridType!: GridType;
 
   gridInstance!: GridInstance;
 
@@ -163,29 +112,80 @@ export default class GridWithToolbar extends Props {
 
   operation: string = '';
 
-  // columnDefs: ColDef[] = [];
+  store: Store = useStore(this.$store)
 
-
-  get relationalData() {
-    if (this.relation) {
-      return {
-        // tableName: this.$store.getters.getTableName,
-        id: this.$store.getters.getRowId,
-        tableName: this.$store.getters.getTableName,
-
+  get componentProperties() {
+    /**
+     * These are pre-defined configurations of grids
+     * Options are of the enum GridType
+     */
+    const getComponentProps = (gridType: GridType):
+    {toolbarProps: object; gridProps?: object} => {
+      const props = {
+        [GridType.Full]: {
+          toolbarProps: {
+            controls: ['addRow', 'cloneRow', 'removeRow', 'fitColumns', 'sizeColumns', 'togglePanel'],
+          },
+          gridProps: {
+            queryType: QueryType.Direct,
+            autoHeight: false,
+            showSideBar: true,
+          },
+        },
+        [GridType.OneToMany]: {
+          toolbarProps: {
+            controls: ['addRow', 'cloneRow', 'removeRow', 'fitColumns', 'sizeColumns'],
+          },
+          gridProps: {
+            queryType: QueryType.OneToMany,
+          },
+        },
+        [GridType.ManyToMany]: {
+          toolbarProps: {
+            controls: ['removeRow', 'fitColumns', 'sizeColumns'],
+          },
+          gridProps: {
+            queryType: QueryType.ManyToMany,
+            editable: false,
+          },
+        },
+        [GridType.Draggable]: {
+          toolbarProps: {
+            controls: ['addRow', 'cloneRow', 'removeRow', 'fitColumns', 'sizeColumns'],
+          },
+          gridProps: {
+            queryType: QueryType.Direct,
+            autoHeight: false,
+            draggable: true,
+          },
+        },
       };
-    }
-    return null;
+      return props[gridType];
+    };
+
+    const componentProps = getComponentProps(this.gridType);
+
+    const defaultProps = {
+      gridTitle: this.tableName,
+      toolbarProps: {
+        ...componentProps.toolbarProps,
+      },
+      gridProps: {
+        editable: true,
+        showSidebar: false,
+        autoHeight: true,
+        draggable: false,
+        pagination: false,
+        ...componentProps.gridProps,
+      },
+    };
+
+    return defaultProps;
   }
 
   get validTable() {
-    // TODO reference grid.fields.js if the map exists to have one source of truth
     const validTables = ['legislation', 'trade', 'activity'];
     return !validTables.includes(this.tableName);
-  }
-
-  get formName() {
-    return `${this.tableName[0].toUpperCase() + this.tableName.slice(1)}`;
   }
 
   get columnDefs() {
@@ -203,7 +203,7 @@ export default class GridWithToolbar extends Props {
     const rows = this.gridInstance.getSelectedRows();
     const callBack = () => {
       this.gridInstance.purgeCache();
-      this.$store.dispatch('notification/setNotification', {
+      this.$store.dispatch('notification/pushNotification', {
         message: 'Successfully Cloned All Rows',
         color: 'success',
         position: 'top',
@@ -219,7 +219,6 @@ export default class GridWithToolbar extends Props {
         newData.procedureNumber = data.procedureNumber ? `${data.procedureNumber} - Copy`
           : null;
         this.gridInstance.addRows({
-          tableName: this.gridInstance.tableName,
           newData,
           callBack,
         });
@@ -227,42 +226,51 @@ export default class GridWithToolbar extends Props {
     }
   }
 
+  clickHandler(clickType: ToolbarOperations) {
+    this[clickType]();
+  };
+
+  togglePanel() {
+    this.store.display.toggleReviewPanel();
+  };
+
   editRow(rowNode: RowNode) {
     this.operation = 'edit';
     this.formData = rowNode.data;
     this.currentNode = rowNode;
     this.formVisible = true;
-  }
+  };
 
   removeRow() {
     this.gridInstance.removeRows();
-  }
+  };
 
   fitColumns() {
     this.gridInstance.sizeColumnsToFit();
-  }
+  };
 
   sizeColumns() {
     this.gridInstance.autoSizeColumns();
-  }
+  };
 
   setGridInstance(gridInstance: GridInstance) {
     this.gridInstance = gridInstance;
-    ;
-  }
+  };
 
   save(formData: any) {
-    if (this.operation === 'edit') {
-      this.gridInstance.updateRow({
-        newData: _.clone(formData),
-        rowNode: this.currentNode,
-        callBack: this.close,
-      });
-    } else if (this.operation === 'add') {
+    /*
+     * if (this.operation === 'edit') {
+     *   this.gridInstance.updateRows({
+     *     newData: { ...formData },
+     *     rowNode: this.currentNode,
+     *     callBack: this.close,
+     *   });
+     */
+    if (this.operation === 'add') {
       this.gridInstance.addRows({
-        tableName: this.gridInstance.tableName,
-        newData: _.clone(formData),
-        callBack: this.close,
+        rowsToAdd: [_.clone(formData)],
+        successCallback: this.close,
+        failCallback: () => {},
       });
     }
   }

@@ -15,55 +15,39 @@
       class="mx-2 my-3"
     >
       <grid-with-toolbar
-        :simple-toolbar="true"
-        :relation="grid.relation"
+        :grid-type="grid.relation"
         :table-name="grid.tableName"
-        :grid-title="grid.title"
-        :mini-toolbar="grid.mini"
-        :grid-side-bar="false"
       />
     </v-card>
   </v-navigation-drawer>
 </template>
 
-<script>
-import GridWithToolbar from '../grid/GridWithToolbar.vue';
+<script lang="ts">
+import { Vue, Prop, Component } from 'vue-property-decorator';
+import GridWithToolbar, { GridType } from '../grid/GridWithToolbar.vue';
 
-export default {
+@Component({
   components: {
     GridWithToolbar,
   },
-  props: {
-    rightSideDrawer: {
-      type: Boolean,
-      required: true,
-      default: true,
+})
+export default class DrawerRight extends Vue {
+  @Prop(Boolean) readonly rightSideDrawer!: boolean;
+
+  gridList: {tableName: string; relation: GridType}[] = [
+    {
+      tableName: 'trade',
+      relation: GridType.OneToMany,
     },
-  },
-  data() {
-    return {
-      gridList: [
-        {
-          title: 'Trades',
-          tableName: 'trade',
-          mini: true,
-          relation: 'oneToMany',
-        },
-        {
-          title: 'Legislation',
-          tableName: 'legislation',
-          mini: true,
-          relation: 'manyToMany',
-        },
-        {
-          title: 'Safety',
-          tableName: 'safety',
-          mini: true,
-          relation: 'manyToMany',
-        },
-      ],
-    };
-  },
+    {
+      tableName: 'legislation',
+      relation: GridType.ManyToMany,
+    },
+    {
+      tableName: 'safety',
+      relation: GridType.ManyToMany,
+    },
+  ];
 };
 </script>
 

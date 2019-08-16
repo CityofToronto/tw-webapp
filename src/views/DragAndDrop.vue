@@ -75,7 +75,6 @@ export default {
 
     },
     onDragOver(event) {
-      console.log(event);
       const dragSupported = event.dataTransfer.types.indexOf('application/json') >= 0;
       if (dragSupported) {
         event.dataTransfer.dropEffect = 'move';
@@ -84,7 +83,6 @@ export default {
     },
     onDrop(event) {
       const jsonData = event.dataTransfer.getData('application/json');
-      console.log(jsonData);
       this.rowData.push(JSON.parse(jsonData));
     },
   },

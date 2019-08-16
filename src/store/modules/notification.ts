@@ -1,59 +1,67 @@
 /* eslint-disable no-param-reassign, no-shadow */
 // This file extends snackbars from the vuetify library
 // https://vuetifyjs.com/en/components/snackbars
-const initialState = () => ({
-  visible: false,
-  message: '',
-  code: 0,
-  color: '',
-  top: true,
-  bottom: false,
-  left: false,
-  right: false,
-});
+import {
+  State, Mutation, Getter, Action,
+} from 'vuex-simple';
 
-const getters = {
-  getNotification: ({
-    visible, message, color, top, bottom, left, right,
-  }) => ({
-    visible,
-    message,
-    color,
-    top,
-    bottom,
-    left,
-    right,
-  }),
-};
+type NoticationPosition = 'top' | 'bottom' | 'left' | 'right'
 
-const mutations = {
-  setNotification(state, { message, color, position }) {
-    state.visible = true;
-    state.message = message;
-    state.color = color;
-    state.position = position;
-  },
-  clearNotification(state) {
-    const s = initialState();
-    Object.keys(s).forEach(key => {
-      state[key] = s[key];
-    });
-  },
-};
+interface Notification {
+  visible?: boolean;
+  message: string;
+  color: string;
+  position: NoticationPosition;
+}
 
-const actions = {
-  setNotification({ commit }, errorMessage) {
-    commit('setNotification', errorMessage);
-  },
-  clearNotification({ commit }) {
-    commit('clearNotification');
-  },
-};
+export default class NotificationModule {
+  @State() private visible: boolean;
 
-export default {
-  namespaced: true,
-  state: initialState,
-  getters,
-  actions,
-  mutations,
-};
+  @State() private message: string;
+
+  @State() private color: string;
+
+  @State() private position: NoticationPosition;
+
+  public constructor() {
+    this.visible = false;
+    this.message = 'false';
+    this.color = 'primary';
+    this.position = 'top';
+  }
+
+  @Getter()
+  public get notification(): Notification {
+    return {
+      visible: this.visible,
+      message: this.message,
+      color: this.color,
+      position: this.position,
+    };
+  }
+
+  @Mutation()
+  private setNotification({
+    message, color, position,
+  }: Notification): void {
+    this.visible = true;
+    this.message = message;
+    this.color = color;
+    this.position = position;
+  }
+
+  @Mutation()
+  private clearNotification(): void {
+    this.visible = false;
+  }
+
+  @Action()
+  public async pushNotification(notification: Notification): Promise<void> {
+    this.setNotification(notification);
+  }
+
+  @Action()
+  public async popNotification(): Promise<void> {
+    this.clearNotification();
+  }
+}

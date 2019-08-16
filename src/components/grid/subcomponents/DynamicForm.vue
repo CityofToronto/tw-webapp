@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title>
-      Edit {{tableName}}
+      Edit {{ tableName | capitalize }}
     </v-card-title>
     <v-card-text>
       <v-layout
@@ -13,15 +13,15 @@
         >
           <component
             :is="getColumnType(column.colType)"
+            v-model="data[column.field]"
             :label="column.headerName"
             :readonly="column.field === 'id'"
             :items="column.colType === 'selectColumn' ? column.cellEditorParams.values: undefined"
-            v-model="data[column.field]"
           />
         </v-flex>
       </v-layout>
       <v-card-actions>
-      <v-spacer />
+        <v-spacer />
         <v-btn
           color="blue darken-1"
           text
@@ -46,11 +46,9 @@
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { ColDef } from 'ag-grid-community';
-import * as _ from 'lodash';
-import { ColumnTypes } from '../grid/js/grid.functions';
 
 interface FormData {
-  [key: string]: string,
+  [key: string]: string;
 }
 
 @Component({})
@@ -63,19 +61,19 @@ export default class DynamicForm extends Vue {
 
   @Prop({ default: false }) readonly formDisplay!: boolean;
 
-  properties: ColDef[] = this.columnDefs.filter(column => column.field !== undefined);
+  properties: ColDef[] = this.columnDefs.filter((column) => column.field !== undefined);
 
   data: FormData = this.formData;
 
 
   beforeMount() {
-    this.columnDefs.filter(column => column.field !== undefined).forEach((column) => {
+    this.columnDefs.filter((column) => column.field !== undefined).forEach((column) => {
       this.data[<string>column.field] = this.data[<string>column.field] ? this.data[<string>column.field] : '';
     });
   };
 
   getColumnType = (columnType: ColumnTypes) => {
-    const componentTypes = {
+    const componentTypes: {[key in ColumnTypes]: string} = {
       booleanColumn: 'v-checkbox',
       numberColumn: 'v-text-field',
       textColumn: 'v-text-field',

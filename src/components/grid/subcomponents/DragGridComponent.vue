@@ -27,15 +27,15 @@
 <script>
 import Vue from 'vue';
 import { AgGridVue } from 'ag-grid-vue';
-import { getColumns, getRows } from './apollo';
-
-const FIELDS = require('./js/grid.columns');
+import apolloClient from '@/apollo';
 
 const ButtonRemove = Vue.component('ButtonRemove', {
   methods: {
     remove() {
-      // Usually $parent is bad, but this just triggers removeEntry
-      // First $parent is AgGridVue, its parent is this component
+      /*
+       * Usually $parent is bad, but this just triggers removeEntry
+       * First $parent is AgGridVue, its parent is this component
+       */
       this.$parent.$parent.removeEntry(this.params.node);
     },
   },
@@ -76,12 +76,10 @@ export default {
   },
   async beforeMount() {
     // Get Columns from Database
-    const columns = await getColumns({
-      tableName: this.tableName,
-    });
+    const columns = await apolloClient.getColumns(this.tableName);
 
     // Make a simple grid with no editing, sort by ID
-    this.columnDefs = columns.map(column => ({
+    this.columnDefs = columns.map((column) => ({
       headerName: FIELDS.HEADERS.get(column.name),
       field: column.name,
       resizable: true,
@@ -116,7 +114,7 @@ export default {
   methods: {
     onDrop(event) {
       const newData = JSON.parse(event.dataTransfer.getData('application/json'));
-      const currentIds = this.rowData.map(x => x.id);
+      const currentIds = this.rowData.map((x) => x.id);
       if (!currentIds.includes(newData.id)) {
         this.rowData.push(newData);
       }
@@ -134,13 +132,13 @@ export default {
     removeEntry(event) {
       // Remove the entry from the rowData array
       const idToRemove = event.data.id;
-      this.rowData = this.rowData.filter(element => element.id !== idToRemove);
+      this.rowData = this.rowData.filter((element) => element.id !== idToRemove);
 
       this.$emit('updated', this.rowData);
     },
     onGridReady(params) {
       // Size Columns to Fit, set timeout to wait for render first
-      const waitPromise = new Promise(resolve => {
+      const waitPromise = new Promise((resolve) => {
         setTimeout(() => {
           resolve();
         }, 100);
@@ -154,8 +152,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../../node_modules/ag-grid-community/dist/styles/ag-grid.css";
-@import "../../../node_modules/ag-grid-community/dist/styles/ag-theme-material.css";
+@import "../../../../node_modules/ag-grid-community/dist/styles/ag-grid.css";
+@import "../../../../node_modules/ag-grid-community/dist/styles/ag-theme-material.css";
 
 $grid-size: 4px;
 $icon-size: 12px;
