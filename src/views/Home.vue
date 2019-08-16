@@ -34,29 +34,28 @@
   </v-layout>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      modules: [
-        {
-          name: 'Activity Module',
-          description: 'Define activities and their respective properties and relations',
-          route: '/review/activity',
-        },
-        {
-          name: 'Maintence Module',
-          description: 'Define mainetence and their respective properties and relations',
-          route: '/',
-        },
-        {
-          name: 'Another Module',
-          description: 'Define something and their respective properties and relations',
-          route: '/',
-        },
-      ],
-    };
-  },
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator';
+
+@Component({})
+export default class HomeView extends Vue {
+  modules = [
+    {
+      name: 'Define Module',
+      description: 'Define activities and their respective properties and relations',
+      route: '/review/activity',
+    },
+    {
+      name: 'Hierarchical Module',
+      description: 'Define mainetence and their respective properties and relations',
+      route: '/',
+    },
+    {
+      name: 'Another Module',
+      description: 'Define something and their respective properties and relations',
+      route: '/',
+    },
+  ];
 };
 </script>
 

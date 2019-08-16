@@ -5,13 +5,19 @@ import {
   State, Mutation, Getter, Action,
 } from 'vuex-simple';
 
-type NoticationPosition = 'top' | 'bottom' | 'left' | 'right'
+export enum NotificationPosition {
+  Top = 'top',
+  Bottom = 'bottom',
+  Left = 'left',
+  Right = 'right',
+} 
 
 interface Notification {
   visible?: boolean;
   message: string;
   color: string;
-  position: NoticationPosition;
+  position: NotificationPosition[];
+  timeout?: number;
 }
 
 export default class NotificationModule {
@@ -21,13 +27,21 @@ export default class NotificationModule {
 
   @State() private color: string;
 
-  @State() private position: NoticationPosition;
+  @State() private timeout: number;
+
+  /**
+   *  This can be an array.
+   *  [Position.Top] for top
+   *  [Position.Top, Position.Left] for top-left 
+  */ 
+  @State() private position: NotificationPosition[];
 
   public constructor() {
     this.visible = false;
     this.message = 'false';
     this.color = 'primary';
-    this.position = 'top';
+    this.position = [NotificationPosition.Top];
+    this.timeout = 5000;
   }
 
   @Getter()
@@ -37,18 +51,20 @@ export default class NotificationModule {
       message: this.message,
       color: this.color,
       position: this.position,
+      timeout: this.timeout,
     };
   }
 
   @Mutation()
   private setNotification({
-    message, color, position,
+    message, color, position, timeout = 5000
   }: Notification): void {
     this.visible = true;
     this.message = message;
     this.color = color;
     this.position = position;
-  }
+    this.timeout = timeout;
+  };
 
   @Mutation()
   private clearNotification(): void {

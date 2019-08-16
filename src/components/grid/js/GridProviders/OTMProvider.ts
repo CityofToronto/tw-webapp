@@ -1,7 +1,7 @@
 /**  Query One To Many Provider Class */
 
 import gql from 'graphql-tag';
-import { IServerSideDatasource } from 'ag-grid-community';
+import { IServerSideDatasource, GridApi } from 'ag-grid-community';
 import { dispatchError, stringify } from '@/apollo/lib/utils';
 import { GridProvider } from '.';
 import apolloClient from '@/apollo';
@@ -25,12 +25,14 @@ export class OTMProvider implements GridProvider {
   public constructor(
     tableName: string,
     relatedData: { rowId: number; tableName: string },
+    gridApi: GridApi,
   ) {
     this.tableName = tableName;
     this.relatedData = relatedData;
     this.gridDatasource = new OTMDatasource(
       this.tableName,
       this.relatedData,
+      gridApi,
     );
   }
 

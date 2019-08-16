@@ -34,6 +34,11 @@ import GridWithToolbar, { GridType } from '../grid/GridWithToolbar.vue';
 export default class DrawerRight extends Vue {
   @Prop(Boolean) readonly rightSideDrawer!: boolean;
 
+  get mainTable() {
+    return this.$route.params.id;
+  }
+
+  // TODO This should be generated through a query to database for mainTable
   gridList: {tableName: string; relation: GridType}[] = [
     {
       tableName: 'trade',

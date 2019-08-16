@@ -112,7 +112,23 @@ export class ColumnDefiner implements ColDefiner {
         filter: 'agNumberColumnFilter',
         colType: 'numberColumn',
       }),
-      selectColumn(values: string[]): CustomDef {
+      // selectColumn(values: string[]): CustomDef {
+      //   return {
+      //     filter: 'agSetColumnFilter',
+      //     filterParams: {
+      //       debounceMs: 200,
+      //       values,
+      //     },
+      //     valueParser: ({ newValue }: {newValue: string}): string => newValue,
+      //     cellEditor: 'agRichSelectCellEditor',
+      //     cellEditorParams: {
+      //       values,
+      //       cellHeight: 41,
+      //     },
+      //     colType: 'selectColumn',
+      //   };
+      // },
+      async selectColumn(values: string[]): CustomDef {
         return {
           filter: 'agSetColumnFilter',
           filterParams: {
@@ -120,9 +136,9 @@ export class ColumnDefiner implements ColDefiner {
             values,
           },
           valueParser: ({ newValue }: {newValue: string}): string => newValue,
-          cellEditor: 'agRichSelectCellEditor',
+          cellEditorFramework: 'TreeSelectEditor',
           cellEditorParams: {
-            values,
+            list: await apolloClient.getHeirarchy('HEIR_TEST'),
             cellHeight: 41,
           },
           colType: 'selectColumn',

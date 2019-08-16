@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import { useStore } from 'vuex-simple';
 import GridWithToolbar, { GridType } from '@/components/grid/GridWithToolbar.vue';
 import DrawerRight from '@/components/layout/DrawerRight.vue';

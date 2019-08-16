@@ -64,43 +64,33 @@
   </v-navigation-drawer>
 </template>
 
-<script>
-export default {
-  props: {
-    leftSideDrawer: {
-      type: Boolean,
-      required: true,
-      default: false,
+<script lang="ts">
+import { Vue, Component, Prop } from 'vue-property-decorator';
+
+@Component({})
+export default class NavigationDrawer extends Vue {
+  @Prop(Boolean) readonly leftSideDrawer: boolean = false;
+
+  navigationItems = [
+    {
+      id: 1, icon: 'list', title: 'Hierarchy', route: '/hierarchy',
     },
-  },
-  data() {
-    return {
-      navigationItems: [
-        {
-          id: 1, icon: 'list', title: 'Hierarchy', route: '/hierarchy',
-        },
-        {
-          id: 2, icon: 'data_usage', title: 'Data Model', route: '/model',
-        },
+    {
+      id: 2, icon: 'data_usage', title: 'Data Model', route: '/model',
+    },
 
-      ],
+  ];
+
+  items = [
+    {
+      action: 'assignment',
+      title: 'Activities',
+      active: true,
       items: [
-        {
-          action: 'assignment',
-          title: 'Activities',
-          active: true,
-          items: [
-            { title: 'Overview', route: '/review/activity', action: 'assignment' },
-            { title: 'Trade', route: '/review/trade', action: 'assignment' },
-            { title: 'Legislation', route: '/review/legislation', action: 'assignment' },
-            { title: 'Resources', route: '/review/resources', action: 'assignment' },
-            { title: 'Safety', route: '/review/safety', action: 'assignment' },
-          ],
-        },
+        { title: 'Overview', route: '/review/activity', action: 'assignment' },
       ],
-    };
-  },
-
+    },
+  ]
 };
 </script>
 

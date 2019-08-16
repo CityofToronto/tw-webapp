@@ -19,6 +19,16 @@
             :items="column.colType === 'selectColumn' ? column.cellEditorParams.values: undefined"
           />
         </v-flex>
+        <v-flex>
+          <v-treeview
+            v-model="selection"
+            :items="items"
+            :selection-type="selectionType"
+            selectable
+            return-object
+            open-all
+          />
+        </v-flex>
       </v-layout>
       <v-card-actions>
         <v-spacer />
@@ -46,6 +56,7 @@
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { ColDef } from 'ag-grid-community';
+import apolloClient from '@/apollo';
 
 interface FormData {
   [key: string]: string;
@@ -65,11 +76,12 @@ export default class DynamicForm extends Vue {
 
   data: FormData = this.formData;
 
-
   beforeMount() {
     this.columnDefs.filter((column) => column.field !== undefined).forEach((column) => {
       this.data[<string>column.field] = this.data[<string>column.field] ? this.data[<string>column.field] : '';
     });
+
+
   };
 
   getColumnType = (columnType: ColumnTypes) => {

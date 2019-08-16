@@ -1,54 +1,49 @@
 '<template>
   <v-snackbar
-    v-model="notificationVisible"
-    :timeout="10000"
+    v-model="notification.visible"
+    :timeout="notification.timeout"
     color="error"
-    top
+    :top="isPositionActive(positions.Top)"
+    :bottom="isPositionActive(positions.Bottom)"
+    :left="isPositionActive(positions.Left)"
+    :right="isPositionActive(positions.Right)"
     dark
   >
     {{ notification.message }}
     <v-btn
       dark
       text
-      @click="notificationVisible = false"
+      @click="closeNotification"
     >
-      Close
+      CloseP
     </v-btn>
   </v-snackbar>
 </template>
 
-<script>
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator';
+import { useStore } from 'vuex-simple';
+import Store from '@/store/store';
+import { NotificationPosition } from '@/store/modules/notification';
 
-import { mapActions, mapGetters } from 'vuex';
+@Component({})
+export default class NotificationBar extends Vue {
+  store: Store = useStore(this.$store);
 
-export default {
-  name: 'NotificationBar',
-  data() {
-    return {
-      timeoutLength: 5000,
-    };
-  },
-  computed: {
-    notificationVisible: {
-      get() {
-        return this.$store.state.notification.visible;
-      },
-      set() {
-        this.popNotification();
-      },
-    },
-    ...mapGetters('notification', [
-      'notification',
-    ]),
-  },
-  methods: {
-    ...mapActions('notification', [
-      'popNotification',
-    ]),
-  },
+  positions = NotificationPosition
+
+  get notification() {
+    return this.store.notification.notification;
+  }
+
+  closeNotification() {
+    this.store.notification.popNotification();
+  }
+
+  isPositionActive(position: NotificationPosition) {
+    const positions = this.store.notification.notification.position;
+    return positions.includes(position);
+  }
 };
+
 </script>
-
-<style>
-
-</style>

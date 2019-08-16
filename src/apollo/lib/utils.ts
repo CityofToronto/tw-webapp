@@ -1,5 +1,6 @@
 import { QueryError, RowData } from '@/apollo/types';
 import { storeInstance } from '@/store';
+import { NotificationPosition } from "@/store/modules/notification";
 
 // This the mappings from AgGrid to GraphQL Query
 const mapping = new Map([
@@ -32,7 +33,7 @@ export const dispatchError = (error: QueryError): never => {
   storeInstance.notification.pushNotification({
     message: error.message,
     color: 'error',
-    position: 'bottom',
+    position: [NotificationPosition.Top],
   });
   throw Error(error.message);
 };

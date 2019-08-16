@@ -135,7 +135,7 @@ export default class GridToolbar extends Vue {
   ];
 
   get visible() {
-    return this.store.display.reviewPanel ? 'Close Panel' : 'Expand Panel';
+    return this.store.display.reviewPanelState ? 'Close Panel' : 'Expand Panel';
   };
 
   get centerItems() {

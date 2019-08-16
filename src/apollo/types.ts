@@ -6,6 +6,15 @@ export interface RowData {
   [key: string]: any;
 }
 
+export interface TreeResponse {
+  id: number;
+  parent: string | null;
+  children: {
+    id: number;
+    type: string;
+  }[]
+}
+
 export interface RelationalQuery {
   /** ID of the row you want to update or delete */
   rowId?: number;

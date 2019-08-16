@@ -10,25 +10,22 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator';
 import NotificationBar from './components/layout/NotificationBar.vue';
 import TheNavbar from './components/layout/TheNavbar.vue';
 
-export default {
-  name: 'App',
+@Component({
   components: {
     TheNavbar,
     NotificationBar,
   },
-  apollo: {},
-  data() {
-    return {
-      dialog: false,
-    };
-  },
-};
-</script>
+})
+export default class App extends Vue {
 
+};
+
+</script>
 
 <style>
 @import "../node_modules/ag-grid-community/dist/styles/ag-grid.css";
@@ -44,16 +41,5 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-.btn {
-  display: inline-block;
-  border: none;
-  background: #555;
-  color: #fff;
-  padding: 7px 20px;
-  cursor: pointer;
-}
-.btn:hover {
-  background: #666;
 }
 </style>

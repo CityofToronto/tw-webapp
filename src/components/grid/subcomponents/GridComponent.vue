@@ -34,7 +34,9 @@ import { QueryType } from '@/apollo/types';
 import * as GRID_CONFIG from '../js/grid.config';
 import Store from '@/store/store';
 import { ColumnDefiner, CustomColumn } from '../js/ColumnDefiner';
-import GridButton from './buttons/GridButton.vue';
+import GridButton from './GridButton.vue';
+import TreeSelectEditor from './TreeSelectEditor.vue';
+import apolloClient from '@/apollo';
 
 /*
  * const ButtonEdit = Vue.component('ButtonEdit', {
@@ -53,6 +55,7 @@ import GridButton from './buttons/GridButton.vue';
   components: {
     AgGridVue,
     GridButton,
+    TreeSelectEditor,
   },
 })
 export default class GridComponent extends Vue {
@@ -84,8 +87,10 @@ export default class GridComponent extends Vue {
 
   gridInstance!: GridInstance;
 
+  
+
   get getRowId() {
-    return this.store.display.rowId;
+    return this.store.grid.rowId;
   };
 
   @Watch('getRowId')
@@ -95,7 +100,7 @@ export default class GridComponent extends Vue {
     }
   }
 
-  created() {
+  async created() {
     this.gridOptions = {
       sideBar: this.showSideBar,
       rowSelection: 'multiple',
@@ -108,6 +113,9 @@ export default class GridComponent extends Vue {
     this.context = {
       componentParent: this,
     };
+
+    const testData = await apolloClient.getHeirarchy('HEIR_TEST');
+    console.log(testData);
   };
 
   async onGridReady(params: AgGridEvent): Promise<void> {
@@ -124,7 +132,7 @@ export default class GridComponent extends Vue {
         this.queryType,
         this.tableName,
         // pass in a reference to VueX so that the datasource reacts with updates elsewhere
-        this.store.display,
+        this.store.grid,
         this.gridApi,
       ),
     });
@@ -167,7 +175,7 @@ export default class GridComponent extends Vue {
     if (this.queryType === QueryType.Direct) {
       const rowId = event.data.id as number;
 
-      this.store.display.pushTableData({
+      this.store.grid.pushTableData({
         tableName: this.tableName,
         rowId,
       });

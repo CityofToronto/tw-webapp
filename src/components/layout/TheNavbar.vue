@@ -49,57 +49,47 @@
           {{ item.icon }}
         </v-icon>
       </v-btn>
-
-
-      <!-- Right Hamburger Menu -->
-      <!-- <v-app-bar-nav-icon
-        @click="rightSideDrawer = !rightSideDrawer"
-      /> -->
     </v-app-bar>
 
     <!-- Left and Right Drawers -->
-    <drawer-left
+    <navigation-drawer
       :left-side-drawer="leftSideDrawer"
     />
   </div>
 </template>
 
-<script>
-import DrawerLeft from './DrawerLeft.vue';
-import DrawerRight from './DrawerRight.vue';
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator';
+import NavigationDrawer from './NavigationDrawer.vue';
 
-export default {
-  name: 'Navbar',
+@Component({
   components: {
-    DrawerLeft,
-    DrawerRight,
+    NavigationDrawer,
   },
-  data() {
-    return {
-      leftSideDrawer: false,
-      rightSideDrawer: false,
-      projectForm: false,
-      mini: true,
+})
+export default class Navbar extends Vue {
+  leftSideDrawer = false;
 
-      toolBarItems: [
-        { id: 0, icon: 'person', buttonFunction: this.showForm },
-        { id: 1, icon: 'help_outline', buttonFunction: this.navigateToHelp },
-      ],
-      menu: false,
-      currentProject: 'Highland Creek',
-    };
-  },
-  methods: {
-    showForm() {
-      this.$store.dispatch('form/showForm');
+  rightSideDrawer = false;
+
+  projectForm = false;
+
+  mini = true;
+
+  toolBarItems = [
+    {
+      id: 0,
+      icon: 'person',
+      buttonFunction: () => {},
     },
-    removeRow() {
-      this.$store.dispatch('grid/removeRow');
+    {
+      id: 1,
+      icon: 'help_outline',
+      buttonFunction: () => { window.open('https://toronto.ca'); },
     },
-    navigateToHelp() {
-      window.open('https://toronto.ca');
-    },
-  },
+  ];
+
+  currentProject = 'Highland Creek';
 };
 </script>
 

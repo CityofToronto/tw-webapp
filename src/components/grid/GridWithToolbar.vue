@@ -70,7 +70,7 @@ import GridComponent from './subcomponents/GridComponent.vue';
 import GridToolbar, { ToolbarOperations } from './subcomponents/GridToolbar.vue';
 import DragGridComponent from './subcomponents/DragGridComponent.vue';
 import GridInstance from './js/GridInstance';
-import { QueryType } from '@/apollo/types';
+import { QueryType, RowData } from '@/apollo/types';
 
 export enum GridType {Full, OneToMany, ManyToMany, Draggable};
 
@@ -110,7 +110,7 @@ export default class GridWithToolbar extends Vue {
 
   currentNode!: RowNode;
 
-  operation: string = '';
+  saveFormFunction!: (formData: RowData) => void;
 
   store: Store = useStore(this.$store)
 
@@ -192,57 +192,91 @@ export default class GridWithToolbar extends Vue {
     return this.gridInstance.columnDefs;
   }
 
+  clickHandler(clickType: ToolbarOperations) {
+    const clickFunctions: {[key in ToolbarOperations]: () => void} = {
+      [ToolbarOperations.AddRow]: this.addRow,
+      [ToolbarOperations.CloneRow]: this.cloneRow,
+      [ToolbarOperations.RemoveRow]: this.removeRow,
+      [ToolbarOperations.SizeColumns]: this.sizeColumns,
+      [ToolbarOperations.FitColumns]: this.fitColumns,
+      [ToolbarOperations.TogglePanel]: this.togglePanel,
+    };
+    clickFunctions[clickType]();
+  };
+
   addRow() {
-    this.operation = 'add';
+    this.saveFormFunction = (formData: RowData) => {
+      this.gridInstance.addRows({
+        rowsToAdd: [formData],
+        successCallback: () => {
+          this.formVisible = false;
+          this.gridInstance.purgeCache();
+          this.formData = {};
+        },
+      });
+    };
     this.formData = {};
     this.formVisible = true;
   }
 
-  cloneRow() {
-    this.operation = 'add';
-    const rows = this.gridInstance.getSelectedRows();
-    const callBack = () => {
-      this.gridInstance.purgeCache();
-      this.$store.dispatch('notification/pushNotification', {
-        message: 'Successfully Cloned All Rows',
-        color: 'success',
-        position: 'top',
+  editRow(rowNode: RowNode) {
+    this.saveFormFunction = (formData: RowData) => {
+      this.gridInstance.updateRows({
+        rowsToUpdate: [formData],
+        successCallback: () => {
+          this.formVisible = false;
+          rowNode.setData(formData);
+          this.formData = {};
+        },
       });
     };
+    this.formData = rowNode.data;
+    this.formVisible = true;
+  };
 
-    if (rows.length < 2 && rows.length > 0) {
-      [this.formData] = rows;
+  cloneRow() {
+    const selectedRows = this.gridInstance.getSelectedRows();
+    if (selectedRows.length === 1) {
+      [this.formData] = selectedRows;
       this.formVisible = true;
-    } else {
-      rows.forEach((data) => {
-        const newData = _.clone(data);
-        newData.procedureNumber = data.procedureNumber ? `${data.procedureNumber} - Copy`
-          : null;
+      this.saveFormFunction = (formData: RowData) => {
+        // Strip the ID so that it is automatically assigned a new one
+        const { id, ...ommittedId } = formData;
         this.gridInstance.addRows({
-          newData,
-          callBack,
+          rowsToAdd: [ommittedId],
+          successCallback: () => {
+            this.formVisible = false;
+            this.gridInstance.purgeCache();
+            this.formData = {};
+          },
         });
+      };
+    } else if (selectedRows.length > 1) {
+      const rowsWithIdRemoved = selectedRows.map((rowData) => {
+        const { id, ...ommittedId } = rowData;
+        return ommittedId;
+      });
+      this.gridInstance.addRows({
+        rowsToAdd: rowsWithIdRemoved,
+        successCallback: () => {
+          this.gridInstance.gridApi.deselectAll();
+          this.gridInstance.purgeCache();
+        },
       });
     }
   }
-
-  clickHandler(clickType: ToolbarOperations) {
-    this[clickType]();
-  };
 
   togglePanel() {
     this.store.display.toggleReviewPanel();
   };
 
-  editRow(rowNode: RowNode) {
-    this.operation = 'edit';
-    this.formData = rowNode.data;
-    this.currentNode = rowNode;
-    this.formVisible = true;
-  };
-
   removeRow() {
-    this.gridInstance.removeRows();
+    this.gridInstance.removeRows({
+      rowsToRemove: this.gridInstance.getSelectedRows(),
+      successCallback: () => {
+        this.gridInstance.purgeCache();
+      },
+    });
   };
 
   fitColumns() {
@@ -257,28 +291,13 @@ export default class GridWithToolbar extends Vue {
     this.gridInstance = gridInstance;
   };
 
-  save(formData: any) {
-    /*
-     * if (this.operation === 'edit') {
-     *   this.gridInstance.updateRows({
-     *     newData: { ...formData },
-     *     rowNode: this.currentNode,
-     *     callBack: this.close,
-     *   });
-     */
-    if (this.operation === 'add') {
-      this.gridInstance.addRows({
-        rowsToAdd: [_.clone(formData)],
-        successCallback: this.close,
-        failCallback: () => {},
-      });
-    }
+  save(formData: RowData) {
+    this.saveFormFunction(formData);
   }
 
   close() {
     this.formVisible = false;
     this.formData = {};
-    this.gridInstance.purgeCache();
   }
 }
 </script>

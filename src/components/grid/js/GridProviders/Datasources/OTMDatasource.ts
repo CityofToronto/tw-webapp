@@ -1,7 +1,8 @@
-import { IServerSideDatasource, IServerSideGetRowsRequest, IServerSideGetRowsParams } from 'ag-grid-community';
+import { IServerSideDatasource, IServerSideGetRowsRequest, IServerSideGetRowsParams, GridApi } from 'ag-grid-community';
 import gql from 'graphql-tag';
-import { apolloClient } from '@/apollo';
+import apolloClient from '@/apollo';
 import { dispatchError } from '@/apollo/lib/utils';
+import { updateFilterModel } from './FilterHelper';
 
 export class OTMDatasource implements IServerSideDatasource {
   private tableName: string;
@@ -11,12 +12,16 @@ export class OTMDatasource implements IServerSideDatasource {
     rowId: number;
   }
 
+  private gridApi: GridApi;
+
   public constructor(
     tableName: string,
     relatedData: { tableName: string; rowId: number },
+    gridApi: GridApi,
   ) {
     this.tableName = tableName;
     this.relatedData = relatedData;
+    this.gridApi = gridApi;
   }
 
   private get columnNames(): Promise<string[]> {
@@ -43,7 +48,11 @@ export class OTMDatasource implements IServerSideDatasource {
           }
         }`,
       fetchPolicy: 'network-only',
-    }).then((resp): number => resp.data[`${this.relatedData.tableName}_aggregate`].nodes[0][`${this.tableName}_aggregate`].aggregate.count)
+    }).then((resp): number => {
+      // If nodes array is empty, there is no data and return a zero
+      const nodesExist = !!resp.data[`${this.relatedData.tableName}_aggregate`].nodes.length
+      return nodesExist? resp.data[`${this.relatedData.tableName}_aggregate`].nodes[0][`${this.tableName}_aggregate`].aggregate.count : 0;
+    })
       .catch((error): never => dispatchError(error));
   }
 
@@ -72,6 +81,8 @@ export class OTMDatasource implements IServerSideDatasource {
   }
 
   public async getRows(params: IServerSideGetRowsParams): Promise<void> {
+    updateFilterModel(this.gridApi, params.request.filterModel);
+
     const numberOfRows = await this.countTotalRows();
     const rowData = await this.getData(params.request);
 

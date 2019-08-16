@@ -1,8 +1,9 @@
 
 import gql from 'graphql-tag';
-import { IServerSideDatasource } from 'ag-grid-community';
+import { IServerSideDatasource, GridApi } from 'ag-grid-community';
 import { GridProvider } from '.';
 import MTMDatasource from './Datasources/MTMDatasource';
+import { RowData } from '@/apollo/types';
 
 export class MTMProvider implements GridProvider {
   public gridDatasource: IServerSideDatasource;
@@ -20,18 +21,20 @@ export class MTMProvider implements GridProvider {
       tableName: string;
       rowId: number;
     },
+    gridApi: GridApi,
   ) {
     this.tableName = tableName;
     this.relatedData = relatedData;
     this.gridDatasource = new MTMDatasource(
       this.tableName,
       this.relatedData,
+      gridApi,
     );
   }
 
   // TODO
   public addData(
-    rowData: {[key: string]: string | number | boolean},
+    rowToAdd: RowData,
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
   ): void {
@@ -48,8 +51,7 @@ export class MTMProvider implements GridProvider {
   }
 
   public updateData(
-    idToUpdate: number,
-    newData: {[key: string]: string | number | boolean},
+    rowToUpdate: RowData,
     successCallback?: () => void = (): void => {},
     failCallback?: () => void = (): void => {},
   ): void {

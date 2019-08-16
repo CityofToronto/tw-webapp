@@ -2,7 +2,7 @@ import {
   GridApi, ColumnApi, ColDef, IServerSideDatasource,
 } from 'ag-grid-community';
 import {
-  RemoveQuery, AddQuery, QueryType, UpdateQuery,
+  RemoveQuery, AddQuery, QueryType, UpdateQuery, RowData,
 } from '@/apollo/types';
 import {
   GridProvider, DirectProvider, MTMProvider, OTMProvider,
@@ -38,12 +38,12 @@ export default class GridInstance {
       tableName: string;
       rowId: number;
     },
-    gridApi?: GridApi,
+    gridApi: GridApi,
   ): GridProvider {
     const providers: {[key in QueryType]: GridProvider} = {
       [QueryType.Direct]: new DirectProvider(tableName, gridApi),
-      [QueryType.ManyToMany]: new MTMProvider(tableName, relatedData),
-      [QueryType.OneToMany]: new OTMProvider(tableName, relatedData),
+      [QueryType.ManyToMany]: new MTMProvider(tableName, relatedData, gridApi),
+      [QueryType.OneToMany]: new OTMProvider(tableName, relatedData, gridApi),
     };
     return providers[queryType];
   }
@@ -69,6 +69,10 @@ export default class GridInstance {
     this.columnApi.autoSizeColumns(allColumnIds);
   }
 
+  public getSelectedRows(): RowData[] {
+    return this.gridApi.getSelectedRows();
+  }
+
   /**
    * rowData will be an array of objects with key: value pairs
    * Return a successful and unsucessful callback for UI updates
@@ -80,8 +84,8 @@ export default class GridInstance {
   }
 
   /**
-   * Take in number[] of rowIds and remove all of them
-   * Return a successful and unsucessful callback for UI updates
+   * Will 
+   * 
    */
   public removeRows(
     { rowsToRemove, successCallback, failCallback }: RemoveQuery,
