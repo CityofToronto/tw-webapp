@@ -1,6 +1,6 @@
 import { QueryError, RowData } from '@/apollo/types';
 import { storeInstance } from '@/store';
-import { NotificationPosition } from "@/store/modules/notification";
+import { NotificationPosition } from '@/store/modules/notification';
 
 // This the mappings from AgGrid to GraphQL Query
 const mapping = new Map([
@@ -67,8 +67,10 @@ const parse = (type: object): string => {
   return filterFunctions[type.filterType];
 };
 
-// This filter constructs a GraphQL with all the different
-// types of relationships such as contains, equals, and, or
+/*
+ * This filter constructs a GraphQL with all the different
+ * types of relationships such as contains, equals, and, or
+ */
 export const constructFilter = (sortModel) => {
   if (typeof sortModel === 'undefined' || sortModel === null) {
     return '{}';
