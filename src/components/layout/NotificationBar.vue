@@ -15,7 +15,7 @@
       text
       @click="closeNotification"
     >
-      CloseP
+      Close
     </v-btn>
   </v-snackbar>
 </template>
