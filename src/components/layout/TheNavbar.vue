@@ -25,7 +25,7 @@
         <v-btn
           text
           class="project-title"
-          @click=""
+          @click="() => {}"
         >
           {{ currentProject }}
           <v-icon right>
