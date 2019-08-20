@@ -15,8 +15,9 @@
     >
       <v-dialog
         v-model="formVisible"
-        max-width="500px"
+        max-width="600px"
         persistent
+        scrollable
         :overlay="false"
         transition="dialog-transition"
       >
