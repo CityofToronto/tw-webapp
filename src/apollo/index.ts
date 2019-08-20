@@ -1,10 +1,13 @@
 import ApolloClient from 'apollo-client';
 import { NormalizedCacheObject, InMemoryCache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
-import { link } from './lib/link';
-import { TableTypes, TableQueryResult, TreeResponse } from './types';
-import { dispatchError } from './lib/utils';
 import _ from 'lodash';
+import { link } from './lib/link';
+import {
+ TableTypes, TableQueryResult, TreeResponse, TreeStructure 
+} from './types';
+import { dispatchError } from './lib/utils';
+import { listToTree } from './lib/listToTree';
 
 class Apollo extends ApolloClient<NormalizedCacheObject> {
   public constructor() {
@@ -90,77 +93,11 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
           name
           parent
         }
-      }`
+      }`,
     })
-      .then((resp) => listToTree(resp.data[tableName]));
+      .then((resp): TreeResponse[] => listToTree(resp.data[tableName]));
   }
 }
-
-const listToTree = (data, options) => {
-  options = options || {};
-  const ID_KEY = options.idKey || 'id';
-  const PARENT_KEY = options.parentKey || 'parent';
-  const CHILDREN_KEY = options.childrenKey || 'children';
-  
-  var tree = [], childrenOf = {};
-  var item, id, parentId;
-
-  for(var i = 0, length = data.length; i < length; i++) {
-    item = data[i];
-    id = item[ID_KEY];
-    parentId = item[PARENT_KEY] || 0;
-    // every item may have children
-    childrenOf[id] = childrenOf[id] || [];
-    // init its children
-    item[CHILDREN_KEY] = childrenOf[id];
-    if (parentId != 0) {
-      // init its parent's children object
-      childrenOf[parentId] = childrenOf[parentId] || [];
-      // push it into its parent's children object
-      childrenOf[parentId].push(item);
-    } else {
-      tree.push(item);
-    }    
-  };
-
-  return tree;
-}
-
-//{
-  //           id: 1,
-  //           name: 'Root',
-  //           children: [
-  //             { id: 2, name: 'Child #1' },
-  //             { id: 3, name: 'Child #2' },
-  //             {
-  //               id: 4,
-  //               name: 'Child #3',
-  //               children: [
-  //                 { id: 5, name: 'Grandchild #1' },
-  //                 { id: 6, name: 'Grandchild #2' },
-  //               ],
-  //             },
-  //           ],
-  //         },
-  //       ],
-
-  // [
-  //   {
-  //     "parent": null,
-  //     "children": [
-  //       {
-  //         "id": 2,
-  //         "type": "Level 2"
-  //       }
-  //     ],
-  //     "type": "Level 1"
-  //   },
-  //   {
-  //     "parent": 1,
-  //     "children": [],
-  //     "type": "Level 2"
-  //   }
-  // ]
 
 const apolloClient = new Apollo();
 
