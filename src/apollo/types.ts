@@ -1,4 +1,5 @@
 import { IServerSideGetRowsRequest, RowNode } from 'ag-grid-community';
+import { SelectionType, CellSelectionType } from '@/types/grid';
 
 
 export interface RowData {
@@ -8,11 +9,12 @@ export interface RowData {
 
 export interface TreeResponse {
   id: number;
-  parent: string | null;
-  children: {
-    id: number;
-    type: string;
-  }[]
+  type: string;
+  parent: number | null;
+}
+
+export interface TreeStructure extends TreeResponse {
+  children?: TreeResponse[];
 }
 
 export interface RelationalQuery {
@@ -70,6 +72,7 @@ export interface TableTypes {
       kind: 'SCALAR' | 'LIST' | 'OBJECT';
     };
   };
+  selectionType: CellSelectionType;
 }
 
 export interface TableQueryResult {
