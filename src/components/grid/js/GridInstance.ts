@@ -38,12 +38,11 @@ export default class GridInstance {
       tableName: string;
       rowId: number;
     },
-    gridApi: GridApi,
   ): GridProvider {
     const providers: {[key in QueryType]: GridProvider} = {
-      [QueryType.Direct]: new DirectProvider(tableName, gridApi),
-      [QueryType.ManyToMany]: new MTMProvider(tableName, relatedData, gridApi),
-      [QueryType.OneToMany]: new OTMProvider(tableName, relatedData, gridApi),
+      [QueryType.Direct]: new DirectProvider(tableName),
+      [QueryType.ManyToMany]: new MTMProvider(tableName, relatedData),
+      [QueryType.OneToMany]: new OTMProvider(tableName, relatedData),
     };
     return providers[queryType];
   }
