@@ -39,7 +39,6 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
             
           }
         }`,
-      fetchPolicy: 'network-only',
     })
       // eslint-disable-next-line
       .then((response: TableQueryResult) => response.data.__type.fields)
@@ -67,7 +66,6 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
             
           }
         }`,
-      fetchPolicy: 'network-only',
     })
       // eslint-disable-next-line
       .then((response: TableQueryResult) => response.data.__type.fields.filter((element: { type: { ofType: { kind: string }; kind: string } }) => (element.type.ofType ? element.type.ofType.kind === 'SCALAR' : element.type.kind === 'SCALAR')))
@@ -94,7 +92,6 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
             
           }
         }`,
-      fetchPolicy: 'network-only',
     })
       // eslint-disable-next-line
       .then((response: TableQueryResult) => response.data.__type.fields.filter((element) => (element.type.ofType ? element.type.ofType.kind !== 'SCALAR' : element.type.kind !== 'SCALAR')))
@@ -108,7 +105,6 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
             ${columns}
           }
         }`,
-      fetchPolicy: 'network-only',
     })
       .then((response): T => response.data[tableName])
       .catch((error): never => dispatchError(error));
