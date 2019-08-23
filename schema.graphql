@@ -1,0 +1,4051 @@
+schema {
+  query: query_root
+  mutation: mutation_root
+  subscription: subscription_root
+}
+
+# columns and relationships of "activity"
+type activity {
+  # An object relationship
+  WORK_TYPE: WORK_TYPES
+  action: String!
+  activityType: String!
+
+  # An array relationship
+  activity_legislation(
+    # distinct select on columns
+    distinct_on: [activity_legislation_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [activity_legislation_order_by!]
+
+    # filter the rows returned
+    where: activity_legislation_bool_exp
+  ): [activity_legislation!]!
+
+  # An aggregated array relationship
+  activity_legislation_aggregate(
+    # distinct select on columns
+    distinct_on: [activity_legislation_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [activity_legislation_order_by!]
+
+    # filter the rows returned
+    where: activity_legislation_bool_exp
+  ): activity_legislation_aggregate!
+  id: Int!
+  procedureName: String!
+  shutDown: Boolean!
+
+  # An array relationship
+  trade(
+    # distinct select on columns
+    distinct_on: [trade_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [trade_order_by!]
+
+    # filter the rows returned
+    where: trade_bool_exp
+  ): [trade!]!
+
+  # An aggregated array relationship
+  trade_aggregate(
+    # distinct select on columns
+    distinct_on: [trade_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [trade_order_by!]
+
+    # filter the rows returned
+    where: trade_bool_exp
+  ): trade_aggregate!
+  workType: String
+  wrenchTime: numeric!
+}
+
+# aggregated selection of "activity"
+type activity_aggregate {
+  aggregate: activity_aggregate_fields
+  nodes: [activity!]!
+}
+
+# aggregate fields of "activity"
+type activity_aggregate_fields {
+  avg: activity_avg_fields
+  count(columns: [activity_select_column!], distinct: Boolean): Int
+  max: activity_max_fields
+  min: activity_min_fields
+  stddev: activity_stddev_fields
+  stddev_pop: activity_stddev_pop_fields
+  stddev_samp: activity_stddev_samp_fields
+  sum: activity_sum_fields
+  var_pop: activity_var_pop_fields
+  var_samp: activity_var_samp_fields
+  variance: activity_variance_fields
+}
+
+# order by aggregate values of table "activity"
+input activity_aggregate_order_by {
+  avg: activity_avg_order_by
+  count: order_by
+  max: activity_max_order_by
+  min: activity_min_order_by
+  stddev: activity_stddev_order_by
+  stddev_pop: activity_stddev_pop_order_by
+  stddev_samp: activity_stddev_samp_order_by
+  sum: activity_sum_order_by
+  var_pop: activity_var_pop_order_by
+  var_samp: activity_var_samp_order_by
+  variance: activity_variance_order_by
+}
+
+# input type for inserting array relation for remote table "activity"
+input activity_arr_rel_insert_input {
+  data: [activity_insert_input!]!
+  on_conflict: activity_on_conflict
+}
+
+# aggregate avg on columns
+type activity_avg_fields {
+  id: Float
+  wrenchTime: Float
+}
+
+# order by avg() on columns of table "activity"
+input activity_avg_order_by {
+  id: order_by
+  wrenchTime: order_by
+}
+
+# Boolean expression to filter rows from the table "activity". All fields are combined with a logical 'AND'.
+input activity_bool_exp {
+  WORK_TYPE: WORK_TYPES_bool_exp
+  _and: [activity_bool_exp]
+  _not: activity_bool_exp
+  _or: [activity_bool_exp]
+  action: text_comparison_exp
+  activityType: text_comparison_exp
+  activity_legislation: activity_legislation_bool_exp
+  id: integer_comparison_exp
+  procedureName: text_comparison_exp
+  shutDown: boolean_comparison_exp
+  trade: trade_bool_exp
+  workType: text_comparison_exp
+  wrenchTime: numeric_comparison_exp
+}
+
+# unique or primary key constraints on table "activity"
+enum activity_constraint {
+  # unique or primary key constraint
+  activity_pkey
+}
+
+# input type for incrementing integer columne in table "activity"
+input activity_inc_input {
+  id: Int
+}
+
+# input type for inserting data into table "activity"
+input activity_insert_input {
+  WORK_TYPE: WORK_TYPES_obj_rel_insert_input
+  action: String
+  activityType: String
+  activity_legislation: activity_legislation_arr_rel_insert_input
+  id: Int
+  procedureName: String
+  shutDown: Boolean
+  trade: trade_arr_rel_insert_input
+  workType: String
+  wrenchTime: numeric
+}
+
+# columns and relationships of "activity_legislation"
+type activity_legislation {
+  # An object relationship
+  activity: activity!
+  activity_id: Int!
+  id: Int!
+
+  # An object relationship
+  legislation: legislation!
+  legislation_id: Int!
+}
+
+# aggregated selection of "activity_legislation"
+type activity_legislation_aggregate {
+  aggregate: activity_legislation_aggregate_fields
+  nodes: [activity_legislation!]!
+}
+
+# aggregate fields of "activity_legislation"
+type activity_legislation_aggregate_fields {
+  avg: activity_legislation_avg_fields
+  count(columns: [activity_legislation_select_column!], distinct: Boolean): Int
+  max: activity_legislation_max_fields
+  min: activity_legislation_min_fields
+  stddev: activity_legislation_stddev_fields
+  stddev_pop: activity_legislation_stddev_pop_fields
+  stddev_samp: activity_legislation_stddev_samp_fields
+  sum: activity_legislation_sum_fields
+  var_pop: activity_legislation_var_pop_fields
+  var_samp: activity_legislation_var_samp_fields
+  variance: activity_legislation_variance_fields
+}
+
+# order by aggregate values of table "activity_legislation"
+input activity_legislation_aggregate_order_by {
+  avg: activity_legislation_avg_order_by
+  count: order_by
+  max: activity_legislation_max_order_by
+  min: activity_legislation_min_order_by
+  stddev: activity_legislation_stddev_order_by
+  stddev_pop: activity_legislation_stddev_pop_order_by
+  stddev_samp: activity_legislation_stddev_samp_order_by
+  sum: activity_legislation_sum_order_by
+  var_pop: activity_legislation_var_pop_order_by
+  var_samp: activity_legislation_var_samp_order_by
+  variance: activity_legislation_variance_order_by
+}
+
+# input type for inserting array relation for remote table "activity_legislation"
+input activity_legislation_arr_rel_insert_input {
+  data: [activity_legislation_insert_input!]!
+  on_conflict: activity_legislation_on_conflict
+}
+
+# aggregate avg on columns
+type activity_legislation_avg_fields {
+  activity_id: Float
+  id: Float
+  legislation_id: Float
+}
+
+# order by avg() on columns of table "activity_legislation"
+input activity_legislation_avg_order_by {
+  activity_id: order_by
+  id: order_by
+  legislation_id: order_by
+}
+
+# Boolean expression to filter rows from the table "activity_legislation". All fields are combined with a logical 'AND'.
+input activity_legislation_bool_exp {
+  _and: [activity_legislation_bool_exp]
+  _not: activity_legislation_bool_exp
+  _or: [activity_legislation_bool_exp]
+  activity: activity_bool_exp
+  activity_id: integer_comparison_exp
+  id: integer_comparison_exp
+  legislation: legislation_bool_exp
+  legislation_id: integer_comparison_exp
+}
+
+# unique or primary key constraints on table "activity_legislation"
+enum activity_legislation_constraint {
+  # unique or primary key constraint
+  activity_legislation_pkey
+}
+
+# input type for incrementing integer columne in table "activity_legislation"
+input activity_legislation_inc_input {
+  activity_id: Int
+  id: Int
+  legislation_id: Int
+}
+
+# input type for inserting data into table "activity_legislation"
+input activity_legislation_insert_input {
+  activity: activity_obj_rel_insert_input
+  activity_id: Int
+  id: Int
+  legislation: legislation_obj_rel_insert_input
+  legislation_id: Int
+}
+
+# aggregate max on columns
+type activity_legislation_max_fields {
+  activity_id: Int
+  id: Int
+  legislation_id: Int
+}
+
+# order by max() on columns of table "activity_legislation"
+input activity_legislation_max_order_by {
+  activity_id: order_by
+  id: order_by
+  legislation_id: order_by
+}
+
+# aggregate min on columns
+type activity_legislation_min_fields {
+  activity_id: Int
+  id: Int
+  legislation_id: Int
+}
+
+# order by min() on columns of table "activity_legislation"
+input activity_legislation_min_order_by {
+  activity_id: order_by
+  id: order_by
+  legislation_id: order_by
+}
+
+# response of any mutation on the table "activity_legislation"
+type activity_legislation_mutation_response {
+  # number of affected rows by the mutation
+  affected_rows: Int!
+
+  # data of the affected rows by the mutation
+  returning: [activity_legislation!]!
+}
+
+# input type for inserting object relation for remote table "activity_legislation"
+input activity_legislation_obj_rel_insert_input {
+  data: activity_legislation_insert_input!
+  on_conflict: activity_legislation_on_conflict
+}
+
+# on conflict condition type for table "activity_legislation"
+input activity_legislation_on_conflict {
+  constraint: activity_legislation_constraint!
+  update_columns: [activity_legislation_update_column!]!
+}
+
+# ordering options when selecting data from "activity_legislation"
+input activity_legislation_order_by {
+  activity: activity_order_by
+  activity_id: order_by
+  id: order_by
+  legislation: legislation_order_by
+  legislation_id: order_by
+}
+
+# select columns of table "activity_legislation"
+enum activity_legislation_select_column {
+  # column name
+  activity_id
+
+  # column name
+  id
+
+  # column name
+  legislation_id
+}
+
+# input type for updating data in table "activity_legislation"
+input activity_legislation_set_input {
+  activity_id: Int
+  id: Int
+  legislation_id: Int
+}
+
+# aggregate stddev on columns
+type activity_legislation_stddev_fields {
+  activity_id: Float
+  id: Float
+  legislation_id: Float
+}
+
+# order by stddev() on columns of table "activity_legislation"
+input activity_legislation_stddev_order_by {
+  activity_id: order_by
+  id: order_by
+  legislation_id: order_by
+}
+
+# aggregate stddev_pop on columns
+type activity_legislation_stddev_pop_fields {
+  activity_id: Float
+  id: Float
+  legislation_id: Float
+}
+
+# order by stddev_pop() on columns of table "activity_legislation"
+input activity_legislation_stddev_pop_order_by {
+  activity_id: order_by
+  id: order_by
+  legislation_id: order_by
+}
+
+# aggregate stddev_samp on columns
+type activity_legislation_stddev_samp_fields {
+  activity_id: Float
+  id: Float
+  legislation_id: Float
+}
+
+# order by stddev_samp() on columns of table "activity_legislation"
+input activity_legislation_stddev_samp_order_by {
+  activity_id: order_by
+  id: order_by
+  legislation_id: order_by
+}
+
+# aggregate sum on columns
+type activity_legislation_sum_fields {
+  activity_id: Int
+  id: Int
+  legislation_id: Int
+}
+
+# order by sum() on columns of table "activity_legislation"
+input activity_legislation_sum_order_by {
+  activity_id: order_by
+  id: order_by
+  legislation_id: order_by
+}
+
+# update columns of table "activity_legislation"
+enum activity_legislation_update_column {
+  # column name
+  activity_id
+
+  # column name
+  id
+
+  # column name
+  legislation_id
+}
+
+# aggregate var_pop on columns
+type activity_legislation_var_pop_fields {
+  activity_id: Float
+  id: Float
+  legislation_id: Float
+}
+
+# order by var_pop() on columns of table "activity_legislation"
+input activity_legislation_var_pop_order_by {
+  activity_id: order_by
+  id: order_by
+  legislation_id: order_by
+}
+
+# aggregate var_samp on columns
+type activity_legislation_var_samp_fields {
+  activity_id: Float
+  id: Float
+  legislation_id: Float
+}
+
+# order by var_samp() on columns of table "activity_legislation"
+input activity_legislation_var_samp_order_by {
+  activity_id: order_by
+  id: order_by
+  legislation_id: order_by
+}
+
+# aggregate variance on columns
+type activity_legislation_variance_fields {
+  activity_id: Float
+  id: Float
+  legislation_id: Float
+}
+
+# order by variance() on columns of table "activity_legislation"
+input activity_legislation_variance_order_by {
+  activity_id: order_by
+  id: order_by
+  legislation_id: order_by
+}
+
+# aggregate max on columns
+type activity_max_fields {
+  action: String
+  activityType: String
+  id: Int
+  procedureName: String
+  workType: String
+  wrenchTime: numeric
+}
+
+# order by max() on columns of table "activity"
+input activity_max_order_by {
+  action: order_by
+  activityType: order_by
+  id: order_by
+  procedureName: order_by
+  workType: order_by
+  wrenchTime: order_by
+}
+
+# aggregate min on columns
+type activity_min_fields {
+  action: String
+  activityType: String
+  id: Int
+  procedureName: String
+  workType: String
+  wrenchTime: numeric
+}
+
+# order by min() on columns of table "activity"
+input activity_min_order_by {
+  action: order_by
+  activityType: order_by
+  id: order_by
+  procedureName: order_by
+  workType: order_by
+  wrenchTime: order_by
+}
+
+# response of any mutation on the table "activity"
+type activity_mutation_response {
+  # number of affected rows by the mutation
+  affected_rows: Int!
+
+  # data of the affected rows by the mutation
+  returning: [activity!]!
+}
+
+# input type for inserting object relation for remote table "activity"
+input activity_obj_rel_insert_input {
+  data: activity_insert_input!
+  on_conflict: activity_on_conflict
+}
+
+# on conflict condition type for table "activity"
+input activity_on_conflict {
+  constraint: activity_constraint!
+  update_columns: [activity_update_column!]!
+}
+
+# ordering options when selecting data from "activity"
+input activity_order_by {
+  WORK_TYPE: WORK_TYPES_order_by
+  action: order_by
+  activityType: order_by
+  activity_legislation_aggregate: activity_legislation_aggregate_order_by
+  id: order_by
+  procedureName: order_by
+  shutDown: order_by
+  trade_aggregate: trade_aggregate_order_by
+  workType: order_by
+  wrenchTime: order_by
+}
+
+# select columns of table "activity"
+enum activity_select_column {
+  # column name
+  action
+
+  # column name
+  activityType
+
+  # column name
+  id
+
+  # column name
+  procedureName
+
+  # column name
+  shutDown
+
+  # column name
+  workType
+
+  # column name
+  wrenchTime
+}
+
+# input type for updating data in table "activity"
+input activity_set_input {
+  action: String
+  activityType: String
+  id: Int
+  procedureName: String
+  shutDown: Boolean
+  workType: String
+  wrenchTime: numeric
+}
+
+# aggregate stddev on columns
+type activity_stddev_fields {
+  id: Float
+  wrenchTime: Float
+}
+
+# order by stddev() on columns of table "activity"
+input activity_stddev_order_by {
+  id: order_by
+  wrenchTime: order_by
+}
+
+# aggregate stddev_pop on columns
+type activity_stddev_pop_fields {
+  id: Float
+  wrenchTime: Float
+}
+
+# order by stddev_pop() on columns of table "activity"
+input activity_stddev_pop_order_by {
+  id: order_by
+  wrenchTime: order_by
+}
+
+# aggregate stddev_samp on columns
+type activity_stddev_samp_fields {
+  id: Float
+  wrenchTime: Float
+}
+
+# order by stddev_samp() on columns of table "activity"
+input activity_stddev_samp_order_by {
+  id: order_by
+  wrenchTime: order_by
+}
+
+# aggregate sum on columns
+type activity_sum_fields {
+  id: Int
+  wrenchTime: numeric
+}
+
+# order by sum() on columns of table "activity"
+input activity_sum_order_by {
+  id: order_by
+  wrenchTime: order_by
+}
+
+# update columns of table "activity"
+enum activity_update_column {
+  # column name
+  action
+
+  # column name
+  activityType
+
+  # column name
+  id
+
+  # column name
+  procedureName
+
+  # column name
+  shutDown
+
+  # column name
+  workType
+
+  # column name
+  wrenchTime
+}
+
+# aggregate var_pop on columns
+type activity_var_pop_fields {
+  id: Float
+  wrenchTime: Float
+}
+
+# order by var_pop() on columns of table "activity"
+input activity_var_pop_order_by {
+  id: order_by
+  wrenchTime: order_by
+}
+
+# aggregate var_samp on columns
+type activity_var_samp_fields {
+  id: Float
+  wrenchTime: Float
+}
+
+# order by var_samp() on columns of table "activity"
+input activity_var_samp_order_by {
+  id: order_by
+  wrenchTime: order_by
+}
+
+# aggregate variance on columns
+type activity_variance_fields {
+  id: Float
+  wrenchTime: Float
+}
+
+# order by variance() on columns of table "activity"
+input activity_variance_order_by {
+  id: order_by
+  wrenchTime: order_by
+}
+
+# expression to compare columns of type boolean. All fields are combined with logical 'AND'.
+input boolean_comparison_exp {
+  _eq: Boolean
+  _gt: Boolean
+  _gte: Boolean
+  _in: [Boolean]
+  _is_null: Boolean
+  _lt: Boolean
+  _lte: Boolean
+  _neq: Boolean
+  _nin: [Boolean]
+}
+
+# conflict action
+enum conflict_action {
+  # ignore the insert on this row
+  ignore
+
+  # update the row with the given values
+  update
+}
+
+# columns and relationships of "HEIR_TEST"
+type HEIR_TEST {
+  id: Int!
+  name: String!
+  parent: Int
+}
+
+# aggregated selection of "HEIR_TEST"
+type HEIR_TEST_aggregate {
+  aggregate: HEIR_TEST_aggregate_fields
+  nodes: [HEIR_TEST!]!
+}
+
+# aggregate fields of "HEIR_TEST"
+type HEIR_TEST_aggregate_fields {
+  avg: HEIR_TEST_avg_fields
+  count(columns: [HEIR_TEST_select_column!], distinct: Boolean): Int
+  max: HEIR_TEST_max_fields
+  min: HEIR_TEST_min_fields
+  stddev: HEIR_TEST_stddev_fields
+  stddev_pop: HEIR_TEST_stddev_pop_fields
+  stddev_samp: HEIR_TEST_stddev_samp_fields
+  sum: HEIR_TEST_sum_fields
+  var_pop: HEIR_TEST_var_pop_fields
+  var_samp: HEIR_TEST_var_samp_fields
+  variance: HEIR_TEST_variance_fields
+}
+
+# order by aggregate values of table "HEIR_TEST"
+input HEIR_TEST_aggregate_order_by {
+  avg: HEIR_TEST_avg_order_by
+  count: order_by
+  max: HEIR_TEST_max_order_by
+  min: HEIR_TEST_min_order_by
+  stddev: HEIR_TEST_stddev_order_by
+  stddev_pop: HEIR_TEST_stddev_pop_order_by
+  stddev_samp: HEIR_TEST_stddev_samp_order_by
+  sum: HEIR_TEST_sum_order_by
+  var_pop: HEIR_TEST_var_pop_order_by
+  var_samp: HEIR_TEST_var_samp_order_by
+  variance: HEIR_TEST_variance_order_by
+}
+
+# input type for inserting array relation for remote table "HEIR_TEST"
+input HEIR_TEST_arr_rel_insert_input {
+  data: [HEIR_TEST_insert_input!]!
+  on_conflict: HEIR_TEST_on_conflict
+}
+
+# aggregate avg on columns
+type HEIR_TEST_avg_fields {
+  id: Float
+  parent: Float
+}
+
+# order by avg() on columns of table "HEIR_TEST"
+input HEIR_TEST_avg_order_by {
+  id: order_by
+  parent: order_by
+}
+
+# Boolean expression to filter rows from the table "HEIR_TEST". All fields are combined with a logical 'AND'.
+input HEIR_TEST_bool_exp {
+  _and: [HEIR_TEST_bool_exp]
+  _not: HEIR_TEST_bool_exp
+  _or: [HEIR_TEST_bool_exp]
+  id: integer_comparison_exp
+  name: text_comparison_exp
+  parent: integer_comparison_exp
+}
+
+# unique or primary key constraints on table "HEIR_TEST"
+enum HEIR_TEST_constraint {
+  # unique or primary key constraint
+  HEIR_TEST_pkey
+}
+
+# input type for incrementing integer columne in table "HEIR_TEST"
+input HEIR_TEST_inc_input {
+  id: Int
+  parent: Int
+}
+
+# input type for inserting data into table "HEIR_TEST"
+input HEIR_TEST_insert_input {
+  id: Int
+  name: String
+  parent: Int
+}
+
+# aggregate max on columns
+type HEIR_TEST_max_fields {
+  id: Int
+  name: String
+  parent: Int
+}
+
+# order by max() on columns of table "HEIR_TEST"
+input HEIR_TEST_max_order_by {
+  id: order_by
+  name: order_by
+  parent: order_by
+}
+
+# aggregate min on columns
+type HEIR_TEST_min_fields {
+  id: Int
+  name: String
+  parent: Int
+}
+
+# order by min() on columns of table "HEIR_TEST"
+input HEIR_TEST_min_order_by {
+  id: order_by
+  name: order_by
+  parent: order_by
+}
+
+# response of any mutation on the table "HEIR_TEST"
+type HEIR_TEST_mutation_response {
+  # number of affected rows by the mutation
+  affected_rows: Int!
+
+  # data of the affected rows by the mutation
+  returning: [HEIR_TEST!]!
+}
+
+# input type for inserting object relation for remote table "HEIR_TEST"
+input HEIR_TEST_obj_rel_insert_input {
+  data: HEIR_TEST_insert_input!
+  on_conflict: HEIR_TEST_on_conflict
+}
+
+# on conflict condition type for table "HEIR_TEST"
+input HEIR_TEST_on_conflict {
+  constraint: HEIR_TEST_constraint!
+  update_columns: [HEIR_TEST_update_column!]!
+}
+
+# ordering options when selecting data from "HEIR_TEST"
+input HEIR_TEST_order_by {
+  id: order_by
+  name: order_by
+  parent: order_by
+}
+
+# select columns of table "HEIR_TEST"
+enum HEIR_TEST_select_column {
+  # column name
+  id
+
+  # column name
+  name
+
+  # column name
+  parent
+}
+
+# input type for updating data in table "HEIR_TEST"
+input HEIR_TEST_set_input {
+  id: Int
+  name: String
+  parent: Int
+}
+
+# aggregate stddev on columns
+type HEIR_TEST_stddev_fields {
+  id: Float
+  parent: Float
+}
+
+# order by stddev() on columns of table "HEIR_TEST"
+input HEIR_TEST_stddev_order_by {
+  id: order_by
+  parent: order_by
+}
+
+# aggregate stddev_pop on columns
+type HEIR_TEST_stddev_pop_fields {
+  id: Float
+  parent: Float
+}
+
+# order by stddev_pop() on columns of table "HEIR_TEST"
+input HEIR_TEST_stddev_pop_order_by {
+  id: order_by
+  parent: order_by
+}
+
+# aggregate stddev_samp on columns
+type HEIR_TEST_stddev_samp_fields {
+  id: Float
+  parent: Float
+}
+
+# order by stddev_samp() on columns of table "HEIR_TEST"
+input HEIR_TEST_stddev_samp_order_by {
+  id: order_by
+  parent: order_by
+}
+
+# aggregate sum on columns
+type HEIR_TEST_sum_fields {
+  id: Int
+  parent: Int
+}
+
+# order by sum() on columns of table "HEIR_TEST"
+input HEIR_TEST_sum_order_by {
+  id: order_by
+  parent: order_by
+}
+
+# update columns of table "HEIR_TEST"
+enum HEIR_TEST_update_column {
+  # column name
+  id
+
+  # column name
+  name
+
+  # column name
+  parent
+}
+
+# aggregate var_pop on columns
+type HEIR_TEST_var_pop_fields {
+  id: Float
+  parent: Float
+}
+
+# order by var_pop() on columns of table "HEIR_TEST"
+input HEIR_TEST_var_pop_order_by {
+  id: order_by
+  parent: order_by
+}
+
+# aggregate var_samp on columns
+type HEIR_TEST_var_samp_fields {
+  id: Float
+  parent: Float
+}
+
+# order by var_samp() on columns of table "HEIR_TEST"
+input HEIR_TEST_var_samp_order_by {
+  id: order_by
+  parent: order_by
+}
+
+# aggregate variance on columns
+type HEIR_TEST_variance_fields {
+  id: Float
+  parent: Float
+}
+
+# order by variance() on columns of table "HEIR_TEST"
+input HEIR_TEST_variance_order_by {
+  id: order_by
+  parent: order_by
+}
+
+# expression to compare columns of type integer. All fields are combined with logical 'AND'.
+input integer_comparison_exp {
+  _eq: Int
+  _gt: Int
+  _gte: Int
+  _in: [Int]
+  _is_null: Boolean
+  _lt: Int
+  _lte: Int
+  _neq: Int
+  _nin: [Int]
+}
+
+# columns and relationships of "legislation"
+type legislation {
+  created: timestamptz
+  description: String!
+  id: Int!
+
+  # An array relationship
+  legislation_activity(
+    # distinct select on columns
+    distinct_on: [activity_legislation_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [activity_legislation_order_by!]
+
+    # filter the rows returned
+    where: activity_legislation_bool_exp
+  ): [activity_legislation!]!
+
+  # An aggregated array relationship
+  legislation_activity_aggregate(
+    # distinct select on columns
+    distinct_on: [activity_legislation_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [activity_legislation_order_by!]
+
+    # filter the rows returned
+    where: activity_legislation_bool_exp
+  ): activity_legislation_aggregate!
+}
+
+# aggregated selection of "legislation"
+type legislation_aggregate {
+  aggregate: legislation_aggregate_fields
+  nodes: [legislation!]!
+}
+
+# aggregate fields of "legislation"
+type legislation_aggregate_fields {
+  avg: legislation_avg_fields
+  count(columns: [legislation_select_column!], distinct: Boolean): Int
+  max: legislation_max_fields
+  min: legislation_min_fields
+  stddev: legislation_stddev_fields
+  stddev_pop: legislation_stddev_pop_fields
+  stddev_samp: legislation_stddev_samp_fields
+  sum: legislation_sum_fields
+  var_pop: legislation_var_pop_fields
+  var_samp: legislation_var_samp_fields
+  variance: legislation_variance_fields
+}
+
+# order by aggregate values of table "legislation"
+input legislation_aggregate_order_by {
+  avg: legislation_avg_order_by
+  count: order_by
+  max: legislation_max_order_by
+  min: legislation_min_order_by
+  stddev: legislation_stddev_order_by
+  stddev_pop: legislation_stddev_pop_order_by
+  stddev_samp: legislation_stddev_samp_order_by
+  sum: legislation_sum_order_by
+  var_pop: legislation_var_pop_order_by
+  var_samp: legislation_var_samp_order_by
+  variance: legislation_variance_order_by
+}
+
+# input type for inserting array relation for remote table "legislation"
+input legislation_arr_rel_insert_input {
+  data: [legislation_insert_input!]!
+  on_conflict: legislation_on_conflict
+}
+
+# aggregate avg on columns
+type legislation_avg_fields {
+  id: Float
+}
+
+# order by avg() on columns of table "legislation"
+input legislation_avg_order_by {
+  id: order_by
+}
+
+# Boolean expression to filter rows from the table "legislation". All fields are combined with a logical 'AND'.
+input legislation_bool_exp {
+  _and: [legislation_bool_exp]
+  _not: legislation_bool_exp
+  _or: [legislation_bool_exp]
+  created: timestamptz_comparison_exp
+  description: text_comparison_exp
+  id: integer_comparison_exp
+  legislation_activity: activity_legislation_bool_exp
+}
+
+# unique or primary key constraints on table "legislation"
+enum legislation_constraint {
+  # unique or primary key constraint
+  legislation_pkey
+}
+
+# input type for incrementing integer columne in table "legislation"
+input legislation_inc_input {
+  id: Int
+}
+
+# input type for inserting data into table "legislation"
+input legislation_insert_input {
+  created: timestamptz
+  description: String
+  id: Int
+  legislation_activity: activity_legislation_arr_rel_insert_input
+}
+
+# aggregate max on columns
+type legislation_max_fields {
+  created: timestamptz
+  description: String
+  id: Int
+}
+
+# order by max() on columns of table "legislation"
+input legislation_max_order_by {
+  created: order_by
+  description: order_by
+  id: order_by
+}
+
+# aggregate min on columns
+type legislation_min_fields {
+  created: timestamptz
+  description: String
+  id: Int
+}
+
+# order by min() on columns of table "legislation"
+input legislation_min_order_by {
+  created: order_by
+  description: order_by
+  id: order_by
+}
+
+# response of any mutation on the table "legislation"
+type legislation_mutation_response {
+  # number of affected rows by the mutation
+  affected_rows: Int!
+
+  # data of the affected rows by the mutation
+  returning: [legislation!]!
+}
+
+# input type for inserting object relation for remote table "legislation"
+input legislation_obj_rel_insert_input {
+  data: legislation_insert_input!
+  on_conflict: legislation_on_conflict
+}
+
+# on conflict condition type for table "legislation"
+input legislation_on_conflict {
+  constraint: legislation_constraint!
+  update_columns: [legislation_update_column!]!
+}
+
+# ordering options when selecting data from "legislation"
+input legislation_order_by {
+  created: order_by
+  description: order_by
+  id: order_by
+  legislation_activity_aggregate: activity_legislation_aggregate_order_by
+}
+
+# select columns of table "legislation"
+enum legislation_select_column {
+  # column name
+  created
+
+  # column name
+  description
+
+  # column name
+  id
+}
+
+# input type for updating data in table "legislation"
+input legislation_set_input {
+  created: timestamptz
+  description: String
+  id: Int
+}
+
+# aggregate stddev on columns
+type legislation_stddev_fields {
+  id: Float
+}
+
+# order by stddev() on columns of table "legislation"
+input legislation_stddev_order_by {
+  id: order_by
+}
+
+# aggregate stddev_pop on columns
+type legislation_stddev_pop_fields {
+  id: Float
+}
+
+# order by stddev_pop() on columns of table "legislation"
+input legislation_stddev_pop_order_by {
+  id: order_by
+}
+
+# aggregate stddev_samp on columns
+type legislation_stddev_samp_fields {
+  id: Float
+}
+
+# order by stddev_samp() on columns of table "legislation"
+input legislation_stddev_samp_order_by {
+  id: order_by
+}
+
+# aggregate sum on columns
+type legislation_sum_fields {
+  id: Int
+}
+
+# order by sum() on columns of table "legislation"
+input legislation_sum_order_by {
+  id: order_by
+}
+
+# update columns of table "legislation"
+enum legislation_update_column {
+  # column name
+  created
+
+  # column name
+  description
+
+  # column name
+  id
+}
+
+# aggregate var_pop on columns
+type legislation_var_pop_fields {
+  id: Float
+}
+
+# order by var_pop() on columns of table "legislation"
+input legislation_var_pop_order_by {
+  id: order_by
+}
+
+# aggregate var_samp on columns
+type legislation_var_samp_fields {
+  id: Float
+}
+
+# order by var_samp() on columns of table "legislation"
+input legislation_var_samp_order_by {
+  id: order_by
+}
+
+# aggregate variance on columns
+type legislation_variance_fields {
+  id: Float
+}
+
+# order by variance() on columns of table "legislation"
+input legislation_variance_order_by {
+  id: order_by
+}
+
+# mutation root
+type mutation_root {
+  # delete data from the table: "HEIR_TEST"
+  delete_HEIR_TEST(
+    # filter the rows which have to be deleted
+    where: HEIR_TEST_bool_exp!
+  ): HEIR_TEST_mutation_response
+
+  # delete data from the table: "TRADE_TYPES"
+  delete_TRADE_TYPES(
+    # filter the rows which have to be deleted
+    where: TRADE_TYPES_bool_exp!
+  ): TRADE_TYPES_mutation_response
+
+  # delete data from the table: "WORK_TYPES"
+  delete_WORK_TYPES(
+    # filter the rows which have to be deleted
+    where: WORK_TYPES_bool_exp!
+  ): WORK_TYPES_mutation_response
+
+  # delete data from the table: "activity"
+  delete_activity(
+    # filter the rows which have to be deleted
+    where: activity_bool_exp!
+  ): activity_mutation_response
+
+  # delete data from the table: "activity_legislation"
+  delete_activity_legislation(
+    # filter the rows which have to be deleted
+    where: activity_legislation_bool_exp!
+  ): activity_legislation_mutation_response
+
+  # delete data from the table: "legislation"
+  delete_legislation(
+    # filter the rows which have to be deleted
+    where: legislation_bool_exp!
+  ): legislation_mutation_response
+
+  # delete data from the table: "sites"
+  delete_sites(
+    # filter the rows which have to be deleted
+    where: sites_bool_exp!
+  ): sites_mutation_response
+
+  # delete data from the table: "trade"
+  delete_trade(
+    # filter the rows which have to be deleted
+    where: trade_bool_exp!
+  ): trade_mutation_response
+
+  # delete data from the table: "type_linking"
+  delete_type_linking(
+    # filter the rows which have to be deleted
+    where: type_linking_bool_exp!
+  ): type_linking_mutation_response
+
+  # delete data from the table: "users"
+  delete_users(
+    # filter the rows which have to be deleted
+    where: users_bool_exp!
+  ): users_mutation_response
+
+  # insert data into the table: "HEIR_TEST"
+  insert_HEIR_TEST(
+    # the rows to be inserted
+    objects: [HEIR_TEST_insert_input!]!
+
+    # on conflict condition
+    on_conflict: HEIR_TEST_on_conflict
+  ): HEIR_TEST_mutation_response
+
+  # insert data into the table: "TRADE_TYPES"
+  insert_TRADE_TYPES(
+    # the rows to be inserted
+    objects: [TRADE_TYPES_insert_input!]!
+
+    # on conflict condition
+    on_conflict: TRADE_TYPES_on_conflict
+  ): TRADE_TYPES_mutation_response
+
+  # insert data into the table: "WORK_TYPES"
+  insert_WORK_TYPES(
+    # the rows to be inserted
+    objects: [WORK_TYPES_insert_input!]!
+
+    # on conflict condition
+    on_conflict: WORK_TYPES_on_conflict
+  ): WORK_TYPES_mutation_response
+
+  # insert data into the table: "activity"
+  insert_activity(
+    # the rows to be inserted
+    objects: [activity_insert_input!]!
+
+    # on conflict condition
+    on_conflict: activity_on_conflict
+  ): activity_mutation_response
+
+  # insert data into the table: "activity_legislation"
+  insert_activity_legislation(
+    # the rows to be inserted
+    objects: [activity_legislation_insert_input!]!
+
+    # on conflict condition
+    on_conflict: activity_legislation_on_conflict
+  ): activity_legislation_mutation_response
+
+  # insert data into the table: "legislation"
+  insert_legislation(
+    # the rows to be inserted
+    objects: [legislation_insert_input!]!
+
+    # on conflict condition
+    on_conflict: legislation_on_conflict
+  ): legislation_mutation_response
+
+  # insert data into the table: "sites"
+  insert_sites(
+    # the rows to be inserted
+    objects: [sites_insert_input!]!
+
+    # on conflict condition
+    on_conflict: sites_on_conflict
+  ): sites_mutation_response
+
+  # insert data into the table: "trade"
+  insert_trade(
+    # the rows to be inserted
+    objects: [trade_insert_input!]!
+
+    # on conflict condition
+    on_conflict: trade_on_conflict
+  ): trade_mutation_response
+
+  # insert data into the table: "type_linking"
+  insert_type_linking(
+    # the rows to be inserted
+    objects: [type_linking_insert_input!]!
+
+    # on conflict condition
+    on_conflict: type_linking_on_conflict
+  ): type_linking_mutation_response
+
+  # insert data into the table: "users"
+  insert_users(
+    # the rows to be inserted
+    objects: [users_insert_input!]!
+
+    # on conflict condition
+    on_conflict: users_on_conflict
+  ): users_mutation_response
+
+  # update data of the table: "HEIR_TEST"
+  update_HEIR_TEST(
+    # increments the integer columns with given value of the filtered values
+    _inc: HEIR_TEST_inc_input
+
+    # sets the columns of the filtered rows to the given values
+    _set: HEIR_TEST_set_input
+
+    # filter the rows which have to be updated
+    where: HEIR_TEST_bool_exp!
+  ): HEIR_TEST_mutation_response
+
+  # update data of the table: "TRADE_TYPES"
+  update_TRADE_TYPES(
+    # increments the integer columns with given value of the filtered values
+    _inc: TRADE_TYPES_inc_input
+
+    # sets the columns of the filtered rows to the given values
+    _set: TRADE_TYPES_set_input
+
+    # filter the rows which have to be updated
+    where: TRADE_TYPES_bool_exp!
+  ): TRADE_TYPES_mutation_response
+
+  # update data of the table: "WORK_TYPES"
+  update_WORK_TYPES(
+    # increments the integer columns with given value of the filtered values
+    _inc: WORK_TYPES_inc_input
+
+    # sets the columns of the filtered rows to the given values
+    _set: WORK_TYPES_set_input
+
+    # filter the rows which have to be updated
+    where: WORK_TYPES_bool_exp!
+  ): WORK_TYPES_mutation_response
+
+  # update data of the table: "activity"
+  update_activity(
+    # increments the integer columns with given value of the filtered values
+    _inc: activity_inc_input
+
+    # sets the columns of the filtered rows to the given values
+    _set: activity_set_input
+
+    # filter the rows which have to be updated
+    where: activity_bool_exp!
+  ): activity_mutation_response
+
+  # update data of the table: "activity_legislation"
+  update_activity_legislation(
+    # increments the integer columns with given value of the filtered values
+    _inc: activity_legislation_inc_input
+
+    # sets the columns of the filtered rows to the given values
+    _set: activity_legislation_set_input
+
+    # filter the rows which have to be updated
+    where: activity_legislation_bool_exp!
+  ): activity_legislation_mutation_response
+
+  # update data of the table: "legislation"
+  update_legislation(
+    # increments the integer columns with given value of the filtered values
+    _inc: legislation_inc_input
+
+    # sets the columns of the filtered rows to the given values
+    _set: legislation_set_input
+
+    # filter the rows which have to be updated
+    where: legislation_bool_exp!
+  ): legislation_mutation_response
+
+  # update data of the table: "sites"
+  update_sites(
+    # increments the integer columns with given value of the filtered values
+    _inc: sites_inc_input
+
+    # sets the columns of the filtered rows to the given values
+    _set: sites_set_input
+
+    # filter the rows which have to be updated
+    where: sites_bool_exp!
+  ): sites_mutation_response
+
+  # update data of the table: "trade"
+  update_trade(
+    # increments the integer columns with given value of the filtered values
+    _inc: trade_inc_input
+
+    # sets the columns of the filtered rows to the given values
+    _set: trade_set_input
+
+    # filter the rows which have to be updated
+    where: trade_bool_exp!
+  ): trade_mutation_response
+
+  # update data of the table: "type_linking"
+  update_type_linking(
+    # increments the integer columns with given value of the filtered values
+    _inc: type_linking_inc_input
+
+    # sets the columns of the filtered rows to the given values
+    _set: type_linking_set_input
+
+    # filter the rows which have to be updated
+    where: type_linking_bool_exp!
+  ): type_linking_mutation_response
+
+  # update data of the table: "users"
+  update_users(
+    # sets the columns of the filtered rows to the given values
+    _set: users_set_input
+
+    # filter the rows which have to be updated
+    where: users_bool_exp!
+  ): users_mutation_response
+}
+
+scalar numeric
+
+# expression to compare columns of type numeric. All fields are combined with logical 'AND'.
+input numeric_comparison_exp {
+  _eq: numeric
+  _gt: numeric
+  _gte: numeric
+  _in: [numeric]
+  _is_null: Boolean
+  _lt: numeric
+  _lte: numeric
+  _neq: numeric
+  _nin: [numeric]
+}
+
+# column ordering options
+enum order_by {
+  # in the ascending order, nulls last
+  asc
+
+  # in the ascending order, nulls first
+  asc_nulls_first
+
+  # in the ascending order, nulls last
+  asc_nulls_last
+
+  # in the descending order, nulls first
+  desc
+
+  # in the descending order, nulls first
+  desc_nulls_first
+
+  # in the descending order, nulls last
+  desc_nulls_last
+}
+
+# query root
+type query_root {
+  # fetch data from the table: "HEIR_TEST"
+  HEIR_TEST(
+    # distinct select on columns
+    distinct_on: [HEIR_TEST_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [HEIR_TEST_order_by!]
+
+    # filter the rows returned
+    where: HEIR_TEST_bool_exp
+  ): [HEIR_TEST!]!
+
+  # fetch aggregated fields from the table: "HEIR_TEST"
+  HEIR_TEST_aggregate(
+    # distinct select on columns
+    distinct_on: [HEIR_TEST_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [HEIR_TEST_order_by!]
+
+    # filter the rows returned
+    where: HEIR_TEST_bool_exp
+  ): HEIR_TEST_aggregate!
+
+  # fetch data from the table: "HEIR_TEST" using primary key columns
+  HEIR_TEST_by_pk(id: Int!): HEIR_TEST
+
+  # fetch data from the table: "TRADE_TYPES"
+  TRADE_TYPES(
+    # distinct select on columns
+    distinct_on: [TRADE_TYPES_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [TRADE_TYPES_order_by!]
+
+    # filter the rows returned
+    where: TRADE_TYPES_bool_exp
+  ): [TRADE_TYPES!]!
+
+  # fetch aggregated fields from the table: "TRADE_TYPES"
+  TRADE_TYPES_aggregate(
+    # distinct select on columns
+    distinct_on: [TRADE_TYPES_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [TRADE_TYPES_order_by!]
+
+    # filter the rows returned
+    where: TRADE_TYPES_bool_exp
+  ): TRADE_TYPES_aggregate!
+
+  # fetch data from the table: "TRADE_TYPES" using primary key columns
+  TRADE_TYPES_by_pk(type: String!): TRADE_TYPES
+
+  # fetch data from the table: "WORK_TYPES"
+  WORK_TYPES(
+    # distinct select on columns
+    distinct_on: [WORK_TYPES_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [WORK_TYPES_order_by!]
+
+    # filter the rows returned
+    where: WORK_TYPES_bool_exp
+  ): [WORK_TYPES!]!
+
+  # fetch aggregated fields from the table: "WORK_TYPES"
+  WORK_TYPES_aggregate(
+    # distinct select on columns
+    distinct_on: [WORK_TYPES_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [WORK_TYPES_order_by!]
+
+    # filter the rows returned
+    where: WORK_TYPES_bool_exp
+  ): WORK_TYPES_aggregate!
+
+  # fetch data from the table: "WORK_TYPES" using primary key columns
+  WORK_TYPES_by_pk(id: Int!): WORK_TYPES
+
+  # fetch data from the table: "activity"
+  activity(
+    # distinct select on columns
+    distinct_on: [activity_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [activity_order_by!]
+
+    # filter the rows returned
+    where: activity_bool_exp
+  ): [activity!]!
+
+  # fetch aggregated fields from the table: "activity"
+  activity_aggregate(
+    # distinct select on columns
+    distinct_on: [activity_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [activity_order_by!]
+
+    # filter the rows returned
+    where: activity_bool_exp
+  ): activity_aggregate!
+
+  # fetch data from the table: "activity" using primary key columns
+  activity_by_pk(id: Int!): activity
+
+  # fetch data from the table: "activity_legislation"
+  activity_legislation(
+    # distinct select on columns
+    distinct_on: [activity_legislation_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [activity_legislation_order_by!]
+
+    # filter the rows returned
+    where: activity_legislation_bool_exp
+  ): [activity_legislation!]!
+
+  # fetch aggregated fields from the table: "activity_legislation"
+  activity_legislation_aggregate(
+    # distinct select on columns
+    distinct_on: [activity_legislation_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [activity_legislation_order_by!]
+
+    # filter the rows returned
+    where: activity_legislation_bool_exp
+  ): activity_legislation_aggregate!
+
+  # fetch data from the table: "activity_legislation" using primary key columns
+  activity_legislation_by_pk(id: Int!): activity_legislation
+
+  # fetch data from the table: "legislation"
+  legislation(
+    # distinct select on columns
+    distinct_on: [legislation_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [legislation_order_by!]
+
+    # filter the rows returned
+    where: legislation_bool_exp
+  ): [legislation!]!
+
+  # fetch aggregated fields from the table: "legislation"
+  legislation_aggregate(
+    # distinct select on columns
+    distinct_on: [legislation_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [legislation_order_by!]
+
+    # filter the rows returned
+    where: legislation_bool_exp
+  ): legislation_aggregate!
+
+  # fetch data from the table: "legislation" using primary key columns
+  legislation_by_pk(id: Int!): legislation
+
+  # fetch data from the table: "sites"
+  sites(
+    # distinct select on columns
+    distinct_on: [sites_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [sites_order_by!]
+
+    # filter the rows returned
+    where: sites_bool_exp
+  ): [sites!]!
+
+  # fetch aggregated fields from the table: "sites"
+  sites_aggregate(
+    # distinct select on columns
+    distinct_on: [sites_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [sites_order_by!]
+
+    # filter the rows returned
+    where: sites_bool_exp
+  ): sites_aggregate!
+
+  # fetch data from the table: "sites" using primary key columns
+  sites_by_pk(name: String!): sites
+
+  # fetch data from the table: "trade"
+  trade(
+    # distinct select on columns
+    distinct_on: [trade_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [trade_order_by!]
+
+    # filter the rows returned
+    where: trade_bool_exp
+  ): [trade!]!
+
+  # fetch aggregated fields from the table: "trade"
+  trade_aggregate(
+    # distinct select on columns
+    distinct_on: [trade_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [trade_order_by!]
+
+    # filter the rows returned
+    where: trade_bool_exp
+  ): trade_aggregate!
+
+  # fetch data from the table: "trade" using primary key columns
+  trade_by_pk(id: Int!): trade
+
+  # fetch data from the table: "type_linking"
+  type_linking(
+    # distinct select on columns
+    distinct_on: [type_linking_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [type_linking_order_by!]
+
+    # filter the rows returned
+    where: type_linking_bool_exp
+  ): [type_linking!]!
+
+  # fetch aggregated fields from the table: "type_linking"
+  type_linking_aggregate(
+    # distinct select on columns
+    distinct_on: [type_linking_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [type_linking_order_by!]
+
+    # filter the rows returned
+    where: type_linking_bool_exp
+  ): type_linking_aggregate!
+
+  # fetch data from the table: "type_linking" using primary key columns
+  type_linking_by_pk(id: Int!): type_linking
+
+  # fetch data from the table: "users"
+  users(
+    # distinct select on columns
+    distinct_on: [users_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [users_order_by!]
+
+    # filter the rows returned
+    where: users_bool_exp
+  ): [users!]!
+
+  # fetch aggregated fields from the table: "users"
+  users_aggregate(
+    # distinct select on columns
+    distinct_on: [users_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [users_order_by!]
+
+    # filter the rows returned
+    where: users_bool_exp
+  ): users_aggregate!
+
+  # fetch data from the table: "users" using primary key columns
+  users_by_pk(username: String!): users
+}
+
+# expression to compare columns of type real. All fields are combined with logical 'AND'.
+input real_comparison_exp {
+  _eq: Float
+  _gt: Float
+  _gte: Float
+  _in: [Float]
+  _is_null: Boolean
+  _lt: Float
+  _lte: Float
+  _neq: Float
+  _nin: [Float]
+}
+
+# columns and relationships of "sites"
+type sites {
+  id: Int!
+  location: String!
+  name: String!
+}
+
+# aggregated selection of "sites"
+type sites_aggregate {
+  aggregate: sites_aggregate_fields
+  nodes: [sites!]!
+}
+
+# aggregate fields of "sites"
+type sites_aggregate_fields {
+  avg: sites_avg_fields
+  count(columns: [sites_select_column!], distinct: Boolean): Int
+  max: sites_max_fields
+  min: sites_min_fields
+  stddev: sites_stddev_fields
+  stddev_pop: sites_stddev_pop_fields
+  stddev_samp: sites_stddev_samp_fields
+  sum: sites_sum_fields
+  var_pop: sites_var_pop_fields
+  var_samp: sites_var_samp_fields
+  variance: sites_variance_fields
+}
+
+# order by aggregate values of table "sites"
+input sites_aggregate_order_by {
+  avg: sites_avg_order_by
+  count: order_by
+  max: sites_max_order_by
+  min: sites_min_order_by
+  stddev: sites_stddev_order_by
+  stddev_pop: sites_stddev_pop_order_by
+  stddev_samp: sites_stddev_samp_order_by
+  sum: sites_sum_order_by
+  var_pop: sites_var_pop_order_by
+  var_samp: sites_var_samp_order_by
+  variance: sites_variance_order_by
+}
+
+# input type for inserting array relation for remote table "sites"
+input sites_arr_rel_insert_input {
+  data: [sites_insert_input!]!
+  on_conflict: sites_on_conflict
+}
+
+# aggregate avg on columns
+type sites_avg_fields {
+  id: Float
+}
+
+# order by avg() on columns of table "sites"
+input sites_avg_order_by {
+  id: order_by
+}
+
+# Boolean expression to filter rows from the table "sites". All fields are combined with a logical 'AND'.
+input sites_bool_exp {
+  _and: [sites_bool_exp]
+  _not: sites_bool_exp
+  _or: [sites_bool_exp]
+  id: integer_comparison_exp
+  location: text_comparison_exp
+  name: text_comparison_exp
+}
+
+# unique or primary key constraints on table "sites"
+enum sites_constraint {
+  # unique or primary key constraint
+  sites_pkey
+}
+
+# input type for incrementing integer columne in table "sites"
+input sites_inc_input {
+  id: Int
+}
+
+# input type for inserting data into table "sites"
+input sites_insert_input {
+  id: Int
+  location: String
+  name: String
+}
+
+# aggregate max on columns
+type sites_max_fields {
+  id: Int
+  location: String
+  name: String
+}
+
+# order by max() on columns of table "sites"
+input sites_max_order_by {
+  id: order_by
+  location: order_by
+  name: order_by
+}
+
+# aggregate min on columns
+type sites_min_fields {
+  id: Int
+  location: String
+  name: String
+}
+
+# order by min() on columns of table "sites"
+input sites_min_order_by {
+  id: order_by
+  location: order_by
+  name: order_by
+}
+
+# response of any mutation on the table "sites"
+type sites_mutation_response {
+  # number of affected rows by the mutation
+  affected_rows: Int!
+
+  # data of the affected rows by the mutation
+  returning: [sites!]!
+}
+
+# input type for inserting object relation for remote table "sites"
+input sites_obj_rel_insert_input {
+  data: sites_insert_input!
+  on_conflict: sites_on_conflict
+}
+
+# on conflict condition type for table "sites"
+input sites_on_conflict {
+  constraint: sites_constraint!
+  update_columns: [sites_update_column!]!
+}
+
+# ordering options when selecting data from "sites"
+input sites_order_by {
+  id: order_by
+  location: order_by
+  name: order_by
+}
+
+# select columns of table "sites"
+enum sites_select_column {
+  # column name
+  id
+
+  # column name
+  location
+
+  # column name
+  name
+}
+
+# input type for updating data in table "sites"
+input sites_set_input {
+  id: Int
+  location: String
+  name: String
+}
+
+# aggregate stddev on columns
+type sites_stddev_fields {
+  id: Float
+}
+
+# order by stddev() on columns of table "sites"
+input sites_stddev_order_by {
+  id: order_by
+}
+
+# aggregate stddev_pop on columns
+type sites_stddev_pop_fields {
+  id: Float
+}
+
+# order by stddev_pop() on columns of table "sites"
+input sites_stddev_pop_order_by {
+  id: order_by
+}
+
+# aggregate stddev_samp on columns
+type sites_stddev_samp_fields {
+  id: Float
+}
+
+# order by stddev_samp() on columns of table "sites"
+input sites_stddev_samp_order_by {
+  id: order_by
+}
+
+# aggregate sum on columns
+type sites_sum_fields {
+  id: Int
+}
+
+# order by sum() on columns of table "sites"
+input sites_sum_order_by {
+  id: order_by
+}
+
+# update columns of table "sites"
+enum sites_update_column {
+  # column name
+  id
+
+  # column name
+  location
+
+  # column name
+  name
+}
+
+# aggregate var_pop on columns
+type sites_var_pop_fields {
+  id: Float
+}
+
+# order by var_pop() on columns of table "sites"
+input sites_var_pop_order_by {
+  id: order_by
+}
+
+# aggregate var_samp on columns
+type sites_var_samp_fields {
+  id: Float
+}
+
+# order by var_samp() on columns of table "sites"
+input sites_var_samp_order_by {
+  id: order_by
+}
+
+# aggregate variance on columns
+type sites_variance_fields {
+  id: Float
+}
+
+# order by variance() on columns of table "sites"
+input sites_variance_order_by {
+  id: order_by
+}
+
+# subscription root
+type subscription_root {
+  # fetch data from the table: "HEIR_TEST"
+  HEIR_TEST(
+    # distinct select on columns
+    distinct_on: [HEIR_TEST_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [HEIR_TEST_order_by!]
+
+    # filter the rows returned
+    where: HEIR_TEST_bool_exp
+  ): [HEIR_TEST!]!
+
+  # fetch aggregated fields from the table: "HEIR_TEST"
+  HEIR_TEST_aggregate(
+    # distinct select on columns
+    distinct_on: [HEIR_TEST_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [HEIR_TEST_order_by!]
+
+    # filter the rows returned
+    where: HEIR_TEST_bool_exp
+  ): HEIR_TEST_aggregate!
+
+  # fetch data from the table: "HEIR_TEST" using primary key columns
+  HEIR_TEST_by_pk(id: Int!): HEIR_TEST
+
+  # fetch data from the table: "TRADE_TYPES"
+  TRADE_TYPES(
+    # distinct select on columns
+    distinct_on: [TRADE_TYPES_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [TRADE_TYPES_order_by!]
+
+    # filter the rows returned
+    where: TRADE_TYPES_bool_exp
+  ): [TRADE_TYPES!]!
+
+  # fetch aggregated fields from the table: "TRADE_TYPES"
+  TRADE_TYPES_aggregate(
+    # distinct select on columns
+    distinct_on: [TRADE_TYPES_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [TRADE_TYPES_order_by!]
+
+    # filter the rows returned
+    where: TRADE_TYPES_bool_exp
+  ): TRADE_TYPES_aggregate!
+
+  # fetch data from the table: "TRADE_TYPES" using primary key columns
+  TRADE_TYPES_by_pk(type: String!): TRADE_TYPES
+
+  # fetch data from the table: "WORK_TYPES"
+  WORK_TYPES(
+    # distinct select on columns
+    distinct_on: [WORK_TYPES_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [WORK_TYPES_order_by!]
+
+    # filter the rows returned
+    where: WORK_TYPES_bool_exp
+  ): [WORK_TYPES!]!
+
+  # fetch aggregated fields from the table: "WORK_TYPES"
+  WORK_TYPES_aggregate(
+    # distinct select on columns
+    distinct_on: [WORK_TYPES_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [WORK_TYPES_order_by!]
+
+    # filter the rows returned
+    where: WORK_TYPES_bool_exp
+  ): WORK_TYPES_aggregate!
+
+  # fetch data from the table: "WORK_TYPES" using primary key columns
+  WORK_TYPES_by_pk(id: Int!): WORK_TYPES
+
+  # fetch data from the table: "activity"
+  activity(
+    # distinct select on columns
+    distinct_on: [activity_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [activity_order_by!]
+
+    # filter the rows returned
+    where: activity_bool_exp
+  ): [activity!]!
+
+  # fetch aggregated fields from the table: "activity"
+  activity_aggregate(
+    # distinct select on columns
+    distinct_on: [activity_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [activity_order_by!]
+
+    # filter the rows returned
+    where: activity_bool_exp
+  ): activity_aggregate!
+
+  # fetch data from the table: "activity" using primary key columns
+  activity_by_pk(id: Int!): activity
+
+  # fetch data from the table: "activity_legislation"
+  activity_legislation(
+    # distinct select on columns
+    distinct_on: [activity_legislation_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [activity_legislation_order_by!]
+
+    # filter the rows returned
+    where: activity_legislation_bool_exp
+  ): [activity_legislation!]!
+
+  # fetch aggregated fields from the table: "activity_legislation"
+  activity_legislation_aggregate(
+    # distinct select on columns
+    distinct_on: [activity_legislation_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [activity_legislation_order_by!]
+
+    # filter the rows returned
+    where: activity_legislation_bool_exp
+  ): activity_legislation_aggregate!
+
+  # fetch data from the table: "activity_legislation" using primary key columns
+  activity_legislation_by_pk(id: Int!): activity_legislation
+
+  # fetch data from the table: "legislation"
+  legislation(
+    # distinct select on columns
+    distinct_on: [legislation_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [legislation_order_by!]
+
+    # filter the rows returned
+    where: legislation_bool_exp
+  ): [legislation!]!
+
+  # fetch aggregated fields from the table: "legislation"
+  legislation_aggregate(
+    # distinct select on columns
+    distinct_on: [legislation_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [legislation_order_by!]
+
+    # filter the rows returned
+    where: legislation_bool_exp
+  ): legislation_aggregate!
+
+  # fetch data from the table: "legislation" using primary key columns
+  legislation_by_pk(id: Int!): legislation
+
+  # fetch data from the table: "sites"
+  sites(
+    # distinct select on columns
+    distinct_on: [sites_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [sites_order_by!]
+
+    # filter the rows returned
+    where: sites_bool_exp
+  ): [sites!]!
+
+  # fetch aggregated fields from the table: "sites"
+  sites_aggregate(
+    # distinct select on columns
+    distinct_on: [sites_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [sites_order_by!]
+
+    # filter the rows returned
+    where: sites_bool_exp
+  ): sites_aggregate!
+
+  # fetch data from the table: "sites" using primary key columns
+  sites_by_pk(name: String!): sites
+
+  # fetch data from the table: "trade"
+  trade(
+    # distinct select on columns
+    distinct_on: [trade_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [trade_order_by!]
+
+    # filter the rows returned
+    where: trade_bool_exp
+  ): [trade!]!
+
+  # fetch aggregated fields from the table: "trade"
+  trade_aggregate(
+    # distinct select on columns
+    distinct_on: [trade_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [trade_order_by!]
+
+    # filter the rows returned
+    where: trade_bool_exp
+  ): trade_aggregate!
+
+  # fetch data from the table: "trade" using primary key columns
+  trade_by_pk(id: Int!): trade
+
+  # fetch data from the table: "type_linking"
+  type_linking(
+    # distinct select on columns
+    distinct_on: [type_linking_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [type_linking_order_by!]
+
+    # filter the rows returned
+    where: type_linking_bool_exp
+  ): [type_linking!]!
+
+  # fetch aggregated fields from the table: "type_linking"
+  type_linking_aggregate(
+    # distinct select on columns
+    distinct_on: [type_linking_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [type_linking_order_by!]
+
+    # filter the rows returned
+    where: type_linking_bool_exp
+  ): type_linking_aggregate!
+
+  # fetch data from the table: "type_linking" using primary key columns
+  type_linking_by_pk(id: Int!): type_linking
+
+  # fetch data from the table: "users"
+  users(
+    # distinct select on columns
+    distinct_on: [users_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [users_order_by!]
+
+    # filter the rows returned
+    where: users_bool_exp
+  ): [users!]!
+
+  # fetch aggregated fields from the table: "users"
+  users_aggregate(
+    # distinct select on columns
+    distinct_on: [users_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [users_order_by!]
+
+    # filter the rows returned
+    where: users_bool_exp
+  ): users_aggregate!
+
+  # fetch data from the table: "users" using primary key columns
+  users_by_pk(username: String!): users
+}
+
+# expression to compare columns of type text. All fields are combined with logical 'AND'.
+input text_comparison_exp {
+  _eq: String
+  _gt: String
+  _gte: String
+  _ilike: String
+  _in: [String]
+  _is_null: Boolean
+  _like: String
+  _lt: String
+  _lte: String
+  _neq: String
+  _nilike: String
+  _nin: [String]
+  _nlike: String
+  _nsimilar: String
+  _similar: String
+}
+
+scalar timestamptz
+
+# expression to compare columns of type timestamptz. All fields are combined with logical 'AND'.
+input timestamptz_comparison_exp {
+  _eq: timestamptz
+  _gt: timestamptz
+  _gte: timestamptz
+  _in: [timestamptz]
+  _is_null: Boolean
+  _lt: timestamptz
+  _lte: timestamptz
+  _neq: timestamptz
+  _nin: [timestamptz]
+}
+
+# columns and relationships of "trade"
+type trade {
+  # An object relationship
+  TRADE_TYPE: TRADE_TYPES!
+
+  # An object relationship
+  activity: activity!
+  activity_id: Int!
+  created: timestamptz!
+  id: Int!
+  tradeQuantity: Float!
+  tradeType: String!
+  utilization: numeric!
+}
+
+# aggregated selection of "trade"
+type trade_aggregate {
+  aggregate: trade_aggregate_fields
+  nodes: [trade!]!
+}
+
+# aggregate fields of "trade"
+type trade_aggregate_fields {
+  avg: trade_avg_fields
+  count(columns: [trade_select_column!], distinct: Boolean): Int
+  max: trade_max_fields
+  min: trade_min_fields
+  stddev: trade_stddev_fields
+  stddev_pop: trade_stddev_pop_fields
+  stddev_samp: trade_stddev_samp_fields
+  sum: trade_sum_fields
+  var_pop: trade_var_pop_fields
+  var_samp: trade_var_samp_fields
+  variance: trade_variance_fields
+}
+
+# order by aggregate values of table "trade"
+input trade_aggregate_order_by {
+  avg: trade_avg_order_by
+  count: order_by
+  max: trade_max_order_by
+  min: trade_min_order_by
+  stddev: trade_stddev_order_by
+  stddev_pop: trade_stddev_pop_order_by
+  stddev_samp: trade_stddev_samp_order_by
+  sum: trade_sum_order_by
+  var_pop: trade_var_pop_order_by
+  var_samp: trade_var_samp_order_by
+  variance: trade_variance_order_by
+}
+
+# input type for inserting array relation for remote table "trade"
+input trade_arr_rel_insert_input {
+  data: [trade_insert_input!]!
+  on_conflict: trade_on_conflict
+}
+
+# aggregate avg on columns
+type trade_avg_fields {
+  activity_id: Float
+  id: Float
+  tradeQuantity: Float
+  utilization: Float
+}
+
+# order by avg() on columns of table "trade"
+input trade_avg_order_by {
+  activity_id: order_by
+  id: order_by
+  tradeQuantity: order_by
+  utilization: order_by
+}
+
+# Boolean expression to filter rows from the table "trade". All fields are combined with a logical 'AND'.
+input trade_bool_exp {
+  TRADE_TYPE: TRADE_TYPES_bool_exp
+  _and: [trade_bool_exp]
+  _not: trade_bool_exp
+  _or: [trade_bool_exp]
+  activity: activity_bool_exp
+  activity_id: integer_comparison_exp
+  created: timestamptz_comparison_exp
+  id: integer_comparison_exp
+  tradeQuantity: real_comparison_exp
+  tradeType: text_comparison_exp
+  utilization: numeric_comparison_exp
+}
+
+# unique or primary key constraints on table "trade"
+enum trade_constraint {
+  # unique or primary key constraint
+  trade_id_key
+
+  # unique or primary key constraint
+  trade_pkey
+}
+
+# input type for incrementing integer columne in table "trade"
+input trade_inc_input {
+  activity_id: Int
+  id: Int
+}
+
+# input type for inserting data into table "trade"
+input trade_insert_input {
+  TRADE_TYPE: TRADE_TYPES_obj_rel_insert_input
+  activity: activity_obj_rel_insert_input
+  activity_id: Int
+  created: timestamptz
+  id: Int
+  tradeQuantity: Float
+  tradeType: String
+  utilization: numeric
+}
+
+# aggregate max on columns
+type trade_max_fields {
+  activity_id: Int
+  created: timestamptz
+  id: Int
+  tradeQuantity: Float
+  tradeType: String
+  utilization: numeric
+}
+
+# order by max() on columns of table "trade"
+input trade_max_order_by {
+  activity_id: order_by
+  created: order_by
+  id: order_by
+  tradeQuantity: order_by
+  tradeType: order_by
+  utilization: order_by
+}
+
+# aggregate min on columns
+type trade_min_fields {
+  activity_id: Int
+  created: timestamptz
+  id: Int
+  tradeQuantity: Float
+  tradeType: String
+  utilization: numeric
+}
+
+# order by min() on columns of table "trade"
+input trade_min_order_by {
+  activity_id: order_by
+  created: order_by
+  id: order_by
+  tradeQuantity: order_by
+  tradeType: order_by
+  utilization: order_by
+}
+
+# response of any mutation on the table "trade"
+type trade_mutation_response {
+  # number of affected rows by the mutation
+  affected_rows: Int!
+
+  # data of the affected rows by the mutation
+  returning: [trade!]!
+}
+
+# input type for inserting object relation for remote table "trade"
+input trade_obj_rel_insert_input {
+  data: trade_insert_input!
+  on_conflict: trade_on_conflict
+}
+
+# on conflict condition type for table "trade"
+input trade_on_conflict {
+  constraint: trade_constraint!
+  update_columns: [trade_update_column!]!
+}
+
+# ordering options when selecting data from "trade"
+input trade_order_by {
+  TRADE_TYPE: TRADE_TYPES_order_by
+  activity: activity_order_by
+  activity_id: order_by
+  created: order_by
+  id: order_by
+  tradeQuantity: order_by
+  tradeType: order_by
+  utilization: order_by
+}
+
+# select columns of table "trade"
+enum trade_select_column {
+  # column name
+  activity_id
+
+  # column name
+  created
+
+  # column name
+  id
+
+  # column name
+  tradeQuantity
+
+  # column name
+  tradeType
+
+  # column name
+  utilization
+}
+
+# input type for updating data in table "trade"
+input trade_set_input {
+  activity_id: Int
+  created: timestamptz
+  id: Int
+  tradeQuantity: Float
+  tradeType: String
+  utilization: numeric
+}
+
+# aggregate stddev on columns
+type trade_stddev_fields {
+  activity_id: Float
+  id: Float
+  tradeQuantity: Float
+  utilization: Float
+}
+
+# order by stddev() on columns of table "trade"
+input trade_stddev_order_by {
+  activity_id: order_by
+  id: order_by
+  tradeQuantity: order_by
+  utilization: order_by
+}
+
+# aggregate stddev_pop on columns
+type trade_stddev_pop_fields {
+  activity_id: Float
+  id: Float
+  tradeQuantity: Float
+  utilization: Float
+}
+
+# order by stddev_pop() on columns of table "trade"
+input trade_stddev_pop_order_by {
+  activity_id: order_by
+  id: order_by
+  tradeQuantity: order_by
+  utilization: order_by
+}
+
+# aggregate stddev_samp on columns
+type trade_stddev_samp_fields {
+  activity_id: Float
+  id: Float
+  tradeQuantity: Float
+  utilization: Float
+}
+
+# order by stddev_samp() on columns of table "trade"
+input trade_stddev_samp_order_by {
+  activity_id: order_by
+  id: order_by
+  tradeQuantity: order_by
+  utilization: order_by
+}
+
+# aggregate sum on columns
+type trade_sum_fields {
+  activity_id: Int
+  id: Int
+  tradeQuantity: Float
+  utilization: numeric
+}
+
+# order by sum() on columns of table "trade"
+input trade_sum_order_by {
+  activity_id: order_by
+  id: order_by
+  tradeQuantity: order_by
+  utilization: order_by
+}
+
+# columns and relationships of "TRADE_TYPES"
+type TRADE_TYPES {
+  id: Int!
+
+  # An array relationship
+  trades(
+    # distinct select on columns
+    distinct_on: [trade_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [trade_order_by!]
+
+    # filter the rows returned
+    where: trade_bool_exp
+  ): [trade!]!
+
+  # An aggregated array relationship
+  trades_aggregate(
+    # distinct select on columns
+    distinct_on: [trade_select_column!]
+
+    # limit the nuber of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [trade_order_by!]
+
+    # filter the rows returned
+    where: trade_bool_exp
+  ): trade_aggregate!
+  type: String!
+}
+
+# aggregated selection of "TRADE_TYPES"
+type TRADE_TYPES_aggregate {
+  aggregate: TRADE_TYPES_aggregate_fields
+  nodes: [TRADE_TYPES!]!
+}
+
+# aggregate fields of "TRADE_TYPES"
+type TRADE_TYPES_aggregate_fields {
+  avg: TRADE_TYPES_avg_fields
+  count(columns: [TRADE_TYPES_select_column!], distinct: Boolean): Int
+  max: TRADE_TYPES_max_fields
+  min: TRADE_TYPES_min_fields
+  stddev: TRADE_TYPES_stddev_fields
+  stddev_pop: TRADE_TYPES_stddev_pop_fields
+  stddev_samp: TRADE_TYPES_stddev_samp_fields
+  sum: TRADE_TYPES_sum_fields
+  var_pop: TRADE_TYPES_var_pop_fields
+  var_samp: TRADE_TYPES_var_samp_fields
+  variance: TRADE_TYPES_variance_fields
+}
+
+# order by aggregate values of table "TRADE_TYPES"
+input TRADE_TYPES_aggregate_order_by {
+  avg: TRADE_TYPES_avg_order_by
+  count: order_by
+  max: TRADE_TYPES_max_order_by
+  min: TRADE_TYPES_min_order_by
+  stddev: TRADE_TYPES_stddev_order_by
+  stddev_pop: TRADE_TYPES_stddev_pop_order_by
+  stddev_samp: TRADE_TYPES_stddev_samp_order_by
+  sum: TRADE_TYPES_sum_order_by
+  var_pop: TRADE_TYPES_var_pop_order_by
+  var_samp: TRADE_TYPES_var_samp_order_by
+  variance: TRADE_TYPES_variance_order_by
+}
+
+# input type for inserting array relation for remote table "TRADE_TYPES"
+input TRADE_TYPES_arr_rel_insert_input {
+  data: [TRADE_TYPES_insert_input!]!
+  on_conflict: TRADE_TYPES_on_conflict
+}
+
+# aggregate avg on columns
+type TRADE_TYPES_avg_fields {
+  id: Float
+}
+
+# order by avg() on columns of table "TRADE_TYPES"
+input TRADE_TYPES_avg_order_by {
+  id: order_by
+}
+
+# Boolean expression to filter rows from the table "TRADE_TYPES". All fields are combined with a logical 'AND'.
+input TRADE_TYPES_bool_exp {
+  _and: [TRADE_TYPES_bool_exp]
+  _not: TRADE_TYPES_bool_exp
+  _or: [TRADE_TYPES_bool_exp]
+  id: integer_comparison_exp
+  trades: trade_bool_exp
+  type: text_comparison_exp
+}
+
+# unique or primary key constraints on table "TRADE_TYPES"
+enum TRADE_TYPES_constraint {
+  # unique or primary key constraint
+  TRADE_TYPES_id_key
+
+  # unique or primary key constraint
+  TRADE_TYPES_name_key
+
+  # unique or primary key constraint
+  TRADE_TYPES_pkey
+}
+
+# input type for incrementing integer columne in table "TRADE_TYPES"
+input TRADE_TYPES_inc_input {
+  id: Int
+}
+
+# input type for inserting data into table "TRADE_TYPES"
+input TRADE_TYPES_insert_input {
+  id: Int
+  trades: trade_arr_rel_insert_input
+  type: String
+}
+
+# aggregate max on columns
+type TRADE_TYPES_max_fields {
+  id: Int
+  type: String
+}
+
+# order by max() on columns of table "TRADE_TYPES"
+input TRADE_TYPES_max_order_by {
+  id: order_by
+  type: order_by
+}
+
+# aggregate min on columns
+type TRADE_TYPES_min_fields {
+  id: Int
+  type: String
+}
+
+# order by min() on columns of table "TRADE_TYPES"
+input TRADE_TYPES_min_order_by {
+  id: order_by
+  type: order_by
+}
+
+# response of any mutation on the table "TRADE_TYPES"
+type TRADE_TYPES_mutation_response {
+  # number of affected rows by the mutation
+  affected_rows: Int!
+
+  # data of the affected rows by the mutation
+  returning: [TRADE_TYPES!]!
+}
+
+# input type for inserting object relation for remote table "TRADE_TYPES"
+input TRADE_TYPES_obj_rel_insert_input {
+  data: TRADE_TYPES_insert_input!
+  on_conflict: TRADE_TYPES_on_conflict
+}
+
+# on conflict condition type for table "TRADE_TYPES"
+input TRADE_TYPES_on_conflict {
+  constraint: TRADE_TYPES_constraint!
+  update_columns: [TRADE_TYPES_update_column!]!
+}
+
+# ordering options when selecting data from "TRADE_TYPES"
+input TRADE_TYPES_order_by {
+  id: order_by
+  trades_aggregate: trade_aggregate_order_by
+  type: order_by
+}
+
+# select columns of table "TRADE_TYPES"
+enum TRADE_TYPES_select_column {
+  # column name
+  id
+
+  # column name
+  type
+}
+
+# input type for updating data in table "TRADE_TYPES"
+input TRADE_TYPES_set_input {
+  id: Int
+  type: String
+}
+
+# aggregate stddev on columns
+type TRADE_TYPES_stddev_fields {
+  id: Float
+}
+
+# order by stddev() on columns of table "TRADE_TYPES"
+input TRADE_TYPES_stddev_order_by {
+  id: order_by
+}
+
+# aggregate stddev_pop on columns
+type TRADE_TYPES_stddev_pop_fields {
+  id: Float
+}
+
+# order by stddev_pop() on columns of table "TRADE_TYPES"
+input TRADE_TYPES_stddev_pop_order_by {
+  id: order_by
+}
+
+# aggregate stddev_samp on columns
+type TRADE_TYPES_stddev_samp_fields {
+  id: Float
+}
+
+# order by stddev_samp() on columns of table "TRADE_TYPES"
+input TRADE_TYPES_stddev_samp_order_by {
+  id: order_by
+}
+
+# aggregate sum on columns
+type TRADE_TYPES_sum_fields {
+  id: Int
+}
+
+# order by sum() on columns of table "TRADE_TYPES"
+input TRADE_TYPES_sum_order_by {
+  id: order_by
+}
+
+# update columns of table "TRADE_TYPES"
+enum TRADE_TYPES_update_column {
+  # column name
+  id
+
+  # column name
+  type
+}
+
+# aggregate var_pop on columns
+type TRADE_TYPES_var_pop_fields {
+  id: Float
+}
+
+# order by var_pop() on columns of table "TRADE_TYPES"
+input TRADE_TYPES_var_pop_order_by {
+  id: order_by
+}
+
+# aggregate var_samp on columns
+type TRADE_TYPES_var_samp_fields {
+  id: Float
+}
+
+# order by var_samp() on columns of table "TRADE_TYPES"
+input TRADE_TYPES_var_samp_order_by {
+  id: order_by
+}
+
+# aggregate variance on columns
+type TRADE_TYPES_variance_fields {
+  id: Float
+}
+
+# order by variance() on columns of table "TRADE_TYPES"
+input TRADE_TYPES_variance_order_by {
+  id: order_by
+}
+
+# update columns of table "trade"
+enum trade_update_column {
+  # column name
+  activity_id
+
+  # column name
+  created
+
+  # column name
+  id
+
+  # column name
+  tradeQuantity
+
+  # column name
+  tradeType
+
+  # column name
+  utilization
+}
+
+# aggregate var_pop on columns
+type trade_var_pop_fields {
+  activity_id: Float
+  id: Float
+  tradeQuantity: Float
+  utilization: Float
+}
+
+# order by var_pop() on columns of table "trade"
+input trade_var_pop_order_by {
+  activity_id: order_by
+  id: order_by
+  tradeQuantity: order_by
+  utilization: order_by
+}
+
+# aggregate var_samp on columns
+type trade_var_samp_fields {
+  activity_id: Float
+  id: Float
+  tradeQuantity: Float
+  utilization: Float
+}
+
+# order by var_samp() on columns of table "trade"
+input trade_var_samp_order_by {
+  activity_id: order_by
+  id: order_by
+  tradeQuantity: order_by
+  utilization: order_by
+}
+
+# aggregate variance on columns
+type trade_variance_fields {
+  activity_id: Float
+  id: Float
+  tradeQuantity: Float
+  utilization: Float
+}
+
+# order by variance() on columns of table "trade"
+input trade_variance_order_by {
+  activity_id: order_by
+  id: order_by
+  tradeQuantity: order_by
+  utilization: order_by
+}
+
+# columns and relationships of "type_linking"
+type type_linking {
+  destinationId: Int!
+  destinationTable: String!
+  id: Int!
+  sourceId: Int!
+  sourceTable: String!
+}
+
+# aggregated selection of "type_linking"
+type type_linking_aggregate {
+  aggregate: type_linking_aggregate_fields
+  nodes: [type_linking!]!
+}
+
+# aggregate fields of "type_linking"
+type type_linking_aggregate_fields {
+  avg: type_linking_avg_fields
+  count(columns: [type_linking_select_column!], distinct: Boolean): Int
+  max: type_linking_max_fields
+  min: type_linking_min_fields
+  stddev: type_linking_stddev_fields
+  stddev_pop: type_linking_stddev_pop_fields
+  stddev_samp: type_linking_stddev_samp_fields
+  sum: type_linking_sum_fields
+  var_pop: type_linking_var_pop_fields
+  var_samp: type_linking_var_samp_fields
+  variance: type_linking_variance_fields
+}
+
+# order by aggregate values of table "type_linking"
+input type_linking_aggregate_order_by {
+  avg: type_linking_avg_order_by
+  count: order_by
+  max: type_linking_max_order_by
+  min: type_linking_min_order_by
+  stddev: type_linking_stddev_order_by
+  stddev_pop: type_linking_stddev_pop_order_by
+  stddev_samp: type_linking_stddev_samp_order_by
+  sum: type_linking_sum_order_by
+  var_pop: type_linking_var_pop_order_by
+  var_samp: type_linking_var_samp_order_by
+  variance: type_linking_variance_order_by
+}
+
+# input type for inserting array relation for remote table "type_linking"
+input type_linking_arr_rel_insert_input {
+  data: [type_linking_insert_input!]!
+  on_conflict: type_linking_on_conflict
+}
+
+# aggregate avg on columns
+type type_linking_avg_fields {
+  destinationId: Float
+  id: Float
+  sourceId: Float
+}
+
+# order by avg() on columns of table "type_linking"
+input type_linking_avg_order_by {
+  destinationId: order_by
+  id: order_by
+  sourceId: order_by
+}
+
+# Boolean expression to filter rows from the table "type_linking". All fields are combined with a logical 'AND'.
+input type_linking_bool_exp {
+  _and: [type_linking_bool_exp]
+  _not: type_linking_bool_exp
+  _or: [type_linking_bool_exp]
+  destinationId: integer_comparison_exp
+  destinationTable: text_comparison_exp
+  id: integer_comparison_exp
+  sourceId: integer_comparison_exp
+  sourceTable: text_comparison_exp
+}
+
+# unique or primary key constraints on table "type_linking"
+enum type_linking_constraint {
+  # unique or primary key constraint
+  type_linking_pkey
+}
+
+# input type for incrementing integer columne in table "type_linking"
+input type_linking_inc_input {
+  destinationId: Int
+  id: Int
+  sourceId: Int
+}
+
+# input type for inserting data into table "type_linking"
+input type_linking_insert_input {
+  destinationId: Int
+  destinationTable: String
+  id: Int
+  sourceId: Int
+  sourceTable: String
+}
+
+# aggregate max on columns
+type type_linking_max_fields {
+  destinationId: Int
+  destinationTable: String
+  id: Int
+  sourceId: Int
+  sourceTable: String
+}
+
+# order by max() on columns of table "type_linking"
+input type_linking_max_order_by {
+  destinationId: order_by
+  destinationTable: order_by
+  id: order_by
+  sourceId: order_by
+  sourceTable: order_by
+}
+
+# aggregate min on columns
+type type_linking_min_fields {
+  destinationId: Int
+  destinationTable: String
+  id: Int
+  sourceId: Int
+  sourceTable: String
+}
+
+# order by min() on columns of table "type_linking"
+input type_linking_min_order_by {
+  destinationId: order_by
+  destinationTable: order_by
+  id: order_by
+  sourceId: order_by
+  sourceTable: order_by
+}
+
+# response of any mutation on the table "type_linking"
+type type_linking_mutation_response {
+  # number of affected rows by the mutation
+  affected_rows: Int!
+
+  # data of the affected rows by the mutation
+  returning: [type_linking!]!
+}
+
+# input type for inserting object relation for remote table "type_linking"
+input type_linking_obj_rel_insert_input {
+  data: type_linking_insert_input!
+  on_conflict: type_linking_on_conflict
+}
+
+# on conflict condition type for table "type_linking"
+input type_linking_on_conflict {
+  constraint: type_linking_constraint!
+  update_columns: [type_linking_update_column!]!
+}
+
+# ordering options when selecting data from "type_linking"
+input type_linking_order_by {
+  destinationId: order_by
+  destinationTable: order_by
+  id: order_by
+  sourceId: order_by
+  sourceTable: order_by
+}
+
+# select columns of table "type_linking"
+enum type_linking_select_column {
+  # column name
+  destinationId
+
+  # column name
+  destinationTable
+
+  # column name
+  id
+
+  # column name
+  sourceId
+
+  # column name
+  sourceTable
+}
+
+# input type for updating data in table "type_linking"
+input type_linking_set_input {
+  destinationId: Int
+  destinationTable: String
+  id: Int
+  sourceId: Int
+  sourceTable: String
+}
+
+# aggregate stddev on columns
+type type_linking_stddev_fields {
+  destinationId: Float
+  id: Float
+  sourceId: Float
+}
+
+# order by stddev() on columns of table "type_linking"
+input type_linking_stddev_order_by {
+  destinationId: order_by
+  id: order_by
+  sourceId: order_by
+}
+
+# aggregate stddev_pop on columns
+type type_linking_stddev_pop_fields {
+  destinationId: Float
+  id: Float
+  sourceId: Float
+}
+
+# order by stddev_pop() on columns of table "type_linking"
+input type_linking_stddev_pop_order_by {
+  destinationId: order_by
+  id: order_by
+  sourceId: order_by
+}
+
+# aggregate stddev_samp on columns
+type type_linking_stddev_samp_fields {
+  destinationId: Float
+  id: Float
+  sourceId: Float
+}
+
+# order by stddev_samp() on columns of table "type_linking"
+input type_linking_stddev_samp_order_by {
+  destinationId: order_by
+  id: order_by
+  sourceId: order_by
+}
+
+# aggregate sum on columns
+type type_linking_sum_fields {
+  destinationId: Int
+  id: Int
+  sourceId: Int
+}
+
+# order by sum() on columns of table "type_linking"
+input type_linking_sum_order_by {
+  destinationId: order_by
+  id: order_by
+  sourceId: order_by
+}
+
+# update columns of table "type_linking"
+enum type_linking_update_column {
+  # column name
+  destinationId
+
+  # column name
+  destinationTable
+
+  # column name
+  id
+
+  # column name
+  sourceId
+
+  # column name
+  sourceTable
+}
+
+# aggregate var_pop on columns
+type type_linking_var_pop_fields {
+  destinationId: Float
+  id: Float
+  sourceId: Float
+}
+
+# order by var_pop() on columns of table "type_linking"
+input type_linking_var_pop_order_by {
+  destinationId: order_by
+  id: order_by
+  sourceId: order_by
+}
+
+# aggregate var_samp on columns
+type type_linking_var_samp_fields {
+  destinationId: Float
+  id: Float
+  sourceId: Float
+}
+
+# order by var_samp() on columns of table "type_linking"
+input type_linking_var_samp_order_by {
+  destinationId: order_by
+  id: order_by
+  sourceId: order_by
+}
+
+# aggregate variance on columns
+type type_linking_variance_fields {
+  destinationId: Float
+  id: Float
+  sourceId: Float
+}
+
+# order by variance() on columns of table "type_linking"
+input type_linking_variance_order_by {
+  destinationId: order_by
+  id: order_by
+  sourceId: order_by
+}
+
+# columns and relationships of "users"
+type users {
+  created: timestamptz!
+  email: String!
+  employer: String!
+  firstname: String!
+  id: uuid!
+  lastname: String!
+  role: String!
+  username: String!
+}
+
+# aggregated selection of "users"
+type users_aggregate {
+  aggregate: users_aggregate_fields
+  nodes: [users!]!
+}
+
+# aggregate fields of "users"
+type users_aggregate_fields {
+  count(columns: [users_select_column!], distinct: Boolean): Int
+  max: users_max_fields
+  min: users_min_fields
+}
+
+# order by aggregate values of table "users"
+input users_aggregate_order_by {
+  count: order_by
+  max: users_max_order_by
+  min: users_min_order_by
+}
+
+# input type for inserting array relation for remote table "users"
+input users_arr_rel_insert_input {
+  data: [users_insert_input!]!
+  on_conflict: users_on_conflict
+}
+
+# Boolean expression to filter rows from the table "users". All fields are combined with a logical 'AND'.
+input users_bool_exp {
+  _and: [users_bool_exp]
+  _not: users_bool_exp
+  _or: [users_bool_exp]
+  created: timestamptz_comparison_exp
+  email: text_comparison_exp
+  employer: text_comparison_exp
+  firstname: text_comparison_exp
+  id: uuid_comparison_exp
+  lastname: text_comparison_exp
+  role: text_comparison_exp
+  username: text_comparison_exp
+}
+
+# unique or primary key constraints on table "users"
+enum users_constraint {
+  # unique or primary key constraint
+  users_pkey
+}
+
+# input type for inserting data into table "users"
+input users_insert_input {
+  created: timestamptz
+  email: String
+  employer: String
+  firstname: String
+  id: uuid
+  lastname: String
+  role: String
+  username: String
+}
+
+# aggregate max on columns
+type users_max_fields {
+  created: timestamptz
+  email: String
+  employer: String
+  firstname: String
+  lastname: String
+  role: String
+  username: String
+}
+
+# order by max() on columns of table "users"
+input users_max_order_by {
+  created: order_by
+  email: order_by
+  employer: order_by
+  firstname: order_by
+  lastname: order_by
+  role: order_by
+  username: order_by
+}
+
+# aggregate min on columns
+type users_min_fields {
+  created: timestamptz
+  email: String
+  employer: String
+  firstname: String
+  lastname: String
+  role: String
+  username: String
+}
+
+# order by min() on columns of table "users"
+input users_min_order_by {
+  created: order_by
+  email: order_by
+  employer: order_by
+  firstname: order_by
+  lastname: order_by
+  role: order_by
+  username: order_by
+}
+
+# response of any mutation on the table "users"
+type users_mutation_response {
+  # number of affected rows by the mutation
+  affected_rows: Int!
+
+  # data of the affected rows by the mutation
+  returning: [users!]!
+}
+
+# input type for inserting object relation for remote table "users"
+input users_obj_rel_insert_input {
+  data: users_insert_input!
+  on_conflict: users_on_conflict
+}
+
+# on conflict condition type for table "users"
+input users_on_conflict {
+  constraint: users_constraint!
+  update_columns: [users_update_column!]!
+}
+
+# ordering options when selecting data from "users"
+input users_order_by {
+  created: order_by
+  email: order_by
+  employer: order_by
+  firstname: order_by
+  id: order_by
+  lastname: order_by
+  role: order_by
+  username: order_by
+}
+
+# select columns of table "users"
+enum users_select_column {
+  # column name
+  created
+
+  # column name
+  email
+
+  # column name
+  employer
+
+  # column name
+  firstname
+
+  # column name
+  id
+
+  # column name
+  lastname
+
+  # column name
+  role
+
+  # column name
+  username
+}
+
+# input type for updating data in table "users"
+input users_set_input {
+  created: timestamptz
+  email: String
+  employer: String
+  firstname: String
+  id: uuid
+  lastname: String
+  role: String
+  username: String
+}
+
+# update columns of table "users"
+enum users_update_column {
+  # column name
+  created
+
+  # column name
+  email
+
+  # column name
+  employer
+
+  # column name
+  firstname
+
+  # column name
+  id
+
+  # column name
+  lastname
+
+  # column name
+  role
+
+  # column name
+  username
+}
+
+scalar uuid
+
+# expression to compare columns of type uuid. All fields are combined with logical 'AND'.
+input uuid_comparison_exp {
+  _eq: uuid
+  _gt: uuid
+  _gte: uuid
+  _in: [uuid]
+  _is_null: Boolean
+  _lt: uuid
+  _lte: uuid
+  _neq: uuid
+  _nin: [uuid]
+}
+
+# columns and relationships of "WORK_TYPES"
+type WORK_TYPES {
+  id: Int!
+  type: String!
+}
+
+# aggregated selection of "WORK_TYPES"
+type WORK_TYPES_aggregate {
+  aggregate: WORK_TYPES_aggregate_fields
+  nodes: [WORK_TYPES!]!
+}
+
+# aggregate fields of "WORK_TYPES"
+type WORK_TYPES_aggregate_fields {
+  avg: WORK_TYPES_avg_fields
+  count(columns: [WORK_TYPES_select_column!], distinct: Boolean): Int
+  max: WORK_TYPES_max_fields
+  min: WORK_TYPES_min_fields
+  stddev: WORK_TYPES_stddev_fields
+  stddev_pop: WORK_TYPES_stddev_pop_fields
+  stddev_samp: WORK_TYPES_stddev_samp_fields
+  sum: WORK_TYPES_sum_fields
+  var_pop: WORK_TYPES_var_pop_fields
+  var_samp: WORK_TYPES_var_samp_fields
+  variance: WORK_TYPES_variance_fields
+}
+
+# order by aggregate values of table "WORK_TYPES"
+input WORK_TYPES_aggregate_order_by {
+  avg: WORK_TYPES_avg_order_by
+  count: order_by
+  max: WORK_TYPES_max_order_by
+  min: WORK_TYPES_min_order_by
+  stddev: WORK_TYPES_stddev_order_by
+  stddev_pop: WORK_TYPES_stddev_pop_order_by
+  stddev_samp: WORK_TYPES_stddev_samp_order_by
+  sum: WORK_TYPES_sum_order_by
+  var_pop: WORK_TYPES_var_pop_order_by
+  var_samp: WORK_TYPES_var_samp_order_by
+  variance: WORK_TYPES_variance_order_by
+}
+
+# input type for inserting array relation for remote table "WORK_TYPES"
+input WORK_TYPES_arr_rel_insert_input {
+  data: [WORK_TYPES_insert_input!]!
+  on_conflict: WORK_TYPES_on_conflict
+}
+
+# aggregate avg on columns
+type WORK_TYPES_avg_fields {
+  id: Float
+}
+
+# order by avg() on columns of table "WORK_TYPES"
+input WORK_TYPES_avg_order_by {
+  id: order_by
+}
+
+# Boolean expression to filter rows from the table "WORK_TYPES". All fields are combined with a logical 'AND'.
+input WORK_TYPES_bool_exp {
+  _and: [WORK_TYPES_bool_exp]
+  _not: WORK_TYPES_bool_exp
+  _or: [WORK_TYPES_bool_exp]
+  id: integer_comparison_exp
+  type: text_comparison_exp
+}
+
+# unique or primary key constraints on table "WORK_TYPES"
+enum WORK_TYPES_constraint {
+  # unique or primary key constraint
+  WORK_TYPES_pkey
+
+  # unique or primary key constraint
+  WORK_TYPES_type_key
+}
+
+# input type for incrementing integer columne in table "WORK_TYPES"
+input WORK_TYPES_inc_input {
+  id: Int
+}
+
+# input type for inserting data into table "WORK_TYPES"
+input WORK_TYPES_insert_input {
+  id: Int
+  type: String
+}
+
+# aggregate max on columns
+type WORK_TYPES_max_fields {
+  id: Int
+  type: String
+}
+
+# order by max() on columns of table "WORK_TYPES"
+input WORK_TYPES_max_order_by {
+  id: order_by
+  type: order_by
+}
+
+# aggregate min on columns
+type WORK_TYPES_min_fields {
+  id: Int
+  type: String
+}
+
+# order by min() on columns of table "WORK_TYPES"
+input WORK_TYPES_min_order_by {
+  id: order_by
+  type: order_by
+}
+
+# response of any mutation on the table "WORK_TYPES"
+type WORK_TYPES_mutation_response {
+  # number of affected rows by the mutation
+  affected_rows: Int!
+
+  # data of the affected rows by the mutation
+  returning: [WORK_TYPES!]!
+}
+
+# input type for inserting object relation for remote table "WORK_TYPES"
+input WORK_TYPES_obj_rel_insert_input {
+  data: WORK_TYPES_insert_input!
+  on_conflict: WORK_TYPES_on_conflict
+}
+
+# on conflict condition type for table "WORK_TYPES"
+input WORK_TYPES_on_conflict {
+  constraint: WORK_TYPES_constraint!
+  update_columns: [WORK_TYPES_update_column!]!
+}
+
+# ordering options when selecting data from "WORK_TYPES"
+input WORK_TYPES_order_by {
+  id: order_by
+  type: order_by
+}
+
+# select columns of table "WORK_TYPES"
+enum WORK_TYPES_select_column {
+  # column name
+  id
+
+  # column name
+  type
+}
+
+# input type for updating data in table "WORK_TYPES"
+input WORK_TYPES_set_input {
+  id: Int
+  type: String
+}
+
+# aggregate stddev on columns
+type WORK_TYPES_stddev_fields {
+  id: Float
+}
+
+# order by stddev() on columns of table "WORK_TYPES"
+input WORK_TYPES_stddev_order_by {
+  id: order_by
+}
+
+# aggregate stddev_pop on columns
+type WORK_TYPES_stddev_pop_fields {
+  id: Float
+}
+
+# order by stddev_pop() on columns of table "WORK_TYPES"
+input WORK_TYPES_stddev_pop_order_by {
+  id: order_by
+}
+
+# aggregate stddev_samp on columns
+type WORK_TYPES_stddev_samp_fields {
+  id: Float
+}
+
+# order by stddev_samp() on columns of table "WORK_TYPES"
+input WORK_TYPES_stddev_samp_order_by {
+  id: order_by
+}
+
+# aggregate sum on columns
+type WORK_TYPES_sum_fields {
+  id: Int
+}
+
+# order by sum() on columns of table "WORK_TYPES"
+input WORK_TYPES_sum_order_by {
+  id: order_by
+}
+
+# update columns of table "WORK_TYPES"
+enum WORK_TYPES_update_column {
+  # column name
+  id
+
+  # column name
+  type
+}
+
+# aggregate var_pop on columns
+type WORK_TYPES_var_pop_fields {
+  id: Float
+}
+
+# order by var_pop() on columns of table "WORK_TYPES"
+input WORK_TYPES_var_pop_order_by {
+  id: order_by
+}
+
+# aggregate var_samp on columns
+type WORK_TYPES_var_samp_fields {
+  id: Float
+}
+
+# order by var_samp() on columns of table "WORK_TYPES"
+input WORK_TYPES_var_samp_order_by {
+  id: order_by
+}
+
+# aggregate variance on columns
+type WORK_TYPES_variance_fields {
+  id: Float
+}
+
+# order by variance() on columns of table "WORK_TYPES"
+input WORK_TYPES_variance_order_by {
+  id: order_by
+}
+
