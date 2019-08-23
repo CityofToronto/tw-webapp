@@ -2,7 +2,6 @@ import { IServerSideDatasource, IServerSideGetRowsParams, IServerSideGetRowsRequ
 import gql from 'graphql-tag';
 import apolloClient from '@/apollo';
 import { dispatchError } from '@/apollo/lib/utils';
-import { updateFilterModel } from './FilterHelper';
 
 export default class MTMDatasource implements IServerSideDatasource {
   private tableName: string;
@@ -12,7 +11,6 @@ export default class MTMDatasource implements IServerSideDatasource {
     rowId: number;
   }
 
-  private gridApi: GridApi;
 
   public constructor(
     tableName: string,
@@ -71,8 +69,6 @@ export default class MTMDatasource implements IServerSideDatasource {
   }
 
   public async getRows(params: IServerSideGetRowsParams): Promise<void> {
-    updateFilterModel(this.gridApi, params.request.filterModel);
-    
     const numberOfRows = await this.countTotalRows();
     const rowData = await this.getData(params.request);
 

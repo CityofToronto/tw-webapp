@@ -4,19 +4,12 @@ import {
 import gql from 'graphql-tag';
 import apolloClient from '@/apollo';
 import { dispatchError, constructFilter } from '@/apollo/lib/utils';
-import { updateFilterModel } from './FilterHelper';
 
 export class DirectDatasource implements IServerSideDatasource {
   private tableName: string;
 
-  private gridApi: GridApi;
-
-  public constructor(
-    tableName: string,
-    gridApi: GridApi,
-  ) {
+  public constructor(tableName: string) {
     this.tableName = tableName;
-    this.gridApi = gridApi;
   }
 
   private get columnNames(): Promise<string[]> {
@@ -43,7 +36,8 @@ export class DirectDatasource implements IServerSideDatasource {
   }
 
   public async getData(request: IServerSideGetRowsRequest): Promise<object[]> {
-    const sortModel = request.sortModel.map((element: {colId: string; sort: string}): string => `${element.colId}: ${element.sort},`);
+    const sortModel = request.sortModel
+      .map((element: {colId: string; sort: string}): string => `${element.colId}: ${element.sort},`);
 
     return apolloClient.query({
       query: gql`
@@ -71,10 +65,9 @@ export class DirectDatasource implements IServerSideDatasource {
   }
 
   public async getRows(params: IServerSideGetRowsParams): Promise<void> {
-    updateFilterModel(this.gridApi, params.request.filterModel);
-
     const numberOfRows = await this.countTotalRows(params.request);
     const rowData = await this.getData(params.request);
+
     if (rowData) {
       params.successCallback(rowData, numberOfRows);
     } else {

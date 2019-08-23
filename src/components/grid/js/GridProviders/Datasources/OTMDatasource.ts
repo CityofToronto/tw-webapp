@@ -2,7 +2,6 @@ import { IServerSideDatasource, IServerSideGetRowsRequest, IServerSideGetRowsPar
 import gql from 'graphql-tag';
 import apolloClient from '@/apollo';
 import { dispatchError } from '@/apollo/lib/utils';
-import { updateFilterModel } from './FilterHelper';
 
 export class OTMDatasource implements IServerSideDatasource {
   private tableName: string;
@@ -12,16 +11,12 @@ export class OTMDatasource implements IServerSideDatasource {
     rowId: number;
   }
 
-  private gridApi: GridApi;
-
   public constructor(
     tableName: string,
     relatedData: { tableName: string; rowId: number },
-    gridApi: GridApi,
   ) {
     this.tableName = tableName;
     this.relatedData = relatedData;
-    this.gridApi = gridApi;
   }
 
   private get columnNames(): Promise<string[]> {
@@ -81,8 +76,6 @@ export class OTMDatasource implements IServerSideDatasource {
   }
 
   public async getRows(params: IServerSideGetRowsParams): Promise<void> {
-    updateFilterModel(this.gridApi, params.request.filterModel);
-
     const numberOfRows = await this.countTotalRows();
     const rowData = await this.getData(params.request);
 
