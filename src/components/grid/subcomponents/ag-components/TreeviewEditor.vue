@@ -21,14 +21,21 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import { TreeEditorParams } from '@/types/grid';
 
 @Component({})
 export default class TreeSelectEditor extends Vue {
+  params!: TreeEditorParams;
+
   selectedItems: number[] = [];
 
   popup: boolean = true;
 
   search: string = '';
+
+  created() {
+    this.selectedItems.push(this.params.value);
+  }
 
   isPopup() {
     return this.popup;
@@ -38,7 +45,7 @@ export default class TreeSelectEditor extends Vue {
    * Called after cell is finished editing, return the value to send
    */
   getValue() {
-    return this.selectedItems;
+    return this.selectedItems[0];
   }
 }
 
