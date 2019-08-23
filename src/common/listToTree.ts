@@ -1,6 +1,12 @@
-import { TreeResponse, TreeStructure } from '../types';
+import { TreeStructure } from '@/types/api';
 
-export const listToTree = (data: TreeResponse): TreeStructure[] => {
+interface TreeFlatList {
+  id: number;
+  parent: number;
+  name: string;
+}
+
+export const listToTree = (data: TreeFlatList): TreeStructure[] => {
   const tree = [];
   const childrenOf = {};
   let item;
