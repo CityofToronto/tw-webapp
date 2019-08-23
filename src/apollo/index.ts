@@ -4,10 +4,9 @@ import gql from 'graphql-tag';
 import _ from 'lodash';
 import { link } from './lib/link';
 import {
- TableTypes, TableQueryResult, TreeResponse, TreeStructure 
+  TableTypes, TableQueryResult,
 } from './types';
 import { dispatchError } from './lib/utils';
-import { listToTree } from './lib/listToTree';
 
 class Apollo extends ApolloClient<NormalizedCacheObject> {
   public constructor() {
@@ -19,6 +18,32 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
     });
   }
 
+  public getFields(tableName: string): Promise<TableTypes[]> {
+    return this.query({
+      query: gql`
+        query getColumns {
+          __type (
+            name: "${tableName}"
+          ) {
+            fields{
+              name
+              type {
+                kind
+                name
+                ofType {
+                  kind
+                  name
+                }
+              }
+            }
+            
+          }
+        }`,
+    })
+      // eslint-disable-next-line
+      .then((response: TableQueryResult) => response.data.__type.fields)
+      .catch((error): never => dispatchError(error));
+  }
 
   public getColumns(tableName: string): Promise<TableTypes[]> {
     return this.query({
@@ -73,29 +98,17 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
       .catch((error): never => dispatchError(error));
   }
 
-  public getValidTypes(tableName: string): Promise<string[]> {
+  // TODO Make into a generic
+  public getValuesFromTable<T>(tableName: string, columns: string []): Promise<T> {
     return this.query({
       query: gql`{
           ${tableName} {
-            type
+            ${columns}
           }
         }`,
     })
-      .then((response): string[] => response.data[tableName].map((x): string => x.type))
+      .then((response): T => response.data[tableName])
       .catch((error): never => dispatchError(error));
-  }
-
-  public async getHeirarchy(tableName: string): Promise<TreeResponse[]> {
-    return this.query({
-      query: gql`{
-        ${tableName} {
-          id
-          name
-          parent
-        }
-      }`,
-    })
-      .then((resp): TreeResponse[] => listToTree(resp.data[tableName]));
   }
 }
 
