@@ -2,19 +2,26 @@ import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import _ from 'lodash';
 import { TableTypes } from '@/apollo/types';
 import apolloClient from '@/apollo';
+import { TreeData } from '@/types/api';
+import { listToTree } from '@/common/listToTree';
+import { CellSelectionType } from '@/types/grid';
 
-interface ColDefiner {
-  getColumnDefs(): Promise<ColDef[]>;
+export enum ColumnTypes {
+  booleanColumn,
+  textColumn,
+  numberColumn,
+  selectColumn,
+  treeColumn,
 }
-
-export type ColumnTypes = 'booleanColumn' | 'numberColumn' | 'textColumn' | 'selectColumn';
 export enum CustomColumn {
   Edit = 'Edit',
   Delete = 'Delete'
 }
 
-interface CustomDef extends ColDef {
+
+interface CustomColDef extends ColDef {
   colType: ColumnTypes;
+  selectionType: CellSelectionType;
 }
 
 export const HEADERS = new Map([
@@ -69,7 +76,7 @@ const customColumns: { [key in CustomColumn]: ColDef } = {
 /**
  * This class takes in a column
  */
-export class ColumnDefiner implements ColDefiner {
+export class ColumnDefiner {
   private tableName: string;
 
   private editableColumns: boolean;
@@ -89,82 +96,123 @@ export class ColumnDefiner implements ColDefiner {
    *  colType is defined here to be used in the DynamicForm.vue to render
    *  the correct form input
    */
-  private static async getColumnProperties(
-    column: TableTypes, relationships: TableTypes[],
-  ): Promise<ColDef> {
+  private static async getColumnProperties(column: TableTypes, relationships: TableTypes[]): Promise<ColDef> {
+    /**
+     * Here is object of possible columnTypes and their defined properties
+     */
     const columnTypes = {
-      textColumn: (): CustomDef => ({
+      // Text Column
+      [ColumnTypes.textColumn]: (): CustomColDef => ({
         valueParser: ({ newValue }: {newValue: string}): string => newValue,
         filter: 'agTextColumnFilter',
-        colType: 'textColumn',
+        colType: ColumnTypes.textColumn,
+        selectionType: CellSelectionType.single,
       }),
-      booleanColumn: (): CustomDef => ({
+      // Boolean Column
+      [ColumnTypes.booleanColumn]: (): CustomColDef => ({
         valueParser: ({ newValue }: {newValue: string}): boolean => newValue === 'true',
         filter: 'agSetColumnFilter',
         filterParams: {
           debounceMs: 200,
           values: [true, false],
         },
-        colType: 'booleanColumn',
+        colType: ColumnTypes.booleanColumn,
+        selectionType: CellSelectionType.single,
       }),
-      numberColumn: (): CustomDef => ({
+      // Numeric column (Int, double, etc)
+      [ColumnTypes.numberColumn]: (): CustomColDef => ({
         valueParser: ({ newValue }: {newValue: string}): number => Number(newValue),
         filter: 'agNumberColumnFilter',
-        colType: 'numberColumn',
+        colType: ColumnTypes.numberColumn,
+        selectionType: CellSelectionType.single,
       }),
-      // selectColumn(values: string[]): CustomDef {
-      //   return {
-      //     filter: 'agSetColumnFilter',
-      //     filterParams: {
-      //       debounceMs: 200,
-      //       values,
-      //     },
-      //     valueParser: ({ newValue }: {newValue: string}): string => newValue,
-      //     cellEditor: 'agRichSelectCellEditor',
-      //     cellEditorParams: {
-      //       values,
-      //       cellHeight: 41,
-      //     },
-      //     colType: 'selectColumn',
-      //   };
-      // },
-      async selectColumn(values: string[]): CustomDef {
+      // Dropdown kind of column
+      [ColumnTypes.selectColumn]: (values: string[], selectionType: CellSelectionType): CustomColDef => ({
+        filterFramework: 'SetFilter',
+        filterParams: {
+          values,
+        },
+        valueParser: ({ newValue }: {newValue: string}): string => newValue,
+        cellEditor: 'agRichSelectCellEditor',
+        cellEditorParams: {
+          values,
+          cellHeight: 41,
+        },
+        colType: ColumnTypes.selectColumn,
+        selectionType,
+      }),
+      // Treeview column definition
+      async [ColumnTypes.treeColumn](
+        values: TreeData[],
+        selectionType: CellSelectionType,
+      ): Promise<CustomColDef> {
+        const treeData = listToTree(values);
+        const treeMap = new Map(values.map((entry): [number, string] => [entry.id, entry.name]));
         return {
-          filter: 'agSetColumnFilter',
+          filterFramework: 'TreeviewFilter',
           filterParams: {
-            debounceMs: 200,
-            values,
+            treeData,
+            treeIds: values.map((val): number => val.id),
           },
           valueParser: ({ newValue }: {newValue: string}): string => newValue,
-          cellEditorFramework: 'TreeSelectEditor',
+          cellEditorFramework: 'TreeviewEditor',
           cellEditorParams: {
-            list: await apolloClient.getHeirarchy('HEIR_TEST'),
-            cellHeight: 41,
+            treeData,
           },
-          colType: 'selectColumn',
+          cellRendererFramework: 'TreeviewRenderer',
+          cellRendererParams: {
+            treeMap,
+          },
+          colType: ColumnTypes.treeColumn,
+          selectionType,
         };
       },
     };
 
     const relationshipNames = relationships.map((col): string => col.name);
+
     /**
      * First check if it is a select column
      * tradeType to TRADE_TYPE, where TRADE_TYPE is defined in Hasura
      */
-    const columnNameUpperSnakeCase = _.snakeCase(column.name).toUpperCase();
-    if (relationshipNames.includes(columnNameUpperSnakeCase)) {
-      const values = await apolloClient.getValidTypes(`${columnNameUpperSnakeCase}S`);
-      return columnTypes.selectColumn(values);
-    }
-    const typeName = column.type.ofType ? column.type.ofType.name : column.type.name;
-    if (typeName === 'Int' || typeName === 'numeric') {
-      return columnTypes.numberColumn();
-    }
-    if (typeName === 'Boolean') {
-      return columnTypes.booleanColumn();
+
+    // TODO Fix the naming schema of the database to make this parsing much cleaner
+    let columnNameToCheck: string;
+    let columnNameUpperSnakeCase: string;
+    if (column.selectionType === CellSelectionType.multiple) {
+      columnNameToCheck = column.name;
+      columnNameUpperSnakeCase = _.snakeCase(column.name.split('_')[1]).toUpperCase();
+    } else {
+      columnNameToCheck = _.snakeCase(column.name).toUpperCase();
+      columnNameUpperSnakeCase = _.snakeCase(column.name).toUpperCase();
     }
 
-    return columnTypes.textColumn();
+    // If this passes, then the column is a select or tree column
+    if (relationshipNames.includes(columnNameToCheck)) {
+      const tableFields = await apolloClient.getColumns(`${columnNameUpperSnakeCase}`);
+      // If value list table has a parent column, it is tree, if not it is a simple select
+      if (tableFields.map((field): string => field.name).includes('parent')) {
+        const treeValues = await apolloClient
+          .getValuesFromTable<TreeData[]>(columnNameUpperSnakeCase, ['id', 'parent', 'name']);
+        return columnTypes[ColumnTypes.treeColumn](treeValues, column.selectionType);
+      }
+      const dropdownValues = await apolloClient
+        .getValuesFromTable<{name: string}[]>(columnNameUpperSnakeCase, ['name']);
+      return columnTypes[ColumnTypes.selectColumn](dropdownValues.map((val): string => val.name), column.selectionType);
+    }
+
+    // These are basic column types
+    const typeName = column.type.ofType ? column.type.ofType.name : column.type.name;
+    if (typeName === 'Int' || typeName === 'numeric') {
+      // Return numeric
+      return columnTypes[ColumnTypes.numberColumn]();
+    }
+    if (typeName === 'Boolean') {
+      // Return boolean
+      return columnTypes[ColumnTypes.booleanColumn]();
+    }
+    // Return any other as text column
+    return columnTypes[ColumnTypes.textColumn]();
   };
 
   /**
@@ -177,8 +225,10 @@ export class ColumnDefiner implements ColDefiner {
   ): Promise<ColDef> {
     const additionalProperties = await ColumnDefiner.getColumnProperties(column, relationships);
 
+    const columnName = column.name.split('_')[1];
+
     const columnData: ColDef = {
-      headerName: HEADERS.get(column.name),
+      headerName: columnName ? HEADERS.get(columnName) : HEADERS.get(column.name),
       field: column.name,
       resizable: true,
       editable: column.name !== 'id' && editable,
@@ -198,10 +248,26 @@ export class ColumnDefiner implements ColDefiner {
    */
   public async getColumnDefs(): Promise<ColDef[]> {
     const columns = await apolloClient.getColumns(this.tableName);
-
     const relationships = await apolloClient.getRelationships(this.tableName);
 
-    const columnDefs = columns.map(
+    /**
+     * First we set all columns to selectionType: single.
+     * This accounts for multiselect columns that are a relationship.
+     * However, they need to be defined as a column for editing.
+     * This flags these columns as selectionType: multiple for parser to know.
+     */
+    const allColumns = columns
+      .map((column): TableTypes => ({ ...column, selectionType: CellSelectionType.single }))
+      .concat(
+        relationships
+          .filter((relationship): boolean => relationship.name.includes('Type') && !relationship.name.includes('aggregate'))
+          .map((relationship): TableTypes => ({
+            ...relationship,
+            selectionType: CellSelectionType.multiple,
+          })),
+      );
+
+    const columnDefs = allColumns.map(
       async (column): Promise<ColDef> => ColumnDefiner.defineColumn(column, this.editableColumns, relationships),
     );
 
