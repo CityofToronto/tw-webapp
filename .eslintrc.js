@@ -22,7 +22,7 @@ module.exports = {
     "import/no-unresolved": "off",
     "import/prefer-default-export": "off",
     "@typescript-eslint/indent": ["error", 2],
-    "multiline-comment-style": ["error", "starred-block"]
+    "max-len": ["error", { "code": 120 }],
   },
   parser: 'vue-eslint-parser',
   parserOptions: {
