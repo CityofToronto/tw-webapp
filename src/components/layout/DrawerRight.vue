@@ -25,6 +25,7 @@
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator';
 import GridWithToolbar, { GridType } from '../grid/GridWithToolbar.vue';
+import apolloClient from '@/apollo';
 
 @Component({
   components: {
@@ -34,25 +35,35 @@ import GridWithToolbar, { GridType } from '../grid/GridWithToolbar.vue';
 export default class DrawerRight extends Vue {
   @Prop(Boolean) readonly rightSideDrawer!: boolean;
 
-  get mainTable() {
-    return this.$route.params.id;
-  }
+  gridList: {tableName: string; relation: GridType}[] = [];
 
-  // TODO This should be generated through a query to database for mainTable
-  gridList: {tableName: string; relation: GridType}[] = [
-    {
-      tableName: 'trade',
-      relation: GridType.OneToMany,
-    },
-    {
-      tableName: 'legislation',
-      relation: GridType.ManyToMany,
-    },
-    {
-      tableName: 'safety',
-      relation: GridType.ManyToMany,
-    },
-  ];
+  async created() {
+    const relationships = await apolloClient.getRelationships(this.$route.params.table);
+
+    // Filter for table relationships
+    this.gridList = relationships
+      .filter((relationship): boolean => relationship.name.includes('aggregate'))
+      .map((relationship) => {
+        /**
+         *  Two options, activity_legislation_aggregreate returns length of 3 when split by _ (MTM)
+         *  trade_aggregrate returns length of 2 when split by _ (OTM)
+         */
+        switch (relationship.name.split('_').length) {
+          case 2:
+            return {
+              tableName: relationship.name.split('_')[0],
+              relation: GridType.OneToMany,
+            };
+          case 3:
+            return {
+              tableName: relationship.name.split('_')[1],
+              relation: GridType.ManyToMany,
+            };
+          default:
+            throw new Error(`Incorrect relationship schema for ${this.$route.params.table}`);
+        }
+      });
+  }
 };
 </script>
 
