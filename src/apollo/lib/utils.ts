@@ -19,6 +19,8 @@ const mapping = new Map([
 
 ]);
 
+// TODO Type this file
+
 export const stringify = (data: RowData): string => Object.entries(data)
   .filter(([, value]): boolean => value !== '') // Remove blank values (usually just id on new row)
   .map(([key, value]): string => `${key}: "${value}"`)
@@ -63,6 +65,7 @@ const parse = (type: object): string => {
     text: type.operator ? parseMultiple : parseSingular,
     number: type.operator ? parseMultiple : parseSingular,
     set: parseSet,
+    array: parseSet,
   };
   return filterFunctions[type.filterType];
 };
