@@ -25,14 +25,12 @@ export class OTMProvider implements GridProvider {
   public constructor(
     tableName: string,
     relatedData: { rowId: number; tableName: string },
-    gridApi: GridApi,
   ) {
     this.tableName = tableName;
     this.relatedData = relatedData;
     this.gridDatasource = new OTMDatasource(
       this.tableName,
       this.relatedData,
-      gridApi,
     );
   }
 
