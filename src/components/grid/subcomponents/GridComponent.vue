@@ -34,28 +34,22 @@ import { QueryType } from '@/apollo/types';
 import * as GRID_CONFIG from '../js/grid.config';
 import Store from '@/store/store';
 import { ColumnDefiner, CustomColumn } from '../js/ColumnDefiner';
-import GridButton from './GridButton.vue';
-import TreeSelectEditor from './TreeSelectEditor.vue';
-import apolloClient from '@/apollo';
+import GridButton from './ag-components/GridButton.vue';
+import TreeviewEditor from './ag-components/TreeviewEditor.vue';
+import TreeviewRenderer from './ag-components/TreeviewRenderer.vue';
+import TreeviewFilter from './ag-components/TreeviewFilter.vue';
+import SetFilter from './ag-components/SetFilter.vue';
 
-/*
- * const ButtonEdit = Vue.component('ButtonEdit', {
- *   name: 'ButtonEdit',
- *   methods: {
- *     edit() {
- *       this.params.context.componentParent.launchFormEditor(this.params.node);
- *       this.params.context.componentParent.gridApi.clearFocusedCell();
- *     },
- *   },
- *   template: '<v-icon @click.stop="edit" class="grid-button">create</v-icon>',
- * });
- */
 
+// TODO Figure out a better way of loading in additional components
 @Component({
   components: {
     AgGridVue,
     GridButton,
-    TreeSelectEditor,
+    TreeviewEditor,
+    TreeviewRenderer,
+    TreeviewFilter,
+    SetFilter,
   },
 })
 export default class GridComponent extends Vue {
@@ -87,7 +81,6 @@ export default class GridComponent extends Vue {
 
   gridInstance!: GridInstance;
 
-  
 
   get getRowId() {
     return this.store.grid.rowId;
@@ -113,9 +106,6 @@ export default class GridComponent extends Vue {
     this.context = {
       componentParent: this,
     };
-
-    const testData = await apolloClient.getHeirarchy('HEIR_TEST');
-    console.log(testData);
   };
 
   async onGridReady(params: AgGridEvent): Promise<void> {
@@ -151,10 +141,9 @@ export default class GridComponent extends Vue {
      * has the old data. This was done to avoid implementing updateRow and updateCell
      * which were too similar to justify both.
      */
-    const newData = [event.data];
 
     this.gridInstance.updateRows({
-      rowsToUpdate: newData,
+      rowsToUpdate: [event.data],
       successCallback: (): void => {
         // Update row if successfull
         event.node.setData(event.data);
