@@ -23,7 +23,7 @@
 import { RowNode } from 'ag-grid-community';
 import { Component, Mixins } from 'vue-property-decorator';
 
-import GridMixin from '../ts/GridMixin';
+import GridMixin from './ts/GridMixin';
 
 @Component({})
 export default class DragGridComponent extends Mixins(GridMixin) {
