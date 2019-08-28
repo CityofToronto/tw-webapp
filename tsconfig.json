@@ -9,7 +9,7 @@
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "baseUrl": ".",
     "types": [
       "webpack-env",
@@ -18,6 +18,9 @@
     "paths": {
       "@/*": [
         "src/*"
+      ],
+      "#/*": [
+        "*"
       ]
     },
     "lib": [
@@ -36,5 +39,11 @@
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "typedocOptions": {
+    "mode": "modules",
+    "out": "docs",
+    "ignoreCompilerErrors": true,
+    "excludeExternals": true,
+  }
 }
