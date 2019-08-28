@@ -1,10 +1,6 @@
-import { IServerSideGetRowsRequest, RowNode } from 'ag-grid-community';
+import { IServerSideGetRowsRequest } from 'ag-grid-community';
+import { RowData } from './grid';
 
-
-export interface RowData {
-  id: number;
-  [key: string]: any;
-}
 
 export interface TreeData {
   id: number;
