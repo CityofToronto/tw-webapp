@@ -7,17 +7,17 @@
       width="100%"
       class="alert"
     >
-      The "{{ tableName }}" table you are querying for does not exist.
+      The "{{ componentProperties.gridTitle | capitalize }}" table you are querying for does not exist.
     </v-alert>
     <div
       v-else
       class="grid"
     >
       <v-dialog
-        v-model="formVisible"
-        max-width="600px"
+        v-model="dialogVisible"
+        max-width="50%"
         persistent
-        scrollable
+        :scrollable="true"
         :overlay="false"
         transition="dialog-transition"
       >
@@ -30,6 +30,11 @@
           @save-form="save"
           @close-form="formVisible = false"
         />
+        <relationship-builder
+          v-else-if="builderVisible"
+          :table-name="tableName"
+          @close-form="closeBuilder"
+        />
       </v-dialog>
 
       <grid-toolbar
@@ -38,7 +43,7 @@
         @toolbarClick="clickHandler"
       />
       <grid-component
-        v-if="gridType !== 'drag'"
+        v-if="gridType !== gridTypeEnum.DragTo"
         :table-name="tableName"
         :show-side-bar="componentProperties.gridProps.showSidebar"
         :auto-height="componentProperties.gridProps.autoHeight"
@@ -46,6 +51,7 @@
         :editable="componentProperties.gridProps.editable"
         :pagination="componentProperties.gridProps.pagination"
         :query-type="componentProperties.gridProps.queryType"
+        :custom-columns="componentProperties.gridProps.customColumns"
 
         @set-grid-instance="setGridInstance"
         @edit="editRow"
@@ -53,42 +59,36 @@
       <drag-grid-component
         v-else
         :table-name="tableName"
-        :depends-on="dependsOn"
+        :show-side-bar="componentProperties.gridProps.showSidebar"
+        :auto-height="componentProperties.gridProps.autoHeight"
+        :draggable="componentProperties.gridProps.draggable"
+        :editable="componentProperties.gridProps.editable"
+        :pagination="componentProperties.gridProps.pagination"
+        :query-type="componentProperties.gridProps.queryType"
+        :custom-columns="componentProperties.gridProps.customColumns"
+
+        @set-grid-instance="setGridInstance"
+        @edit="editRow"
       />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { RowNode } from 'ag-grid-community';
 import { useStore } from 'vuex-simple';
 import Store from '@/store/store';
 
 import DynamicForm from './subcomponents/DynamicForm.vue';
+import RelationshipBuilder from './subcomponents/RelationshipBuilder.vue';
 import GridComponent from './subcomponents/GridComponent.vue';
-import GridToolbar, { ToolbarOperations } from './subcomponents/GridToolbar.vue';
+import GridToolbar, { ToolbarOperations } from './grid/GridToolbar.vue';
 import DragGridComponent from './subcomponents/DragGridComponent.vue';
-import GridInstance from './js/GridInstance';
+import GridInstance from './grid/ts/GridInstance';
 import { QueryType, RowData } from '@/apollo/types';
+import { GridComponentOptions, CustomColumn, GridType } from '@/types/grid';
 
-export enum GridType {Full, OneToMany, ManyToMany, Draggable};
-
-interface GridComponentOptions {
-  gridTitle: string;
-  gridProps: {
-    autoHeight: boolean;
-    editable: boolean;
-    showSidebar: boolean;
-    draggable: boolean;
-    pagination: boolean;
-    queryType: QueryType;
-  };
-  toolbarProps: {
-    controls: string[];
-  };
-}
 
 @Component({
   components: {
@@ -96,6 +96,7 @@ interface GridComponentOptions {
     GridComponent,
     DragGridComponent,
     DynamicForm,
+    RelationshipBuilder,
   },
 })
 export default class GridWithToolbar extends Vue {
@@ -103,9 +104,15 @@ export default class GridWithToolbar extends Vue {
 
   @Prop({ default: GridType.Full }) readonly gridType!: GridType;
 
+  @Prop(Object) readonly gridOptions!: GridComponentOptions;
+
+  gridTypeEnum = GridType;
+
   gridInstance!: GridInstance;
 
   formVisible: boolean = false;
+
+  builderVisible: boolean = false;
 
   formData: object = {};
 
@@ -114,6 +121,10 @@ export default class GridWithToolbar extends Vue {
   saveFormFunction!: (formData: RowData) => void;
 
   store: Store = useStore(this.$store)
+
+  get dialogVisible(): boolean {
+    return (this.builderVisible || this.formVisible);
+  };
 
   get componentProperties() {
     /**
@@ -131,6 +142,7 @@ export default class GridWithToolbar extends Vue {
             queryType: QueryType.Direct,
             autoHeight: false,
             showSideBar: true,
+            pagination: true,
           },
         },
         [GridType.OneToMany]: {
@@ -143,21 +155,37 @@ export default class GridWithToolbar extends Vue {
         },
         [GridType.ManyToMany]: {
           toolbarProps: {
-            controls: ['removeRow', 'fitColumns', 'sizeColumns'],
+            controls: ['editLinks', 'fitColumns', 'sizeColumns'],
           },
           gridProps: {
             queryType: QueryType.ManyToMany,
             editable: false,
+            customColumns: [CustomColumn.Unlink],
           },
         },
-        [GridType.Draggable]: {
+        [GridType.DragTo]: {
+          gridTitle: `Linked ${this.tableName}`,
           toolbarProps: {
-            controls: ['addRow', 'cloneRow', 'removeRow', 'fitColumns', 'sizeColumns'],
+            controls: ['fitColumns', 'sizeColumns'],
+          },
+          gridProps: {
+            queryType: QueryType.ManyToMany,
+            autoHeight: false,
+            draggable: true,
+            customColumns: [CustomColumn.Unlink],
+          },
+        },
+        [GridType.DragFrom]: {
+          gridTitle: `All ${this.tableName}`,
+          toolbarProps: {
+            controls: ['addRow', 'cloneRow', 'fitColumns', 'sizeColumns'],
           },
           gridProps: {
             queryType: QueryType.Direct,
             autoHeight: false,
             draggable: true,
+            pagination: true,
+            customColumns: [CustomColumn.Drag],
           },
         },
       };
@@ -168,6 +196,7 @@ export default class GridWithToolbar extends Vue {
 
     const defaultProps = {
       gridTitle: this.tableName,
+      ...componentProps,
       toolbarProps: {
         ...componentProps.toolbarProps,
       },
@@ -177,6 +206,7 @@ export default class GridWithToolbar extends Vue {
         autoHeight: true,
         draggable: false,
         pagination: false,
+        customColumns: [CustomColumn.Edit],
         ...componentProps.gridProps,
       },
     };
@@ -193,6 +223,11 @@ export default class GridWithToolbar extends Vue {
     return this.gridInstance.columnDefs;
   }
 
+  closeBuilder() {
+    this.builderVisible = false;
+    this.gridInstance.gridApi.purgeServerSideCache();
+  }
+
   clickHandler(clickType: ToolbarOperations) {
     const clickFunctions: {[key in ToolbarOperations]: () => void} = {
       [ToolbarOperations.AddRow]: this.addRow,
@@ -201,6 +236,7 @@ export default class GridWithToolbar extends Vue {
       [ToolbarOperations.SizeColumns]: this.sizeColumns,
       [ToolbarOperations.FitColumns]: this.fitColumns,
       [ToolbarOperations.TogglePanel]: this.togglePanel,
+      [ToolbarOperations.EditLinks]: this.editLinks,
     };
     clickFunctions[clickType]();
   };
@@ -280,6 +316,10 @@ export default class GridWithToolbar extends Vue {
     });
   };
 
+  editLinks() {
+    this.builderVisible = true;
+  }
+
   fitColumns() {
     this.gridInstance.sizeColumnsToFit();
   };
@@ -303,8 +343,56 @@ export default class GridWithToolbar extends Vue {
 }
 </script>
 
-<style>
+<style lang="scss">
+@import "../../../node_modules/ag-grid-community/dist/styles/ag-grid.css";
+@import "../../../node_modules/ag-grid-community/dist/styles/ag-theme-material.css";
+
+$grid-size: 4px;
+$icon-size: 12px;
+$virtual-item-height: 5px;
+
 .grid {
   height: 100%;
 }
+
+.thin-column {
+  margin: auto !important;
+  overflow: visible !important;
+  padding: 0px 0px !important;
+}
+
+// Adds a border left of the ag-grid sidebar
+.ag-theme-material .ag-side-bar {
+  border-left-width: 0.5px;
+  border-left-color: #e2e2e2;
+}
+
+// Styling for grid dropdown list
+.ag-theme-material .ag-rich-select .ag-rich-select-list {
+  height: auto !important;
+  padding-bottom:10px;
+}
+.ag-theme-material .ag-menu .ag-menu-separator {
+  height: 8px;
+}
+
+.ag-theme-material .ag-header-cell-label {
+  justify-content: center;
+}
+
+.ag-theme-material .ag-header-cell {
+  padding-left: 12px;
+  padding-right:5px;
+}
+
+.ag-theme-material .ag-menu-option {
+  height: 30px;
+}
+.alert {
+  margin: auto;
+  width: 100%;
+  top: 40%
+}
+
+
 </style>

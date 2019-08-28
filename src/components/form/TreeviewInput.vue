@@ -14,11 +14,11 @@
       />
     </v-sheet>
     <v-treeview
-      v-model="selection"
-      return-object
+      v-model="selectedItems"
       class="px-4"
       :search="searchModel"
-      :items="items"
+      :items="params.treeData"
+      selection-type="independent"
       selectable
     />
   </v-sheet>
@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import {
-  Vue, Component, Prop, PropSync,
+  Vue, Component, Prop, Watch,
 } from 'vue-property-decorator';
 
 interface TreeItem {
@@ -38,20 +38,34 @@ interface TreeItem {
 export default class TreeViewInput extends Vue {
   @Prop(String) readonly label!: string;
 
+  @Prop(Number) readonly value!: number;
+
   @Prop(Array) readonly items!: {
     id: number;
     name: string;
     children: [];
   }[]
 
-  @PropSync('inputValue', { type: Array }) syncedValue!: [];
+  @Prop(Object) readonly params!: {
+    treeData: [];
+  }
 
   searchModel: string = '';
 
-  selection: TreeItem[] = [];
+  selectedItems: number[] = [];
+
+  beforeMount() {
+    this.selectedItems = [this.value];
+  }
+
+  @Watch('selectedItems')
+  onChange(newValue: number[]) {
+    this.$emit('input', newValue[0]);
+  }
 }
 </script>
 
 <style>
 
 </style>
+;
