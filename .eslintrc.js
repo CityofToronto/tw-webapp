@@ -7,10 +7,9 @@ module.exports = {
      '@typescript-eslint'
   ],
   extends: [
-    'airbnb-base',
-    'plugin:vue/recommended',
-    "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
+    'plugin:vue/essential',
+    '@vue/typescript',
+    '@vue/prettier',
     "plugin:@typescript-eslint/recommended",
   ],
   rules: {
@@ -22,7 +21,6 @@ module.exports = {
     "import/no-unresolved": "off",
     "import/prefer-default-export": "off",
     "@typescript-eslint/indent": ["error", 2],
-    "max-len": ["error", { "code": 120 }],
     "class-methods-use-this": "off"
   },
   parser: 'vue-eslint-parser',
