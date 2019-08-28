@@ -1,19 +1,7 @@
-
 <template>
-  <v-layout
-    column
-    wrap
-    fill-height
-    px-4
-    py-2
-  >
-    <v-flex
-      grow
-    >
-      <v-sheet
-        height="100%"
-        elevation="2"
-      >
+  <v-layout column wrap fill-height px-4 py-2>
+    <v-flex grow>
+      <v-sheet height="100%" elevation="2">
         <grid-with-toolbar
           :key="$route.params.table"
           :table-name="$route.params.table"
@@ -21,9 +9,7 @@
         />
       </v-sheet>
 
-      <drawer-right
-        :right-side-drawer="infoPanel"
-      />
+      <drawer-right :right-side-drawer="infoPanel" />
     </v-flex>
   </v-layout>
 </template>
@@ -31,9 +17,9 @@
 <script>
 import { Component, Vue } from 'vue-property-decorator';
 import { useStore } from 'vuex-simple';
-import GridWithToolbar, { GridType } from '@/components/grid/GridWithToolbar.vue';
+import GridWithToolbar from '@/components/GridWithToolbar.vue';
 import DrawerRight from '@/components/layout/DrawerRight.vue';
-
+import { GridType } from '@/types/grid';
 
 @Component({
   components: {
@@ -50,8 +36,7 @@ export default class ReviewPanel extends Vue {
   get infoPanel() {
     return this.store.display.reviewPanelState;
   }
-};
-
+}
 </script>
 
 <style lang="scss">
@@ -59,6 +44,4 @@ export default class ReviewPanel extends Vue {
   height: 100%;
   width: 100%;
 }
-
-
 </style>
