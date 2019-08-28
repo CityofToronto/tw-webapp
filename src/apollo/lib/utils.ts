@@ -1,6 +1,7 @@
 import { QueryError, RowData } from '@/apollo/types';
 import { storeInstance } from '@/store';
 import { NotificationPosition } from '@/store/modules/notification';
+import { GridFilterModel } from '@/types/grid';
 
 // This the mappings from AgGrid to GraphQL Query
 const mapping = new Map([
@@ -18,6 +19,20 @@ const mapping = new Map([
   ['endsWith', '_similar'],
 
 ]);
+
+enum GridFilterType {
+  contains,
+  notContains,
+  startsWith,
+  endsWith,
+  default,
+}
+
+enum FilterType {
+  Text,
+  Number,
+  Array,
+}
 
 // TODO Type this file
 
@@ -40,51 +55,45 @@ export const dispatchError = (error: QueryError): never => {
   throw Error(error.message);
 };
 
-const parse = (type: object): string => {
-  const filterValue = (filterType: string) => {
+const getFilterFunction = (type: object): string => {
+  // This returns how the value should be formatted for Hasura to like us
+  const filterValue = (filterType: GridFilterType): (value: string) => string => {
     const modifiedValue = {
-      contains: (value: string) => `%${value}%`,
-      notContains: (value: string) => `%${value}%`,
-      startsWith: (value: string) => `${value}%`,
-      endsWith: (value: string) => `%${value}`,
-      default: (value: string) => value,
+      [GridFilterType.contains]: (value: string): string => `%${value}%`,
+      [GridFilterType.notContains]: (value: string): string => `%${value}%`,
+      [GridFilterType.startsWith]: (value: string): string => `${value}%`,
+      [GridFilterType.endsWith]: (value: string): string => `%${value}`,
+      [GridFilterType.default]: (value: string): string => value,
 
     };
-    return modifiedValue[filterType] || modifiedValue.default;
+    return modifiedValue[filterType] || modifiedValue[GridFilterType.default];
   };
 
-  const parseSingular = (key: string, condition: {type: string; filterType: string}) => `${key}: {${mapping.get(condition.type)}: "${filterValue(condition.type)(condition.filter)}"}`;
-  const parseMultiple = (key, value) => {
+  const parseSingular: string = (key: string, condition: {type: string; filterType: string}) => `${key}: {${mapping.get(condition.type)}: "${filterValue(condition.type)(condition.filter)}"}`;
+  const parseMultiple: string = (key, value) => {
     const { condition1, condition2, operator } = value;
     return `${mapping.get(operator)}: [{${parseSingular(key, condition1)}}, {${parseSingular(key, condition2)}}]`;
   };
 
-  const parseSet = (key, value) => `${key}: {_in: [${value.values.map((x) => `"${x}"`).join(',')}]}`;
+  const parseArray = (key, value) => `${key}: {_in: [${value.values.map((x) => `"${x}"`).join(',')}]}`;
 
   const filterFunctions = {
     text: type.operator ? parseMultiple : parseSingular,
     number: type.operator ? parseMultiple : parseSingular,
-    set: parseSet,
-    array: parseSet,
+    array: parseArray,
   };
   return filterFunctions[type.filterType];
 };
 
-/*
+/**
  * This filter constructs a GraphQL with all the different
  * types of relationships such as contains, equals, and, or
  */
-export const constructFilter = (sortModel) => {
-  if (typeof sortModel === 'undefined' || sortModel === null) {
-    return '{}';
+export const constructFilter = (filterModel: GridFilterModel): string | undefined => {
+  if (typeof filterModel === 'undefined' || filterModel === null) {
+    return '';
   }
-  const columnFilters = Object.entries(sortModel).map(([key, value]) => parse(value)(key, value));
+  const columnFilters = Object.entries(filterModel).map(([key, value]) => getFilterFunction(value)(key, value));
   const joinedFilters = `{_and: {${columnFilters.join(', ')}}}`;
   return joinedFilters;
-};
-
-// This simple filter just maps key:value to key: {_eq: "value"} and joins
-export const constructSimpleFilter = (sortModel) => {
-  const columnFilters = Object.entries(sortModel).map(([key, value]) => `${key}: {_eq: "${value}"}`).join();
-  return columnFilters;
 };

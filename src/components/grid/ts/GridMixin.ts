@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/explicit-member-accessibility */
 import { AgGridVue } from 'ag-grid-vue';
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import {
-  ColumnApi, GridApi, AgGridEvent, ColDef, GridOptions,
-} from 'ag-grid-community';
+import { ColumnApi, GridApi, AgGridEvent, ColDef, GridOptions } from 'ag-grid-community';
 import { useStore } from 'vuex-simple';
-import GridButton from '@/components/grid/subcomponents/ag-components/GridButton.vue';
+import GridButton from '@/components/grid/ag-components/GridButton.vue';
 import GridInstance from './GridInstance';
-import { ColumnDefiner, CustomColumn } from './ColumnDefiner';
+import { ColumnDefiner } from './ColumnDefiner';
 import Store from '@/store/store';
 import * as GRID_CONFIG from '../ts/grid.config';
 import { QueryType } from '@/types/api';
+import { CustomColumn } from '@/types/grid';
 
 @Component({
   components: {
@@ -36,7 +35,7 @@ export default class GridMixin extends Vue {
   @Prop(String) readonly height!: string;
 
   // Array and Object Props must return a function that returns the default value
-  @Prop({ default: (): [] => [] }) readonly customColumns!: CustomColumn[]
+  @Prop({ default: (): [] => [] }) readonly customColumns!: CustomColumn[];
 
   store: Store = useStore(this.$store);
 
@@ -48,7 +47,7 @@ export default class GridMixin extends Vue {
 
   gridInstance!: GridInstance;
 
-  context: {componentParent: object} = { componentParent: {} };
+  context: { componentParent: object } = { componentParent: {} };
 
   gridOptions!: GridOptions;
 
@@ -65,7 +64,7 @@ export default class GridMixin extends Vue {
     this.context = {
       componentParent: this,
     };
-  };
+  }
 
   async onGridReady(params: AgGridEvent): Promise<void> {
     this.gridApi = params.api;
@@ -88,5 +87,5 @@ export default class GridMixin extends Vue {
 
     // Give grid instance to GridWithToolbar
     this.$emit('set-grid-instance', this.gridInstance);
-  };
-};
+  }
+}

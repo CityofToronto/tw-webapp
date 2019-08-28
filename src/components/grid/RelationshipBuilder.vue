@@ -39,7 +39,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import { GridType } from '../GridWithToolbar.vue';
+import { GridType } from '@/types/grid';
 
 @Component({
   components: {

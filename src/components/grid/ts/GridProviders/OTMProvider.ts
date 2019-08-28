@@ -6,7 +6,7 @@ import { dispatchError, stringify } from '@/apollo/lib/utils';
 import { GridProvider } from '../GridProviders';
 import apolloClient from '@/apollo';
 import { OTMDatasource } from './Datasources/OTMDatasource';
-import { RowData } from '@/apollo/types';
+import { RowData } from '@/types/grid';
 
 export class OTMProvider implements GridProvider {
   public gridDatasource: IServerSideDatasource;
@@ -16,22 +16,16 @@ export class OTMProvider implements GridProvider {
   private relatedData: {
     tableName: string;
     rowId: number;
-  }
+  };
 
   /**
    * Note that we pass in an object of relatedData, as objects are pass by reference
    * Therefore when we change that object outside the class, it will update all in here
    */
-  public constructor(
-    tableName: string,
-    relatedData: { rowId: number; tableName: string },
-  ) {
+  public constructor(tableName: string, relatedData: { rowId: number; tableName: string }) {
     this.tableName = tableName;
     this.relatedData = relatedData;
-    this.gridDatasource = new OTMDatasource(
-      this.tableName,
-      this.relatedData,
-    );
+    this.gridDatasource = new OTMDatasource(this.tableName, this.relatedData);
   }
 
   public addData(
@@ -39,8 +33,9 @@ export class OTMProvider implements GridProvider {
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
   ): void {
-    apolloClient.mutate({
-      mutation: gql`
+    apolloClient
+      .mutate({
+        mutation: gql`
           mutation {
             insert_${this.tableName} (
               objects: {
@@ -51,7 +46,7 @@ export class OTMProvider implements GridProvider {
               affected_rows
             }
           }`,
-    })
+      })
       .then((): void => {
         successCallback();
       })
@@ -70,8 +65,9 @@ export class OTMProvider implements GridProvider {
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
   ): void {
-    apolloClient.mutate({
-      mutation: gql`
+    apolloClient
+      .mutate({
+        mutation: gql`
       mutation {
         delete_${this.tableName}(
         where: {
@@ -80,7 +76,7 @@ export class OTMProvider implements GridProvider {
         affected_rows
       }
     }`,
-    })
+      })
       .then((): void => {
         successCallback();
       })
@@ -96,8 +92,9 @@ export class OTMProvider implements GridProvider {
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
   ): void {
-    apolloClient.mutate({
-      mutation: gql`
+    apolloClient
+      .mutate({
+        mutation: gql`
       mutation updateRow {
       update_${this.tableName} (
         where: {
@@ -112,7 +109,7 @@ export class OTMProvider implements GridProvider {
         }
       }
     }`,
-    })
+      })
       .then((): void => {
         successCallback();
       })

@@ -2,9 +2,9 @@
 
 <template>
   <ag-grid-vue
-    :style="autoHeight ? 'width: 100%;': 'width: 100%; height: calc(100% - 48px);'"
+    :style="autoHeight ? 'width: 100%;' : 'width: 100%; height: calc(100% - 48px);'"
     class="ag-theme-material"
-    :dom-layout="autoHeight ? 'autoHeight': 'normal'"
+    :dom-layout="autoHeight ? 'autoHeight' : 'normal'"
     :grid-options="gridOptions"
     :column-defs="columnDefs"
     :row-height="7 * 6"
@@ -14,8 +14,6 @@
     :row-data-managed="draggable"
     :pagination="true"
     pagination-auto-page-size="true"
-
-
     @grid-ready="onGridReady"
     @cell-value-changed="cellValueChanged"
     @row-clicked="rowClicked"
@@ -23,21 +21,16 @@
 </template>
 
 <script lang="ts">
-import {
-  Watch, Component, Mixins,
-} from 'vue-property-decorator';
-import {
-  RowEvent, RowNode, CellValueChangedEvent,
-} from 'ag-grid-community';
-import GridMixin from '../ts/GridMixin';
+import { Watch, Component, Mixins } from 'vue-property-decorator';
+import { RowEvent, RowNode, CellValueChangedEvent } from 'ag-grid-community';
+import GridMixin from './ts/GridMixin';
 import { QueryType } from '@/apollo/types';
 import TreeviewEditor from './ag-components/TreeviewEditor.vue';
 import TreeviewRenderer from './ag-components/TreeviewRenderer.vue';
 import TreeviewFilter from './ag-components/TreeviewFilter.vue';
 import SetFilter from './ag-components/SetFilter.vue';
 
-
-// TODO Figure out a better way of loading in additional components
+// TODO Figure out a better way of loading in additional components since these get loaded even if they aren't used
 @Component({
   components: {
     TreeviewEditor,
@@ -49,7 +42,7 @@ import SetFilter from './ag-components/SetFilter.vue';
 export default class GridComponent extends Mixins(GridMixin) {
   get getRowId() {
     return this.store.grid.rowId;
-  };
+  }
 
   @Watch('getRowId')
   onRowIdChanged() {
@@ -80,7 +73,7 @@ export default class GridComponent extends Mixins(GridMixin) {
         event.node.setDataValue(event.column.getColId(), event.oldValue);
       },
     });
-  };
+  }
 
   removeEntry(rowNode: RowNode) {
     this.gridInstance.removeRows({
@@ -89,12 +82,12 @@ export default class GridComponent extends Mixins(GridMixin) {
         this.gridApi.purgeServerSideCache();
       },
     });
-  };
+  }
 
   // This method is called by the edit button rendered inside the grid
   launchFormEditor(rowNode: RowNode): void {
     this.$emit('edit', rowNode);
-  };
+  }
 
   rowClicked(event: RowEvent): void {
     if (this.queryType === QueryType.Direct) {
@@ -105,6 +98,6 @@ export default class GridComponent extends Mixins(GridMixin) {
         rowId,
       });
     }
-  };
-};
+  }
+}
 </script>

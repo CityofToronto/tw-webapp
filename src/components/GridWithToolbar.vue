@@ -1,18 +1,10 @@
 <template>
   <div class="grid">
-    <v-alert
-      v-if="validTable"
-      type="warning"
-      prominent
-      width="100%"
-      class="alert"
-    >
-      The "{{ componentProperties.gridTitle | capitalize }}" table you are querying for does not exist.
+    <v-alert v-if="validTable" type="warning" prominent width="100%" class="alert">
+      The "{{ componentProperties.gridTitle | capitalize }}" table you are querying for does not
+      exist.
     </v-alert>
-    <div
-      v-else
-      class="grid"
-    >
+    <div v-else class="grid">
       <v-dialog
         v-model="dialogVisible"
         max-width="50%"
@@ -52,7 +44,6 @@
         :pagination="componentProperties.gridProps.pagination"
         :query-type="componentProperties.gridProps.queryType"
         :custom-columns="componentProperties.gridProps.customColumns"
-
         @set-grid-instance="setGridInstance"
         @edit="editRow"
       />
@@ -66,7 +57,6 @@
         :pagination="componentProperties.gridProps.pagination"
         :query-type="componentProperties.gridProps.queryType"
         :custom-columns="componentProperties.gridProps.customColumns"
-
         @set-grid-instance="setGridInstance"
         @edit="editRow"
       />
@@ -80,15 +70,14 @@ import { RowNode } from 'ag-grid-community';
 import { useStore } from 'vuex-simple';
 import Store from '@/store/store';
 
-import DynamicForm from './subcomponents/DynamicForm.vue';
-import RelationshipBuilder from './subcomponents/RelationshipBuilder.vue';
-import GridComponent from './subcomponents/GridComponent.vue';
+import DynamicForm from './grid/DynamicForm.vue';
+import RelationshipBuilder from './grid/RelationshipBuilder.vue';
+import GridComponent from './grid/GridComponent.vue';
 import GridToolbar, { ToolbarOperations } from './grid/GridToolbar.vue';
-import DragGridComponent from './subcomponents/DragGridComponent.vue';
+import DragGridComponent from './grid/DragGridComponent.vue';
 import GridInstance from './grid/ts/GridInstance';
 import { QueryType, RowData } from '@/apollo/types';
 import { GridComponentOptions, CustomColumn, GridType } from '@/types/grid';
-
 
 @Component({
   components: {
@@ -120,23 +109,31 @@ export default class GridWithToolbar extends Vue {
 
   saveFormFunction!: (formData: RowData) => void;
 
-  store: Store = useStore(this.$store)
+  store: Store = useStore(this.$store);
 
   get dialogVisible(): boolean {
-    return (this.builderVisible || this.formVisible);
-  };
+    return this.builderVisible || this.formVisible;
+  }
 
   get componentProperties() {
     /**
      * These are pre-defined configurations of grids
      * Options are of the enum GridType
      */
-    const getComponentProps = (gridType: GridType):
-    {toolbarProps: object; gridProps?: object} => {
+    const getComponentProps = (
+      gridType: GridType,
+    ): { toolbarProps: object; gridProps?: object } => {
       const props = {
         [GridType.Full]: {
           toolbarProps: {
-            controls: ['addRow', 'cloneRow', 'removeRow', 'fitColumns', 'sizeColumns', 'togglePanel'],
+            controls: [
+              'addRow',
+              'cloneRow',
+              'removeRow',
+              'fitColumns',
+              'sizeColumns',
+              'togglePanel',
+            ],
           },
           gridProps: {
             queryType: QueryType.Direct,
@@ -229,7 +226,7 @@ export default class GridWithToolbar extends Vue {
   }
 
   clickHandler(clickType: ToolbarOperations) {
-    const clickFunctions: {[key in ToolbarOperations]: () => void} = {
+    const clickFunctions: { [key in ToolbarOperations]: () => void } = {
       [ToolbarOperations.AddRow]: this.addRow,
       [ToolbarOperations.CloneRow]: this.cloneRow,
       [ToolbarOperations.RemoveRow]: this.removeRow,
@@ -239,7 +236,7 @@ export default class GridWithToolbar extends Vue {
       [ToolbarOperations.EditLinks]: this.editLinks,
     };
     clickFunctions[clickType]();
-  };
+  }
 
   addRow() {
     this.saveFormFunction = (formData: RowData) => {
@@ -269,7 +266,7 @@ export default class GridWithToolbar extends Vue {
     };
     this.formData = rowNode.data;
     this.formVisible = true;
-  };
+  }
 
   cloneRow() {
     const selectedRows = this.gridInstance.getSelectedRows();
@@ -305,7 +302,7 @@ export default class GridWithToolbar extends Vue {
 
   togglePanel() {
     this.store.display.toggleReviewPanel();
-  };
+  }
 
   removeRow() {
     this.gridInstance.removeRows({
@@ -314,7 +311,7 @@ export default class GridWithToolbar extends Vue {
         this.gridInstance.purgeCache();
       },
     });
-  };
+  }
 
   editLinks() {
     this.builderVisible = true;
@@ -322,15 +319,15 @@ export default class GridWithToolbar extends Vue {
 
   fitColumns() {
     this.gridInstance.sizeColumnsToFit();
-  };
+  }
 
   sizeColumns() {
     this.gridInstance.autoSizeColumns();
-  };
+  }
 
   setGridInstance(gridInstance: GridInstance) {
     this.gridInstance = gridInstance;
-  };
+  }
 
   save(formData: RowData) {
     this.saveFormFunction(formData);
@@ -344,8 +341,8 @@ export default class GridWithToolbar extends Vue {
 </script>
 
 <style lang="scss">
-@import "../../../node_modules/ag-grid-community/dist/styles/ag-grid.css";
-@import "../../../node_modules/ag-grid-community/dist/styles/ag-theme-material.css";
+@import '../../node_modules/ag-grid-community/dist/styles/ag-grid.css';
+@import '../../node_modules/ag-grid-community/dist/styles/ag-theme-material.css';
 
 $grid-size: 4px;
 $icon-size: 12px;
@@ -370,7 +367,7 @@ $virtual-item-height: 5px;
 // Styling for grid dropdown list
 .ag-theme-material .ag-rich-select .ag-rich-select-list {
   height: auto !important;
-  padding-bottom:10px;
+  padding-bottom: 10px;
 }
 .ag-theme-material .ag-menu .ag-menu-separator {
   height: 8px;
@@ -382,7 +379,7 @@ $virtual-item-height: 5px;
 
 .ag-theme-material .ag-header-cell {
   padding-left: 12px;
-  padding-right:5px;
+  padding-right: 5px;
 }
 
 .ag-theme-material .ag-menu-option {
@@ -391,8 +388,6 @@ $virtual-item-height: 5px;
 .alert {
   margin: auto;
   width: 100%;
-  top: 40%
+  top: 40%;
 }
-
-
 </style>
