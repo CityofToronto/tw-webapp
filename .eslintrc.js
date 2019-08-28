@@ -23,6 +23,7 @@ module.exports = {
     "import/prefer-default-export": "off",
     "@typescript-eslint/indent": ["error", 2],
     "max-len": ["error", { "code": 120 }],
+    "class-methods-use-this": "off"
   },
   parser: 'vue-eslint-parser',
   parserOptions: {
