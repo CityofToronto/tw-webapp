@@ -1,4 +1,4 @@
-# tw-webapp
+# Toronto Water Web Application
 
 ## Project setup
 ```
