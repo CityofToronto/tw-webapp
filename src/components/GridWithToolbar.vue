@@ -1,8 +1,14 @@
 <template>
   <div class="grid">
-    <v-alert v-if="validTable" type="warning" prominent width="100%" class="alert">
-      The "{{ componentProperties.gridTitle | capitalize }}" table you are querying for does not
-      exist.
+    <v-alert
+      v-if="validTable"
+      type="warning"
+      prominent
+      width="100%"
+      class="alert"
+    >
+      The "{{ componentProperties.gridTitle | capitalize }}" table you are
+      querying for does not exist.
     </v-alert>
     <div v-else class="grid">
       <v-dialog
@@ -34,21 +40,8 @@
         :grid-title="componentProperties.gridTitle"
         @toolbarClick="clickHandler"
       />
-      <grid-component
-        v-if="gridType !== gridTypeEnum.DragTo"
-        :table-name="tableName"
-        :show-side-bar="componentProperties.gridProps.showSidebar"
-        :auto-height="componentProperties.gridProps.autoHeight"
-        :draggable="componentProperties.gridProps.draggable"
-        :editable="componentProperties.gridProps.editable"
-        :pagination="componentProperties.gridProps.pagination"
-        :query-type="componentProperties.gridProps.queryType"
-        :custom-columns="componentProperties.gridProps.customColumns"
-        @set-grid-instance="setGridInstance"
-        @edit="editRow"
-      />
-      <drag-grid-component
-        v-else
+      <component
+        :is="componentProperties.gridComponent"
         :table-name="tableName"
         :show-side-bar="componentProperties.gridProps.showSidebar"
         :auto-height="componentProperties.gridProps.autoHeight"
@@ -68,22 +61,19 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { RowNode } from 'ag-grid-community';
 import { useStore } from 'vuex-simple';
+import { getComponentProperties } from './grid/ts/GridTypes';
 import Store from '@/store/store';
 
 import DynamicForm from './grid/DynamicForm.vue';
 import RelationshipBuilder from './grid/RelationshipBuilder.vue';
-import GridComponent from './grid/GridComponent.vue';
 import GridToolbar, { ToolbarOperations } from './grid/GridToolbar.vue';
-import DragGridComponent from './grid/DragGridComponent.vue';
 import GridInstance from './grid/ts/GridInstance';
-import { QueryType, RowData } from '@/apollo/types';
-import { GridComponentOptions, CustomColumn, GridType } from '@/types/grid';
+import { RowData } from '@/apollo/types';
+import { GridComponentOptions, GridType } from '@/types/grid';
 
 @Component({
   components: {
     GridToolbar,
-    GridComponent,
-    DragGridComponent,
     DynamicForm,
     RelationshipBuilder,
   },
@@ -111,108 +101,16 @@ export default class GridWithToolbar extends Vue {
 
   store: Store = useStore(this.$store);
 
+  get componentProperties() {
+    return getComponentProperties(this.gridType, this.tableName);
+  }
+
   get dialogVisible(): boolean {
     return this.builderVisible || this.formVisible;
   }
 
-  get componentProperties() {
-    /**
-     * These are pre-defined configurations of grids
-     * Options are of the enum GridType
-     */
-    const getComponentProps = (
-      gridType: GridType,
-    ): { toolbarProps: object; gridProps?: object } => {
-      const props = {
-        [GridType.Full]: {
-          toolbarProps: {
-            controls: [
-              'addRow',
-              'cloneRow',
-              'removeRow',
-              'fitColumns',
-              'sizeColumns',
-              'togglePanel',
-            ],
-          },
-          gridProps: {
-            queryType: QueryType.Direct,
-            autoHeight: false,
-            showSideBar: true,
-            pagination: true,
-          },
-        },
-        [GridType.OneToMany]: {
-          toolbarProps: {
-            controls: ['addRow', 'cloneRow', 'removeRow', 'fitColumns', 'sizeColumns'],
-          },
-          gridProps: {
-            queryType: QueryType.OneToMany,
-          },
-        },
-        [GridType.ManyToMany]: {
-          toolbarProps: {
-            controls: ['editLinks', 'fitColumns', 'sizeColumns'],
-          },
-          gridProps: {
-            queryType: QueryType.ManyToMany,
-            editable: false,
-            customColumns: [CustomColumn.Unlink],
-          },
-        },
-        [GridType.DragTo]: {
-          gridTitle: `Linked ${this.tableName}`,
-          toolbarProps: {
-            controls: ['fitColumns', 'sizeColumns'],
-          },
-          gridProps: {
-            queryType: QueryType.ManyToMany,
-            autoHeight: false,
-            draggable: true,
-            customColumns: [CustomColumn.Unlink],
-          },
-        },
-        [GridType.DragFrom]: {
-          gridTitle: `All ${this.tableName}`,
-          toolbarProps: {
-            controls: ['addRow', 'cloneRow', 'fitColumns', 'sizeColumns'],
-          },
-          gridProps: {
-            queryType: QueryType.Direct,
-            autoHeight: false,
-            draggable: true,
-            pagination: true,
-            customColumns: [CustomColumn.Drag],
-          },
-        },
-      };
-      return props[gridType];
-    };
-
-    const componentProps = getComponentProps(this.gridType);
-
-    const defaultProps = {
-      gridTitle: this.tableName,
-      ...componentProps,
-      toolbarProps: {
-        ...componentProps.toolbarProps,
-      },
-      gridProps: {
-        editable: true,
-        showSidebar: false,
-        autoHeight: true,
-        draggable: false,
-        pagination: false,
-        customColumns: [CustomColumn.Edit],
-        ...componentProps.gridProps,
-      },
-    };
-
-    return defaultProps;
-  }
-
   get validTable() {
-    const validTables = ['legislation', 'trade', 'activity'];
+    const validTables = ['legislation', 'trade', 'activity', 'WORK_TYPE'];
     return !validTables.includes(this.tableName);
   }
 
@@ -384,6 +282,9 @@ $virtual-item-height: 5px;
 
 .ag-theme-material .ag-menu-option {
   height: 30px;
+}
+.ag-theme-material .ag-paging-panel {
+  height: 45px !important;
 }
 .alert {
   margin: auto;
