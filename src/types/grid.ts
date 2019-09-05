@@ -3,8 +3,9 @@ import {
   IFilterParams,
   ICellEditorParams,
   ColDef,
+  IServerSideDatasource,
 } from 'ag-grid-community';
-import { QueryType, TreeStructure } from './api';
+import { QueryType, TreeStructure } from '@/types/api';
 
 export interface GridComponentOptions {
   gridTitle: string;
@@ -45,6 +46,39 @@ export enum ColumnTypes {
   selectColumn,
   treeColumn,
   aliasColumn,
+}
+
+export enum GridProviders {
+  Direct,
+  OneToMany,
+  ManyToMany,
+}
+/** A GridProvider is a class that communicates between a backend and Ag-Grid */
+export interface GridProvider {
+  gridDatasource: IServerSideDatasource;
+
+  addData(
+    rowToAdd: RowData,
+    successCallback?: () => void,
+    failCallBack?: () => void,
+  ): void;
+
+  /** Function to remove a row from source */
+  removeData(
+    idToRemove: number,
+    successCallback?: () => void,
+    failCallBack?: () => void,
+  ): void;
+
+  /**
+   * In the case of MTM, updating data is not supported as
+   * it would unexpectedly affect others.
+   */
+  updateData(
+    rowToUpdate: RowData,
+    successCallback?: () => void,
+    failCallBack?: () => void,
+  ): void;
 }
 
 export interface CustomColDef extends ColDef {
