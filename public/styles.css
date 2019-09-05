@@ -1,0 +1,50 @@
+:root {
+  --indent-size: 12px;
+}
+
+.ag-theme-material .ag-ltr .ag-row-group-indent-1 {
+  padding-left: calc(12px * 1) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-2 {
+  padding-left: calc(12px * 2) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-3 {
+  padding-left: calc(12px * 3) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-4 {
+  padding-left: calc(12px * 4) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-5 {
+  padding-left: calc(12px * 5) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-6 {
+  padding-left: calc(12px * 6) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-7 {
+  padding-left: calc(12px * 7) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-8 {
+  padding-left: calc(12px * 8) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-9 {
+  padding-left: calc(12px * 9) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-10 {
+  padding-left: calc(12px * 10) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-11 {
+  padding-left: calc(12px * 11) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-12 {
+  padding-left: calc(12px * 12) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-13 {
+  padding-left: calc(12px * 13) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-14 {
+  padding-left: calc(12px * 14) !important;
+}
+.ag-theme-material .ag-ltr .ag-row-group-indent-15 {
+  padding-left: calc(12px * 15) !important;
+}
+
