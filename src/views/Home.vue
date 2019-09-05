@@ -1,17 +1,6 @@
 <template>
-  <v-layout
-    row
-    wrap
-    px-4
-    py-2
-    justify-start
-  >
-    <v-flex
-      v-for="module in modules"
-      :key="module.name"
-      px-2
-      xs4
-    >
+  <v-layout row wrap px-4 py-2 justify-start>
+    <v-flex v-for="module in modules" :key="module.name" px-2 xs4>
       <v-card>
         <v-card-title dark>
           {{ module.name }}
@@ -20,12 +9,7 @@
           {{ module.description }}
         </v-card-text>
         <v-card-actions>
-          <v-btn
-            text
-            :to="module.route"
-            exact
-            color="primary"
-          >
+          <v-btn text :to="module.route" exact color="primary">
             Launch Module
           </v-btn>
         </v-card-actions>
@@ -56,8 +40,7 @@ export default class HomeView extends Vue {
       route: '/',
     },
   ];
-};
+}
 </script>
 
-<style>
-</style>
+<style></style>

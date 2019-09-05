@@ -1,5 +1,5 @@
 <template>
-  <span> {{ treeValue }}</span>
+  <span>{{ treeValue }}</span>
 </template>
 
 <script lang="ts">
@@ -14,8 +14,9 @@ export default class TreeRenderer extends Vue {
     if (!Array.isArray(this.params.value)) {
       return this.params.treeMap.get(this.params.value) || 'unknown';
     }
-    const names = this.params.value
-      .map((val: number): string => this.params.treeMap.get(val) || 'unknown');
+    const names = this.params.value.map(
+      (val: number): string => this.params.treeMap.get(val) || 'unknown',
+    );
 
     return names.join(', ');
   }

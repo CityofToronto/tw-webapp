@@ -1,11 +1,11 @@
 import { IServerSideGetRowsRequest } from 'ag-grid-community';
 import { RowData } from './grid';
 
-
 export interface TreeData {
   id: number;
   parent: number;
   name: string;
+  [key: string]: any;
 }
 
 export interface TreeStructure extends TreeData {
@@ -27,7 +27,7 @@ export interface FieldQuery {
 export enum QueryType {
   Direct = 'Direct',
   OneToMany = 'OneToMany',
-  ManyToMany = 'ManyToMany'
+  ManyToMany = 'ManyToMany',
 }
 
 interface CallbackQuery {
@@ -36,8 +36,8 @@ interface CallbackQuery {
 }
 
 export interface AddQuery extends CallbackQuery {
-  rowsToAdd: {[key: string]: any}[];
-};
+  rowsToAdd: { [key: string]: any }[];
+}
 
 export interface UpdateQuery extends CallbackQuery {
   rowsToUpdate: RowData[];
@@ -46,15 +46,15 @@ export interface UpdateQuery extends CallbackQuery {
 export interface GetRowsQuery extends RelationalQuery {
   request: IServerSideGetRowsRequest;
   columnNames: string[];
-};
+}
 
 export interface RemoveQuery extends CallbackQuery {
   rowsToRemove: RowData[];
-};
+}
 
-export interface QueryError extends Error{
+export interface QueryError extends Error {
   message: string;
-};
+}
 
 export interface TableTypes {
   name: string;
@@ -74,4 +74,4 @@ export interface TableQueryResult {
       fields: TableTypes[];
     };
   };
-};
+}
