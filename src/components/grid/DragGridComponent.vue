@@ -33,7 +33,6 @@ export default class DragGridComponent extends Mixins(GridMixin) {
     this.activeIds = this.gridApi.getRenderedNodes().map((node): number => node.data.id);
     if (event.dataTransfer) {
       const newData = JSON.parse(event.dataTransfer.getData('application/json'));
-      console.log(this.activeIds, newData.id);
       if (!this.activeIds.includes(newData.id)) {
         this.gridInstance.addRows({
           rowsToAdd: [newData],
