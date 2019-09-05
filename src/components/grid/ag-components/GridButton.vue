@@ -19,13 +19,13 @@ export default class GridButton extends Vue {
   clickHandler() {
     this.params.clickFunction(this.params);
   }
-};
+}
 </script>
 
 <style scoped>
 .v-icon {
-  font-size:18px !important;
-  color: #BDBDBD !important;
+  font-size: 18px !important;
+  color: #bdbdbd !important;
 }
 
 .v-icon:hover {
