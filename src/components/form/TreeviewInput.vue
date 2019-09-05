@@ -25,9 +25,7 @@
 </template>
 
 <script lang="ts">
-import {
-  Vue, Component, Prop, Watch,
-} from 'vue-property-decorator';
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 
 interface TreeItem {
   id: number;
@@ -44,11 +42,11 @@ export default class TreeViewInput extends Vue {
     id: number;
     name: string;
     children: [];
-  }[]
+  }[];
 
   @Prop(Object) readonly params!: {
     treeData: [];
-  }
+  };
 
   searchModel: string = '';
 
@@ -65,7 +63,5 @@ export default class TreeViewInput extends Vue {
 }
 </script>
 
-<style>
-
-</style>
+<style></style>
 ;
