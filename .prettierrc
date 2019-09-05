@@ -4,6 +4,7 @@
   "semi":true,
   "singleQuote":true,
   "arrowParens": "always",
+  "printWidth": 80,
   "endOfLine": "lf",
   "htmlWhitespaceSensitivity": "ignore"
 }
