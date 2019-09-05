@@ -3,13 +3,12 @@ import { TreeStructure } from '@/types/api';
 interface TreeFlatList {
   id: number;
   parent: number;
-  name: string;
 }
 
-export const listToTree = (data: TreeFlatList): TreeStructure[] => {
+export const listToTree = <T extends TreeFlatList>(data: T): T => {
   const tree = [];
   const childrenOf = {};
-  let item;
+  let item: Partial<TreeStructure>;
   let id;
   let parentId;
 
