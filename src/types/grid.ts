@@ -1,4 +1,9 @@
-import { ICellRendererParams, IFilterParams, ICellEditorParams } from 'ag-grid-community';
+import {
+  ICellRendererParams,
+  IFilterParams,
+  ICellEditorParams,
+  ColDef,
+} from 'ag-grid-community';
 import { QueryType, TreeStructure } from './api';
 
 export interface GridComponentOptions {
@@ -18,7 +23,14 @@ export interface GridComponentOptions {
 /**
  * Custom pre-defined Grid Types for defining the props of GridComponent.vue
  */
-export enum GridType { Full, OneToMany, ManyToMany, DragTo, DragFrom };
+export enum GridType {
+  Full,
+  OneToMany,
+  ManyToMany,
+  DragTo,
+  DragFrom,
+  Tree,
+}
 
 export enum CustomColumn {
   Edit = 'Edit',
@@ -26,19 +38,44 @@ export enum CustomColumn {
   Drag = 'Drag',
 }
 
-
 export enum ColumnTypes {
   booleanColumn,
   textColumn,
   numberColumn,
   selectColumn,
   treeColumn,
+  aliasColumn,
+}
+
+export interface CustomColDef extends ColDef {
+  colType: ColumnTypes;
+  selectionType: CellSelectionType;
+}
+
+export interface GridDataTransformer {
+  /**
+   * Transform data into a form that is different
+   * but that can still be handled by Ag-Grid
+   */
+  transform<T extends RowData[]>(data: T): RowData[];
 }
 
 export interface GridFilterModel {
   [key: string]: {
     filterType: string;
     values?: string[];
+    filter?: string;
+    operator?: string;
+    condition1?: {
+      filter: string;
+      filterType: string;
+      type: string;
+    };
+    condition2?: {
+      filter: string;
+      filterType: string;
+      type: string;
+    };
   };
 }
 
@@ -48,11 +85,12 @@ export interface GridSortModel {
 
 export interface RowData {
   id: number;
+  parent?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
-export interface TreeRendererParams extends ICellRendererParams{
+export interface TreeRendererParams extends ICellRendererParams {
   params: {
     value: number[] | number;
   };
@@ -70,5 +108,5 @@ export interface TreeEditorParams extends ICellEditorParams {
 
 export enum CellSelectionType {
   single,
-  multiple
+  multiple,
 }
