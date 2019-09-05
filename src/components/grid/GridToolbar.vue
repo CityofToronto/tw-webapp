@@ -1,8 +1,5 @@
 <template>
-  <v-toolbar
-    dense
-    flat
-  >
+  <v-toolbar dense flat>
     <v-toolbar-title>
       {{ gridTitle | capitalize }}
     </v-toolbar-title>
@@ -24,10 +21,7 @@
           v-on="on"
           @click="clickEmitter(item.clickType)"
         >
-          <v-icon
-            left
-            class="tool-icon"
-          >
+          <v-icon left class="tool-icon">
             {{ item.icon }}
           </v-icon>
           {{ item.text }}
@@ -36,15 +30,12 @@
       <span>{{ item.tooltip }}</span>
     </v-tooltip>
 
-    <v-spacer
-      v-if="!!rightItems.length"
-    />
+    <v-spacer v-if="!!rightItems.length" />
 
     <!-- Right Buttons -->
     <div>
       <v-btn
         v-for="item in rightItems"
-
         :key="item.text"
         color="primary"
         text
@@ -61,7 +52,6 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 import { useStore } from 'vuex-simple';
 import Store from '@/store/store';
 
-
 export enum ToolbarOperations {
   AddRow = 'addRow',
   CloneRow = 'cloneRow',
@@ -72,7 +62,11 @@ export enum ToolbarOperations {
   EditLinks = 'editLinks',
 }
 
-enum Position {Left, Center, Right}
+enum Position {
+  Left,
+  Center,
+  Right,
+}
 
 interface GridFunction {
   icon?: string;
@@ -88,7 +82,7 @@ export default class GridToolbar extends Vue {
 
   @Prop({ default: '' }) readonly gridTitle!: string;
 
-  store: Store = useStore(this.$store)
+  store: Store = useStore(this.$store);
 
   gridFunctions: GridFunction[] = [
     {
@@ -112,7 +106,7 @@ export default class GridToolbar extends Vue {
       tooltip: 'Remove Currently Selected Row(s)',
       position: Position.Center,
     },
-     {
+    {
       icon: 'link',
       text: 'Edit Links',
       clickType: ToolbarOperations.EditLinks,
@@ -140,25 +134,32 @@ export default class GridToolbar extends Vue {
       tooltip: 'Toggle Side Panel',
       position: Position.Right,
     },
-
   ];
 
   get visible() {
     return this.store.display.reviewPanelState ? 'Close Panel' : 'Expand Panel';
-  };
+  }
 
   get centerItems() {
-    return this.gridFunctions.filter((func) => func.position === Position.Center && this.toolbarItems.includes(func.clickType));
+    return this.gridFunctions.filter(
+      (func) =>
+        func.position === Position.Center &&
+        this.toolbarItems.includes(func.clickType),
+    );
   }
 
   get rightItems() {
-    return this.gridFunctions.filter((func) => func.position === Position.Right && this.toolbarItems.includes(func.clickType));
+    return this.gridFunctions.filter(
+      (func) =>
+        func.position === Position.Right &&
+        this.toolbarItems.includes(func.clickType),
+    );
   }
 
   clickEmitter(clickType: string) {
     this.$emit('toolbarClick', clickType);
   }
-};
+}
 </script>
 
 <style scoped>
@@ -170,6 +171,6 @@ export default class GridToolbar extends Vue {
   border-bottom: 0.5px solid #e2e2e2;
 }
 .sub-menu {
-  font-size:12px;
+  font-size: 12px;
 }
 </style>
