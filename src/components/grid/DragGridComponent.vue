@@ -1,13 +1,9 @@
 <template>
-  <div
-    style="height:100%"
-    @drop="onDrop"
-    @dragover="onDragOver"
-  >
+  <div style="height:100%" @drop="onDrop" @dragover="onDragOver">
     <ag-grid-vue
       style="width: 100%; height: 200px"
       class="ag-theme-material"
-      :dom-layout="autoHeight ? 'autoHeight': 'normal'"
+      :dom-layout="autoHeight ? 'autoHeight' : 'normal'"
       :grid-options="gridOptions"
       :column-defs="columnDefs"
       :row-height="7 * 6"
@@ -30,9 +26,13 @@ export default class DragGridComponent extends Mixins(GridMixin) {
   activeIds: number[] = [];
 
   onDrop(event: DragEvent) {
-    this.activeIds = this.gridApi.getRenderedNodes().map((node): number => node.data.id);
+    this.activeIds = this.gridApi
+      .getRenderedNodes()
+      .map((node): number => node.data.id);
     if (event.dataTransfer) {
-      const newData = JSON.parse(event.dataTransfer.getData('application/json'));
+      const newData = JSON.parse(
+        event.dataTransfer.getData('application/json'),
+      );
       if (!this.activeIds.includes(newData.id)) {
         this.gridInstance.addRows({
           rowsToAdd: [newData],
@@ -43,31 +43,32 @@ export default class DragGridComponent extends Mixins(GridMixin) {
         });
       }
     }
-  };
+  }
 
   onDragOver(event: DragEvent) {
     if (event.dataTransfer) {
-      const dragSupported = event.dataTransfer.types.indexOf('application/json') >= 0;
+      const dragSupported =
+        event.dataTransfer.types.indexOf('application/json') >= 0;
       if (dragSupported) {
         // eslint-disable-next-line no-param-reassign
         event.dataTransfer.dropEffect = 'move';
         event.preventDefault();
       }
     }
-  };
+  }
 
   removeEntry(rowNode: RowNode) {
     this.gridInstance.removeRows({
       rowsToRemove: [rowNode.data],
       successCallback: () => {
         this.gridApi.purgeServerSideCache();
-        this.activeIds = this.activeIds.filter((id): boolean => id !== rowNode.data.id);
+        this.activeIds = this.activeIds.filter(
+          (id): boolean => id !== rowNode.data.id,
+        );
       },
     });
-  };
-};
+  }
+}
 </script>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>
