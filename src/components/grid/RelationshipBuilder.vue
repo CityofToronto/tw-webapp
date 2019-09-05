@@ -1,11 +1,6 @@
 <template>
-  <v-sheet
-    height="800px"
-  >
-    <v-layout
-      fill-height=""
-      column
-    >
+  <v-sheet height="800px">
+    <v-layout fill-height column>
       <v-flex xs7>
         <grid-with-toolbar
           :table-name="tableName"
@@ -21,15 +16,8 @@
       </v-flex>
       <v-spacer />
       <v-divider />
-      <v-flex
-        align-self-end
-        shrink
-      >
-        <v-btn
-          color="primary"
-          text
-          @click="$emit('close-form')"
-        >
+      <v-flex align-self-end shrink>
+        <v-btn color="primary" text @click="$emit('close-form')">
           Submit
         </v-btn>
       </v-flex>
@@ -57,9 +45,7 @@ export default class RelationshipBuilder extends Vue {
 </script>
 
 <style scoped>
-
 .grid-outlined {
   border: 0.5px solid black;
 }
-
 </style>
