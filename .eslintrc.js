@@ -20,8 +20,9 @@ module.exports = {
     "indent": "off",
     "import/no-unresolved": "off",
     "import/prefer-default-export": "off",
-    "@typescript-eslint/indent": ["error", 2],
-    "class-methods-use-this": "off"
+    "@typescript-eslint/indent": ["off", 2],
+    "class-methods-use-this": "off",
+    "@typescript-eslint/no-explicit-any": "off"
   },
   parser: 'vue-eslint-parser',
   parserOptions: {
