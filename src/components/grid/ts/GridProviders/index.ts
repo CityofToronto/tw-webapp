@@ -5,7 +5,11 @@ export { DirectProvider } from './DirectProvider';
 export { OTMProvider } from './OTMProvider';
 export { MTMProvider } from './MTMProvider';
 
-export enum GridProviders { Direct, OneToMany, ManyToMany }
+export enum GridProviders {
+  Direct,
+  OneToMany,
+  ManyToMany,
+}
 /** A GridProvider is a class that communicates between a backend and Ag-Grid */
 export interface GridProvider {
   gridDatasource: IServerSideDatasource;
@@ -20,7 +24,7 @@ export interface GridProvider {
   removeData(
     idToRemove: number,
     successCallback?: () => void,
-    failCallBack?: () => void
+    failCallBack?: () => void,
   ): void;
 
   /**
@@ -30,6 +34,6 @@ export interface GridProvider {
   updateData(
     rowToUpdate: RowData,
     successCallback?: () => void,
-    failCallBack?: () => void
+    failCallBack?: () => void,
   ): void;
-};
+}
