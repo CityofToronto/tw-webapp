@@ -6,7 +6,7 @@ import { dispatchError, stringify } from '@/apollo/lib/utils';
 import { GridProvider } from '../GridProviders';
 import apolloClient from '@/apollo';
 import { OTMDatasource } from './Datasources/OTMDatasource';
-import { RowData } from '@/types/grid';
+import { RowData, GridDataTransformer } from '@/types/grid';
 
 export class OTMProvider implements GridProvider {
   public gridDatasource: IServerSideDatasource;
@@ -22,10 +22,14 @@ export class OTMProvider implements GridProvider {
    * Note that we pass in an object of relatedData, as objects are pass by reference
    * Therefore when we change that object outside the class, it will update all in here
    */
-  public constructor(tableName: string, relatedData: { rowId: number; tableName: string }) {
+  public constructor(
+    tableName: string,
+    gridDataTransformer: GridDataTransformer,
+    relatedData: { rowId: number; tableName: string },
+  ) {
     this.tableName = tableName;
     this.relatedData = relatedData;
-    this.gridDatasource = new OTMDatasource(this.tableName, this.relatedData);
+    this.gridDatasource = new OTMDatasource(tableName, gridDataTransformer, relatedData);
   }
 
   public addData(

@@ -1,20 +1,34 @@
 /* eslint-disable @typescript-eslint/explicit-member-accessibility */
-import { AgGridVue } from 'ag-grid-vue';
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import { ColumnApi, GridApi, AgGridEvent, ColDef, GridOptions } from 'ag-grid-community';
-import { useStore } from 'vuex-simple';
-import GridButton from '@/components/grid/ag-components/GridButton.vue';
+import { ColumnDefiner } from './ColumnDefiner/';
 import GridInstance from './GridInstance';
-import { ColumnDefiner } from './ColumnDefiner';
-import Store from '@/store/store';
-import * as GRID_CONFIG from '../ts/grid.config';
+import { useStore } from 'vuex-simple';
+
+// Types
 import { QueryType } from '@/types/api';
-import { CustomColumn } from '@/types/grid';
+import { CustomColumn, GridDataTransformer } from '@/types/grid';
+import {
+  ColumnApi,
+  GridApi,
+  AgGridEvent,
+  ColDef,
+  GridOptions,
+} from 'ag-grid-community';
+import Store from '@/store/store';
+
+// Components
+import { AgGridVue } from 'ag-grid-vue';
+import GridButton from '@/components/grid/ag-components/GridButton.vue';
+import SetFilter from '../ag-components/SetFilter.vue';
+
+// Config
+import * as GRID_CONFIG from '../ts/grid.config';
 
 @Component({
   components: {
     AgGridVue,
     GridButton,
+    SetFilter,
   },
 })
 export default class GridMixin extends Vue {
@@ -38,6 +52,8 @@ export default class GridMixin extends Vue {
   @Prop({ default: (): [] => [] }) readonly customColumns!: CustomColumn[];
 
   store: Store = useStore(this.$store);
+
+  dataTransformer!: GridDataTransformer;
 
   columnApi!: ColumnApi;
 
@@ -70,7 +86,11 @@ export default class GridMixin extends Vue {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
 
-    const colDefiner = new ColumnDefiner(this.tableName, this.editable, this.customColumns);
+    const colDefiner = new ColumnDefiner(
+      this.tableName,
+      this.editable,
+      this.customColumns,
+    );
     this.columnDefs = await colDefiner.getColumnDefs();
 
     this.gridInstance = new GridInstance({
@@ -81,6 +101,7 @@ export default class GridMixin extends Vue {
         this.tableName,
         // pass in a reference to VueX so that the datasource reacts with updates elsewhere
         this.store.grid,
+        this.dataTransformer,
       ),
     });
     this.gridApi.setServerSideDatasource(this.gridInstance.gridDatasource);

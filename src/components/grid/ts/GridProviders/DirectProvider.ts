@@ -6,6 +6,7 @@ import apolloClient from '@/apollo';
 import { dispatchError, stringify } from '@/apollo/lib/utils';
 import { QueryError, RowData } from '@/apollo/types';
 import { DirectDatasource } from './Datasources/DirectDatasource';
+import { GridDataTransformer } from '@/types/grid';
 
 export class DirectProvider implements GridProvider {
   /**
@@ -19,11 +20,9 @@ export class DirectProvider implements GridProvider {
 
   public gridDatasource: IServerSideDatasource;
 
-  public constructor(
-    tableName: string,
-  ) {
+  public constructor(tableName: string, gridDataTransformer: GridDataTransformer) {
     this.tableName = tableName;
-    this.gridDatasource = new DirectDatasource(tableName);
+    this.gridDatasource = new DirectDatasource(tableName, gridDataTransformer);
   }
 
   public addData(
@@ -31,8 +30,9 @@ export class DirectProvider implements GridProvider {
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
   ): void {
-    apolloClient.mutate({
-      mutation: gql`
+    apolloClient
+      .mutate({
+        mutation: gql`
         mutation {
           insert_${this.tableName} (
             objects: {
@@ -42,12 +42,14 @@ export class DirectProvider implements GridProvider {
             affected_rows
           }
         }`,
-    }).then((): void => {
-      successCallback();
-    }).catch((error): void => {
-      failCallback();
-      dispatchError(error);
-    });
+      })
+      .then((): void => {
+        successCallback();
+      })
+      .catch((error): void => {
+        failCallback();
+        dispatchError(error);
+      });
   }
 
   public removeData(
@@ -55,8 +57,9 @@ export class DirectProvider implements GridProvider {
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
   ): void {
-    apolloClient.mutate({
-      mutation: gql`
+    apolloClient
+      .mutate({
+        mutation: gql`
       mutation {
         delete_${this.tableName}(
         where: {
@@ -65,7 +68,7 @@ export class DirectProvider implements GridProvider {
         affected_rows
       }
     }`,
-    })
+      })
       .then((): void => {
         successCallback();
       })
@@ -73,15 +76,16 @@ export class DirectProvider implements GridProvider {
         failCallback();
         dispatchError(error);
       });
-  };
+  }
 
   public updateData(
     rowToUpdate: RowData,
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
   ): void {
-    apolloClient.mutate({
-      mutation: gql`
+    apolloClient
+      .mutate({
+        mutation: gql`
       mutation updateRow {
       update_${this.tableName} (
         where: {
@@ -91,12 +95,10 @@ export class DirectProvider implements GridProvider {
           ${stringify(rowToUpdate)}
         }
       ) {
-        returning {
-          ${Object.keys(rowToUpdate)}
-        }
+        affected_rows
       }
     }`,
-    })
+      })
       .then((): void => {
         successCallback();
       })

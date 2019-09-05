@@ -1,28 +1,28 @@
-import {
-  IServerSideDatasource, IServerSideGetRowsRequest, IServerSideGetRowsParams,
-} from 'ag-grid-community';
+import { IServerSideGetRowsRequest } from 'ag-grid-community';
 import gql from 'graphql-tag';
 import apolloClient from '@/apollo';
-import { dispatchError, constructFilter } from '@/apollo/lib/utils';
+import { dispatchError } from '@/apollo/lib/utils';
+import { GridDataTransformer, RowData } from '@/types/grid';
+import GridDatasource from './GridDatasource';
 
-export class DirectDatasource implements IServerSideDatasource {
+export class DirectDatasource extends GridDatasource {
   private tableName: string;
 
-  public constructor(tableName: string) {
+  public constructor(tableName: string, dataTransformer: GridDataTransformer) {
+    super(dataTransformer, tableName);
     this.tableName = tableName;
   }
 
-  private get columnNames(): Promise<string[]> {
-    return apolloClient.getColumns(this.tableName)
-      .then((resp): string[] => resp.map((column): string => column.name));
-  }
-
-  private async countTotalRows(request: IServerSideGetRowsRequest): Promise<number> {
-    return apolloClient.query({
-      query: gql`
+  protected async countTotalRows(request: IServerSideGetRowsRequest): Promise<number> {
+    return apolloClient
+      .query({
+        query: gql`
           query countRows {
             ${this.tableName}_aggregate (
-              where: ${constructFilter(request.filterModel)} 
+              where: ${await this.GridAdapter.constructFilterModel(
+                request.filterModel,
+                request.groupKeys,
+              )}
             ){
               aggregate {
                 count
@@ -30,41 +30,22 @@ export class DirectDatasource implements IServerSideDatasource {
             }
           }
         `,
-      fetchPolicy: 'network-only',
-    }).then((response): number => response.data[`${this.tableName}_aggregate`].aggregate.count)
+        fetchPolicy: 'network-only',
+      })
+      .then((response): number => response.data[`${this.tableName}_aggregate`].aggregate.count)
       .catch((error): never => dispatchError(error));
   }
 
-  public async getData(request: IServerSideGetRowsRequest): Promise<object[]> {
-    const sortModel = request.sortModel
-      .map((element: {colId: string; sort: string}): string => `${element.colId}: ${element.sort},`);
-
-    return apolloClient.query({
-      query: gql`
-          query {
-            ${this.tableName}(
-              offset: ${request.startRow},
-              limit: ${request.endRow},
-              order_by: {${sortModel}},
-              where: ${constructFilter(request.filterModel)}
-            ) {
-              ${await this.columnNames}
-            }
-          }
+  protected async getData(request: IServerSideGetRowsRequest): Promise<RowData[]> {
+    return apolloClient
+      .query({
+        query: gql` {
+           ${await this.GridAdapter.buildQuery(request)}
+        }
         `,
-      fetchPolicy: 'network-only',
-    }).then((response): object[] => response.data[this.tableName])
+        fetchPolicy: 'network-only',
+      })
+      .then((response): RowData[] => response.data[this.tableName])
       .catch((error): never => dispatchError(error));
-  }
-
-  public async getRows(params: IServerSideGetRowsParams): Promise<void> {
-    const numberOfRows = await this.countTotalRows(params.request);
-    const rowData = await this.getData(params.request);
-
-    if (rowData) {
-      params.successCallback(rowData, numberOfRows);
-    } else {
-      params.failCallback();
-    }
   }
 }

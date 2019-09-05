@@ -1,12 +1,23 @@
 import {
-  GridApi, ColumnApi, ColDef, IServerSideDatasource,
+  GridApi,
+  ColumnApi,
+  ColDef,
+  IServerSideDatasource,
 } from 'ag-grid-community';
 import {
-  RemoveQuery, AddQuery, QueryType, UpdateQuery, RowData,
+  RemoveQuery,
+  AddQuery,
+  QueryType,
+  UpdateQuery,
+  RowData,
 } from '@/apollo/types';
 import {
-  GridProvider, DirectProvider, MTMProvider, OTMProvider,
+  GridProvider,
+  DirectProvider,
+  MTMProvider,
+  OTMProvider,
 } from './GridProviders';
+import { GridDataTransformer } from '@/types/grid';
 
 export default class GridInstance {
   public gridApi: GridApi;
@@ -16,7 +27,9 @@ export default class GridInstance {
   public Provider: GridProvider;
 
   public constructor({
-    Provider, gridApi, columnApi,
+    Provider,
+    gridApi,
+    columnApi,
   }: {
     Provider: GridProvider;
     gridApi: GridApi;
@@ -38,11 +51,20 @@ export default class GridInstance {
       tableName: string;
       rowId: number;
     },
+    dataTransformer: GridDataTransformer,
   ): GridProvider {
-    const providers: {[key in QueryType]: GridProvider} = {
-      [QueryType.Direct]: new DirectProvider(tableName),
-      [QueryType.ManyToMany]: new MTMProvider(tableName, relatedData),
-      [QueryType.OneToMany]: new OTMProvider(tableName, relatedData),
+    const providers: { [key in QueryType]: GridProvider } = {
+      [QueryType.Direct]: new DirectProvider(tableName, dataTransformer),
+      [QueryType.OneToMany]: new OTMProvider(
+        tableName,
+        dataTransformer,
+        relatedData,
+      ),
+      [QueryType.ManyToMany]: new MTMProvider(
+        tableName,
+        dataTransformer,
+        relatedData,
+      ),
     };
     return providers[queryType];
   }
@@ -56,7 +78,9 @@ export default class GridInstance {
   }
 
   public get columnDefs(): ColDef[] {
-    return this.columnApi.getAllColumns().map((column): ColDef => column.getColDef());
+    return this.columnApi
+      .getAllColumns()
+      .map((column): ColDef => column.getColDef());
   }
 
   public sizeColumnsToFit(): void {
@@ -64,7 +88,9 @@ export default class GridInstance {
   }
 
   public autoSizeColumns(): void {
-    const allColumnIds = this.columnApi.getAllColumns().map((col): string => col.getColId());
+    const allColumnIds = this.columnApi
+      .getAllColumns()
+      .map((col): string => col.getColId());
     this.columnApi.autoSizeColumns(allColumnIds);
   }
 
@@ -76,21 +102,29 @@ export default class GridInstance {
    * rowData will be an array of objects with key: value pairs
    * Return a successful and unsucessful callback for UI updates
    */
-  public addRows(
-    { rowsToAdd, successCallback, failCallback }: AddQuery,
-  ): void {
-    rowsToAdd.forEach((rowData): void => this.Provider.addData(rowData, successCallback, failCallback));
+  public addRows({ rowsToAdd, successCallback, failCallback }: AddQuery): void {
+    rowsToAdd.forEach((rowData): void =>
+      this.Provider.addData(rowData, successCallback, failCallback),
+    );
   }
 
-  public removeRows(
-    { rowsToRemove, successCallback, failCallback }: RemoveQuery,
-  ): void {
-    rowsToRemove.forEach((row): void => this.Provider.removeData(row.id, successCallback, failCallback));
+  public removeRows({
+    rowsToRemove,
+    successCallback,
+    failCallback,
+  }: RemoveQuery): void {
+    rowsToRemove.forEach((row): void =>
+      this.Provider.removeData(row.id, successCallback, failCallback),
+    );
   }
 
-  public updateRows(
-    { rowsToUpdate, successCallback, failCallback }: UpdateQuery,
-  ): void {
-    rowsToUpdate.forEach((row): void => this.Provider.updateData(row, successCallback, failCallback));
+  public updateRows({
+    rowsToUpdate,
+    successCallback,
+    failCallback,
+  }: UpdateQuery): void {
+    rowsToUpdate.forEach((row): void =>
+      this.Provider.updateData(row, successCallback, failCallback),
+    );
   }
 }

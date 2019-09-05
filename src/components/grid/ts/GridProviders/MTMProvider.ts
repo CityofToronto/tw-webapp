@@ -1,4 +1,3 @@
-
 import gql from 'graphql-tag';
 import { IServerSideDatasource } from 'ag-grid-community';
 import { GridProvider } from '../GridProviders';
@@ -6,6 +5,7 @@ import MTMDatasource from './Datasources/MTMDatasource';
 import { RowData } from '@/apollo/types';
 import apolloClient from '@/apollo';
 import { dispatchError } from '@/apollo/lib/utils';
+import { GridDataTransformer } from '@/types/grid';
 
 export class MTMProvider implements GridProvider {
   public gridDatasource: IServerSideDatasource;
@@ -15,12 +15,13 @@ export class MTMProvider implements GridProvider {
   private relatedData: {
     tableName: string;
     rowId: number;
-  }
+  };
 
   private linkingTableName: string;
 
   public constructor(
     tableName: string,
+    gridDataTransformer: GridDataTransformer,
     relatedData: {
       tableName: string;
       rowId: number;
@@ -28,10 +29,7 @@ export class MTMProvider implements GridProvider {
   ) {
     this.tableName = tableName;
     this.relatedData = relatedData;
-    this.gridDatasource = new MTMDatasource(
-      this.tableName,
-      this.relatedData,
-    );
+    this.gridDatasource = new MTMDatasource(this.tableName, gridDataTransformer, this.relatedData);
     this.linkingTableName = `${this.relatedData.tableName}_${this.tableName}`;
   }
 
@@ -42,8 +40,9 @@ export class MTMProvider implements GridProvider {
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
   ): void {
-    apolloClient.mutate({
-      mutation: gql`
+    apolloClient
+      .mutate({
+        mutation: gql`
         mutation {
           insert_${this.linkingTableName} (
             objects: {
@@ -55,7 +54,7 @@ export class MTMProvider implements GridProvider {
           }
         }
       `,
-    })
+      })
       .then((): void => {
         successCallback();
       })
@@ -71,8 +70,9 @@ export class MTMProvider implements GridProvider {
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
   ): void {
-    apolloClient.mutate({
-      mutation: gql`
+    apolloClient
+      .mutate({
+        mutation: gql`
         mutation {
           delete_${this.linkingTableName} (
             where: {
@@ -84,7 +84,7 @@ export class MTMProvider implements GridProvider {
           }
         }
       `,
-    })
+      })
       .then((): void => {
         successCallback();
       })
