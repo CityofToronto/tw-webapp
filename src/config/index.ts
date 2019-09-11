@@ -1,4 +1,4 @@
-import { gridConfig } from './default';
+import { gridConfig } from './grids';
 
 class Configuration<T> {
   private config: T;
