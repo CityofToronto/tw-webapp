@@ -8,8 +8,8 @@ module.exports = {
   ],
   extends: [
     'plugin:vue/essential',
-    '@vue/typescript',
     '@vue/prettier',
+    '@vue/typescript',
     "plugin:@typescript-eslint/recommended",
   ],
   rules: {
@@ -21,8 +21,8 @@ module.exports = {
     "import/no-unresolved": "off",
     "import/prefer-default-export": "off",
     "@typescript-eslint/indent": ["off", 2],
-    "class-methods-use-this": "off",
-    "@typescript-eslint/no-explicit-any": "off"
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/member-delimiter-style": "off"
   },
   parser: 'vue-eslint-parser',
   parserOptions: {
