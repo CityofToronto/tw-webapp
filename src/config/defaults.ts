@@ -1,5 +1,4 @@
 import { TreeGridConfig, BaseGridConfig } from '../types/config';
-import { ColumnTypes } from '../types/grid';
 import { ColDef } from 'ag-grid-community';
 
 /**
@@ -22,40 +21,17 @@ const defaultColumnDefintions: ColDef = {
   sortable: true,
 };
 
-const defaultValues: BaseGridConfig = {
+export const defaultValues: BaseGridConfig = {
   hiddenColumns: [],
   omittedColumns: [],
   columnButtons: [],
   defaultColumnDefintions,
 };
 
-const defaultTreeValues: TreeGridConfig = {
+export const defaultTreeValues: TreeGridConfig = {
   ...defaultValues,
   groupColumn: 'id',
   groupNameColumn: {
     field: 'name',
-  },
-};
-
-export const gridConfig: GridConfigurations = {
-  WORK_TYPE: {
-    ...defaultTreeValues,
-    groupColumn: 'id',
-    hiddenColumns: ['parent'],
-    overrideColumnDefinitions: [
-      {
-        field: 'asset',
-        cellType: ColumnTypes.rearrangeColumn,
-      },
-    ],
-  },
-  activity: {
-    ...defaultValues,
-    overrideColumnDefinitions: [
-      {
-        field: 'asset',
-        cellType: ColumnTypes.rearrangeColumn,
-      },
-    ],
   },
 };
