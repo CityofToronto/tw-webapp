@@ -3,9 +3,8 @@ import {
   IFilterParams,
   ICellEditorParams,
   ColDef,
-  IServerSideDatasource,
 } from 'ag-grid-community';
-import { QueryType, TreeStructure } from '@/types/api';
+import { QueryType, TreeStructure, TreeData } from '@/types/api';
 
 export interface GridComponentOptions {
   gridTitle: string;
@@ -33,10 +32,20 @@ export enum GridType {
   Tree,
 }
 
+export interface ColumnDefinerParams {
+  omittedColumns: string[];
+  hiddenColumns: string[];
+}
+
+export enum CustomCellRenderer {
+  TreeView = 'TreeviewRenderer',
+}
+
 export enum CustomColumn {
   Edit = 'Edit',
   Unlink = 'Unlink',
   Drag = 'Drag',
+  AddTree = 'AddTree',
 }
 
 export enum ColumnTypes {
@@ -46,39 +55,13 @@ export enum ColumnTypes {
   selectColumn,
   treeColumn,
   aliasColumn,
+  rearrangeColumn,
 }
 
 export enum GridProviders {
   Direct,
   OneToMany,
   ManyToMany,
-}
-/** A GridProvider is a class that communicates between a backend and Ag-Grid */
-export interface GridProvider {
-  gridDatasource: IServerSideDatasource;
-
-  addData(
-    rowToAdd: RowData,
-    successCallback?: () => void,
-    failCallBack?: () => void,
-  ): void;
-
-  /** Function to remove a row from source */
-  removeData(
-    idToRemove: number,
-    successCallback?: () => void,
-    failCallBack?: () => void,
-  ): void;
-
-  /**
-   * In the case of MTM, updating data is not supported as
-   * it would unexpectedly affect others.
-   */
-  updateData(
-    rowToUpdate: RowData,
-    successCallback?: () => void,
-    failCallBack?: () => void,
-  ): void;
 }
 
 export interface CustomColDef extends ColDef {
@@ -91,7 +74,7 @@ export interface GridDataTransformer {
    * Transform data into a form that is different
    * but that can still be handled by Ag-Grid
    */
-  transform<T extends RowData[]>(data: T): RowData[];
+  transform<T extends TreeData[]>(data: T): RowData[];
 }
 
 export interface GridFilterModel {
