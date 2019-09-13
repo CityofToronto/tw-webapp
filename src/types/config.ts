@@ -1,23 +1,30 @@
-import { ColDef } from 'ag-grid-community';
+import { ColDef, GridOptions } from 'ag-grid-community';
 import { ColumnTypes, CustomColumn } from './grid';
+import { MarkRequired } from 'ts-essentials';
 
-export interface BaseGridConfig {
-  /**
-   * Column fields that are hidden from the user.
-   * NOTE: They can be unhidden in the sidebar.
-   */
-  hiddenColumns: string[];
+export enum GridType {
+  Tree = 'tree',
+}
+
+export interface BaseGridConfig extends GridOptions {
   /**
    * Columns that are omitted from editting and display but are still queried.
    * Example use case is for alias fields.
    */
-  omittedColumns: string[];
+  omittedColumns?: string[];
   /**
-   * Default column definitions
+   * Array of custom column buttons.
+   * Examples are edit, delete
    */
-  defaultColumnDefintions: ColDef;
-  overrideColumnDefinitions?: ExtendedColumnDef[];
-  columnButtons: CustomColumn[];
+  columnButtons?: CustomColumn[];
+  /**
+   * Array of extended column definitions (based on their CellType)
+   */
+  overrideColumnDefinitions?: CellParams[];
+}
+
+export interface BasicGridConfig extends BaseGridConfig {
+  gridType?: undefined;
 }
 
 export interface TreeGridConfig extends BaseGridConfig {
@@ -25,12 +32,13 @@ export interface TreeGridConfig extends BaseGridConfig {
    * Table column field to group by.
    * By default it uses the 'id' field.
    */
+  gridType: GridType.Tree;
   groupColumn: string;
   /**
    * Table column field to use as the name.
    * By default it uses the 'name' field
    */
-  groupNameColumn: {
+  groupNameColumn?: {
     /**
      * Table field to use to name the column
      */
@@ -43,7 +51,24 @@ export interface TreeGridConfig extends BaseGridConfig {
   };
 }
 
-interface ExtendedColumnDef extends ColDef {
-  cellType: ColumnTypes;
-  field: string;
+/**
+ * Typings for internal type safety, should not be used
+ */
+export type CellParams = BaseColumnParams | ExternalDataParams;
+
+/**
+ * Typings for internal type safety, should not be used
+ */
+type ColDefRequiredField = MarkRequired<ColDef, 'field'>;
+
+export interface BaseColumnParams extends ColDefRequiredField {
+  cellType?: Exclude<
+    ColumnTypes,
+    ColumnTypes.treeColumn | ColumnTypes.selectColumn
+  >;
+}
+
+export interface ExternalDataParams extends ColDefRequiredField {
+  cellType: ColumnTypes.selectColumn | ColumnTypes.treeColumn;
+  sourceTableName: string;
 }
