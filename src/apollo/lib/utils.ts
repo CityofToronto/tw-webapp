@@ -15,11 +15,14 @@ export const dispatchError = (error: QueryError): never => {
     position: [NotificationPosition.Top],
   });
   console.error(error);
+  throw new Error(error.message);
 };
 
 export const stringify = (data: RowData): string =>
   Object.entries(data)
     .filter(([, value]): boolean => value !== '') // Remove blank values (usually just id on new row)
     .filter(([key]): boolean => key !== 'group')
-    .map(([key, value]): string => `${key}: "${value}"`)
+    .map(([key, value]): string => {
+      return `${key}: ${value ? `"${value}"` : null}`;
+    })
     .join();
