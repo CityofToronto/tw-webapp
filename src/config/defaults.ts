@@ -1,37 +1,39 @@
-import { TreeGridConfig, BaseGridConfig } from '../types/config';
+import {
+  GridType,
+  SimpleGridConfig,
+  GridConfigurationTypes,
+} from '../types/config';
 import { ColDef } from 'ag-grid-community';
+import { CustomColumn } from '@/types/grid';
 
-/**
- * @description List of table string enums.
- *    Format is 'tableName' = 'nameOfTableInDatabase'.
- *    tableName can equal or be different than nameOfTableInDatabase
- */
-export type Table = keyof GridConfigurations;
-
-export type GridConfigurationTypes = GridConfigurations[keyof GridConfigurations];
-
-export interface GridConfigurations {
-  WORK_TYPE: TreeGridConfig;
-  activity: BaseGridConfig;
-}
-
-const defaultColumnDefintions: ColDef = {
+const defaultColDef: ColDef = {
   resizable: true,
   editable: true,
   sortable: true,
 };
 
-export const defaultValues: BaseGridConfig = {
-  hiddenColumns: [],
+export const defaultValues: SimpleGridConfig = {
   omittedColumns: [],
-  columnButtons: [],
-  defaultColumnDefintions,
+  columnButtons: [CustomColumn.Edit],
+  defaultColDef,
 };
 
-export const defaultTreeValues: TreeGridConfig = {
-  ...defaultValues,
-  groupColumn: 'id',
-  groupNameColumn: {
-    field: 'name',
+export const defaults: { [key in GridType]: GridConfigurationTypes } = {
+  [GridType.Tree]: {
+    gridType: GridType.Tree,
+    columnButtons: [CustomColumn.Edit],
+    autoGroupColumnDef: {},
   },
+};
+
+export const getDefaultColDef = (
+  gridType: GridType | undefined,
+): SimpleGridConfig => {
+  if (gridType) {
+    return {
+      ...defaultValues,
+      ...defaults[gridType],
+    };
+  }
+  return defaultValues;
 };
