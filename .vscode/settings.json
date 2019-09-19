@@ -6,10 +6,12 @@
     "**/.hg": true,
     "**/CVS": true,
     "**/.DS_Store": true,
-    // ".**": true,
+    
     "**/node_modules/**": true,
     "**/docs/**": true,
-    // "**.js": true,
-    // "**.json": true,
+    ".**": false,
+    "**.js": false,
+    "**.json": true,
+
   }
 }
