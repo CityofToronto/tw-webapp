@@ -1,12 +1,16 @@
 import { ColDef, GridOptions } from 'ag-grid-community';
-import { ColumnTypes, CustomColumn } from './grid';
+import { ColumnTypes, CustomColumn, GridFilterModel } from './grid';
 import { MarkRequired } from 'ts-essentials';
 
 export enum GridType {
   Tree = 'tree',
 }
 
-export interface BaseGridConfig extends GridOptions {
+export interface GridConfigurationTypes {
+  [key: string]: SimpleGridConfig | TreeGridConfig;
+}
+
+interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
   /**
    * Columns that are omitted from editting and display but are still queried.
    * Example use case is for alias fields.
@@ -21,34 +25,19 @@ export interface BaseGridConfig extends GridOptions {
    * Array of extended column definitions (based on their CellType)
    */
   overrideColumnDefinitions?: CellParams[];
+  customFilterModel?: GridFilterModel;
 }
 
-export interface BasicGridConfig extends BaseGridConfig {
-  gridType?: undefined;
+export interface SimpleGridConfig extends BaseGridConfig {
+  gridType?: Exclude<GridType, GridType.Tree>;
 }
 
-export interface TreeGridConfig extends BaseGridConfig {
+export interface TreeGridConfig extends Exclude<BaseGridConfig, 'gridType'> {
   /**
    * Table column field to group by.
    * By default it uses the 'id' field.
    */
   gridType: GridType.Tree;
-  groupColumn: string;
-  /**
-   * Table column field to use as the name.
-   * By default it uses the 'name' field
-   */
-  groupNameColumn?: {
-    /**
-     * Table field to use to name the column
-     */
-    field: string;
-    /**
-     * If omitted it first uses the mapping list then
-     * fallsback to attempting an automatic name
-     */
-    friendlyHeaderName?: string;
-  };
 }
 
 /**
@@ -68,7 +57,18 @@ export interface BaseColumnParams extends ColDefRequiredField {
   >;
 }
 
+/**
+ * The two types of Cells: select and tree require additional
+ * data for processing
+ */
 export interface ExternalDataParams extends ColDefRequiredField {
   cellType: ColumnTypes.selectColumn | ColumnTypes.treeColumn;
+  /**
+   * Name of the source table to get values from.
+   *
+   * Source table for select required 'name' field.
+   *
+   * Source table for tree column requies 'id, name, parent' field
+   */
   sourceTableName: string;
 }

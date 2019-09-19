@@ -64,11 +64,6 @@ export enum GridProviders {
   ManyToMany,
 }
 
-export interface CustomColDef extends ColDef {
-  colType: ColumnTypes;
-  selectionType: CellSelectionType;
-}
-
 export interface GridDataTransformer {
   /**
    * Transform data into a form that is different
@@ -77,21 +72,38 @@ export interface GridDataTransformer {
   transform<T extends TreeData[]>(data: T): RowData[];
 }
 
+type Filters =
+  | 'equals'
+  | 'notEqual'
+  | 'contains'
+  | 'notContains'
+  | 'startsWith'
+  | 'endsWith'
+  | 'lessThan'
+  | 'lessThanOrEqual'
+  | 'greaterThan'
+  | 'greaterThanOrEqual'
+  | 'inRange'
+  | 'empty';
+
+type FilterTypes = 'text' | 'number' | 'array';
+
 export interface GridFilterModel {
   [key: string]: {
-    filterType: string;
+    filterType: FilterTypes;
     values?: string[];
     filter?: string;
     operator?: string;
+    type: Filters;
     condition1?: {
       filter: string;
       filterType: string;
-      type: string;
+      type: Filters;
     };
     condition2?: {
       filter: string;
       filterType: string;
-      type: string;
+      type: Filters;
     };
   };
 }

@@ -4,7 +4,7 @@ import { RowData } from './grid';
 export interface TreeData {
   id: number;
   parent: number;
-  name: string;
+  name?: string;
   [key: string]: any;
 }
 
