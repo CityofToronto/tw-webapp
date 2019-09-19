@@ -2,8 +2,20 @@ import ApolloClient from 'apollo-client';
 import { NormalizedCacheObject, InMemoryCache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
 import { link } from './lib/link';
-import { TableTypes, TableQueryResult } from './types';
+import { HasuraField, TableQueryResult, __TypeKind } from './types';
 import { dispatchError } from './lib/utils';
+
+const isColumn = (element: HasuraField): boolean => {
+  const columnType: __TypeKind = element.type.ofType
+    ? element.type.ofType.kind
+    : element.type.kind;
+  return columnType === 'SCALAR' || columnType === 'ENUM';
+};
+
+const isRelationship = (element: HasuraField): boolean =>
+  element.type.ofType
+    ? element.type.ofType.kind !== 'SCALAR'
+    : element.type.kind !== 'SCALAR';
 
 class Apollo extends ApolloClient<NormalizedCacheObject> {
   public constructor() {
@@ -15,7 +27,7 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
     });
   }
 
-  public getFields(tableName: string): Promise<TableTypes[]> {
+  public getFields(tableName: string): Promise<HasuraField[]> {
     return (
       this.query({
         query: gql`
@@ -44,7 +56,7 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
     );
   }
 
-  public getColumns(tableName: string): Promise<TableTypes[]> {
+  public getColumns(tableName: string): Promise<HasuraField[]> {
     return (
       this.query({
         query: gql`
@@ -60,6 +72,9 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
                 ofType {
                   kind
                   name
+                  enumValues {
+                    name
+                  }
                 }
               }
             }
@@ -68,12 +83,12 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
         }`,
       })
         // eslint-disable-next-line
-        .then((response: TableQueryResult) => response.data.__type.fields.filter((element: { type: { ofType: { kind: string }; kind: string } }) => (element.type.ofType ? element.type.ofType.kind === 'SCALAR' : element.type.kind === 'SCALAR')))
+        .then((response: TableQueryResult) => response.data.__type.fields.filter((element) => isColumn(element)))
         .catch((error): never => dispatchError(error))
     );
   }
 
-  public getRelationships(tableName: string): Promise<TableTypes[]> {
+  public getRelationships(tableName: string): Promise<HasuraField[]> {
     return (
       this.query({
         query: gql`
@@ -95,12 +110,15 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
         }`,
       })
         // eslint-disable-next-line
-        .then((response: TableQueryResult) => response.data.__type.fields.filter((element) => (element.type.ofType ? element.type.ofType.kind !== 'SCALAR' : element.type.kind !== 'SCALAR')))
+        .then((response: TableQueryResult) => response.data.__type.fields.filter((element) => isRelationship(element)))
         .catch((error): never => dispatchError(error))
     );
   }
 
-  public getValuesFromTable<T>(tableName: string, columns: string[]): Promise<T> {
+  public getValuesFromTable<T>(
+    tableName: string,
+    columns: string[],
+  ): Promise<T> {
     return this.query({
       query: gql`{
           ${tableName} {
