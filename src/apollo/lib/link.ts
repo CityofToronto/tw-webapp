@@ -17,10 +17,12 @@ const wsLink = new WebSocketLink({
 
 export const link = split(
   // split based on operation type
-  ({ query }) => {
+  ({ query }): boolean => {
     const definition = getMainDefinition(query);
-    return definition.kind === 'OperationDefinition'
-      && definition.operation === 'subscription';
+    return (
+      definition.kind === 'OperationDefinition' &&
+      definition.operation === 'subscription'
+    );
   },
   wsLink,
   httpLink,
