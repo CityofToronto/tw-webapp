@@ -1,6 +1,15 @@
-import { IServerSideGetRowsRequest, RowNode } from 'ag-grid-community';
-import { SelectionType, CellSelectionType } from '@/types/grid';
+import { IServerSideGetRowsRequest } from 'ag-grid-community';
+import { CellSelectionType } from '@/types/grid';
 
+export type __TypeKind =
+  | 'SCALAR'
+  | 'OBJECT'
+  | 'INTERFACE'
+  | 'UNION'
+  | 'ENUM'
+  | 'INPUT_OBJECT'
+  | 'LIST'
+  | 'NON_NULL';
 
 export interface RowData {
   id: number;
@@ -33,7 +42,7 @@ export interface FieldQuery {
 export enum QueryType {
   Direct = 'Direct',
   OneToMany = 'OneToMany',
-  ManyToMany = 'ManyToMany'
+  ManyToMany = 'ManyToMany',
 }
 
 interface CallbackQuery {
@@ -42,8 +51,8 @@ interface CallbackQuery {
 }
 
 export interface AddQuery extends CallbackQuery {
-  rowsToAdd: {[key: string]: any}[];
-};
+  rowsToAdd: { [key: string]: any }[];
+}
 
 export interface UpdateQuery extends CallbackQuery {
   rowsToUpdate: RowData[];
@@ -52,24 +61,21 @@ export interface UpdateQuery extends CallbackQuery {
 export interface GetRowsQuery extends RelationalQuery {
   request: IServerSideGetRowsRequest;
   columnNames: string[];
-};
+}
 
 export interface RemoveQuery extends CallbackQuery {
   rowsToRemove: RowData[];
-};
+}
 
-export interface QueryError extends Error{
-  message: string;
-};
-
-export interface TableTypes {
+export interface HasuraField {
   name: string;
   type: {
     name: string;
-    kind: 'SCALAR' | 'LIST' | 'OBJECT';
+    kind: __TypeKind;
     ofType: {
       name: string;
-      kind: 'SCALAR' | 'LIST' | 'OBJECT';
+      kind: __TypeKind;
+      enumValues: string[];
     };
   };
   selectionType: CellSelectionType;
@@ -78,7 +84,7 @@ export interface TableTypes {
 export interface TableQueryResult {
   data: {
     __type: {
-      fields: TableTypes[];
+      fields: HasuraField[];
     };
   };
-};
+}
