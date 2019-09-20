@@ -30,11 +30,11 @@
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
 import { IDoesFilterPassParams, RowNode } from 'ag-grid-community';
-import { TreeFilterParams } from '@/types/grid';
+import { SetFilterParams } from '@/types/grid';
 
 @Component({})
 export default class SetFilter extends Vue {
-  params!: TreeFilterParams;
+  params!: SetFilterParams;
 
   search: string = '';
 
@@ -42,15 +42,15 @@ export default class SetFilter extends Vue {
 
   valueGetter!: (rowNode: RowNode) => any;
 
-  selectedItems: string[] = [];
+  selectedItems: any[] = [];
 
   onCheckboxChanged(event: boolean) {
     this.selectedItems = event ? this.params.values : [];
   }
 
   isFilterActive(): boolean {
-    return !!(this.selectedItems.length);
-  };
+    return !!this.selectedItems.length;
+  }
 
   // TODO If you select a higher level have all children filtered to
   doesFilterPass(params: IDoesFilterPassParams): boolean {
@@ -85,9 +85,9 @@ export default class SetFilter extends Vue {
 </script>
 
 <style>
-  .shrink {
-    /* transform: scale(0.875); */
-    /* transform-origin: left; */
-    margin-top: 2px !important;
-  }
+.shrink {
+  /* transform: scale(0.875); */
+  /* transform-origin: left; */
+  margin-top: 2px !important;
+}
 </style>
