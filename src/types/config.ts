@@ -1,13 +1,16 @@
 import { ColDef, GridOptions } from 'ag-grid-community';
-import { ColumnTypes, CustomColumn, GridFilterModel } from './grid';
+import { CellType, ColumnButton, GridFilterModel } from './grid';
 import { MarkRequired } from 'ts-essentials';
 
 export enum GridType {
   Tree = 'tree',
+  Normal = 'normal',
 }
 
-export interface GridConfigurationTypes {
-  [key: string]: SimpleGridConfig | TreeGridConfig;
+export type GridConfiguration = SimpleGridConfig | TreeGridConfig;
+
+export interface GridConfigurationInterface {
+  [key: string]: GridConfiguration;
 }
 
 interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
@@ -20,7 +23,7 @@ interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
    * Array of custom column buttons.
    * Examples are edit, delete
    */
-  columnButtons?: CustomColumn[];
+  columnButtons?: ColumnButton[];
   /**
    * Array of extended column definitions (based on their CellType)
    */
@@ -32,7 +35,7 @@ export interface SimpleGridConfig extends BaseGridConfig {
   gridType?: Exclude<GridType, GridType.Tree>;
 }
 
-export interface TreeGridConfig extends Exclude<BaseGridConfig, 'gridType'> {
+export interface TreeGridConfig extends BaseGridConfig {
   /**
    * Table column field to group by.
    * By default it uses the 'id' field.
@@ -43,26 +46,30 @@ export interface TreeGridConfig extends Exclude<BaseGridConfig, 'gridType'> {
 /**
  * Typings for internal type safety, should not be used
  */
-export type CellParams = BaseColumnParams | ExternalDataParams;
+export type CellParams =
+  | BaseColumnParams
+  | SelectColumnParams
+  | ExternalDataParams;
 
 /**
  * Typings for internal type safety, should not be used
  */
 type ColDefRequiredField = MarkRequired<ColDef, 'field'>;
 
-export interface BaseColumnParams extends ColDefRequiredField {
-  cellType?: Exclude<
-    ColumnTypes,
-    ColumnTypes.treeColumn | ColumnTypes.selectColumn
-  >;
+interface BaseColumnParams extends ColDefRequiredField {
+  cellType?: Exclude<CellType, CellType.treeCell | CellType.selectCell>;
+}
+interface SelectColumnParams extends ColDefRequiredField {
+  cellType: CellType.selectCell;
+  enumValues: string[];
 }
 
 /**
  * The two types of Cells: select and tree require additional
  * data for processing
  */
-export interface ExternalDataParams extends ColDefRequiredField {
-  cellType: ColumnTypes.selectColumn | ColumnTypes.treeColumn;
+interface ExternalDataParams extends ColDefRequiredField {
+  cellType: CellType.treeCell;
   /**
    * Name of the source table to get values from.
    *

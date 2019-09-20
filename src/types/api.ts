@@ -1,4 +1,3 @@
-import { IServerSideGetRowsRequest } from 'ag-grid-community';
 import { RowData } from './grid';
 
 export interface TreeData {
@@ -43,35 +42,6 @@ export interface UpdateQuery extends CallbackQuery {
   rowsToUpdate: RowData[];
 }
 
-export interface GetRowsQuery extends RelationalQuery {
-  request: IServerSideGetRowsRequest;
-  columnNames: string[];
-}
-
 export interface RemoveQuery extends CallbackQuery {
   rowsToRemove: RowData[];
-}
-
-export interface QueryError extends Error {
-  message: string;
-}
-
-export interface TableTypes {
-  name: string;
-  type: {
-    name: string;
-    kind: 'SCALAR' | 'LIST' | 'OBJECT';
-    ofType: {
-      name: string;
-      kind: 'SCALAR' | 'LIST' | 'OBJECT';
-    };
-  };
-}
-
-export interface TableQueryResult {
-  data: {
-    __type: {
-      fields: TableTypes[];
-    };
-  };
 }
