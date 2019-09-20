@@ -8,16 +8,12 @@
     app
     stateless
   >
-    <v-list
-
-      dense
-    >
+    <v-list dense>
       <!-- List Group for PM Modules -->
       <v-list-group
         v-for="item in items"
         :key="item.title"
         v-model="item.active"
-
         :prepend-icon="item.action"
       >
         <template v-slot:activator>
@@ -73,12 +69,17 @@ export default class NavigationDrawer extends Vue {
 
   navigationItems = [
     {
-      id: 1, icon: 'list', title: 'Hierarchy', route: '/hierarchy',
+      id: 1,
+      icon: 'list',
+      title: 'Hierarchy',
+      route: '/hierarchy',
     },
     {
-      id: 2, icon: 'data_usage', title: 'Data Model', route: '/model',
+      id: 2,
+      icon: 'data_usage',
+      title: 'Data Model',
+      route: '/model',
     },
-
   ];
 
   items = [
@@ -90,17 +91,15 @@ export default class NavigationDrawer extends Vue {
         { title: 'Overview', route: '/review/activity', action: 'assignment' },
       ],
     },
-  ]
-};
+  ];
+}
 </script>
 
 <style scoped>
-
 /* This makes a grouped list not have a border around it */
 .theme--light.v-list,
 .v-list__group--active:after,
 .theme--light.v-list .v-list__group--active:before {
-  background: transparent
+  background: transparent;
 }
-
 </style>

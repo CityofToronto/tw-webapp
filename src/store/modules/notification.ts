@@ -1,16 +1,14 @@
 /* eslint-disable no-param-reassign, no-shadow */
 // This file extends snackbars from the vuetify library
 // https://vuetifyjs.com/en/components/snackbars
-import {
-  State, Mutation, Getter, Action,
-} from 'vuex-simple';
+import { State, Mutation, Getter, Action } from 'vuex-simple';
 
 export enum NotificationPosition {
   Top = 'top',
   Bottom = 'bottom',
   Left = 'left',
   Right = 'right',
-} 
+}
 
 interface Notification {
   visible?: boolean;
@@ -32,8 +30,9 @@ export default class NotificationModule {
   /**
    *  This can be an array.
    *  [Position.Top] for top
-   *  [Position.Top, Position.Left] for top-left 
-  */ 
+   *  [Position.Top, Position.Left] for top-left
+   */
+
   @State() private position: NotificationPosition[];
 
   public constructor() {
@@ -57,14 +56,17 @@ export default class NotificationModule {
 
   @Mutation()
   private setNotification({
-    message, color, position, timeout = 5000
+    message,
+    color,
+    position,
+    timeout = 5000,
   }: Notification): void {
     this.visible = true;
     this.message = message;
     this.color = color;
     this.position = position;
     this.timeout = timeout;
-  };
+  }
 
   @Mutation()
   private clearNotification(): void {

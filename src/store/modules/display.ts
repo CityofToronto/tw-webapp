@@ -1,6 +1,4 @@
-import {
-  Mutation, State, Action, Getter,
-} from 'vuex-simple';
+import { Mutation, State, Action, Getter } from 'vuex-simple';
 
 export default class DisplayModule {
   // Review Panel State
@@ -24,4 +22,4 @@ export default class DisplayModule {
   public async toggleReviewPanel(): Promise<void> {
     this.togglePanel();
   }
-};
+}

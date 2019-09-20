@@ -26,17 +26,20 @@ export default class HomeView extends Vue {
   modules = [
     {
       name: 'Define Module',
-      description: 'Define activities and their respective properties and relations',
+      description:
+        'Define activities and their respective properties and relations',
       route: '/review/activity',
     },
     {
       name: 'Hierarchical Module',
-      description: 'Define mainetence and their respective properties and relations',
+      description:
+        'Define mainetence and their respective properties and relations',
       route: '/',
     },
     {
       name: 'Another Module',
-      description: 'Define something and their respective properties and relations',
+      description:
+        'Define something and their respective properties and relations',
       route: '/',
     },
   ];

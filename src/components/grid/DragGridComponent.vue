@@ -1,3 +1,4 @@
+/* eslint-disable vue/valid-v-on */
 <template>
   <div style="height:100%" @drop="onDrop" @dragover="onDragOver">
     <ag-grid-vue
@@ -45,7 +46,7 @@ export default class DragGridComponent extends Mixins(GridMixin) {
     }
   }
 
-  onDragOver(event: DragEvent) {
+  onDragOver = (event: DragEvent) => {
     if (event.dataTransfer) {
       const dragSupported =
         event.dataTransfer.types.indexOf('application/json') >= 0;
@@ -55,7 +56,7 @@ export default class DragGridComponent extends Mixins(GridMixin) {
         event.preventDefault();
       }
     }
-  }
+  };
 
   removeEntry(rowNode: RowNode) {
     this.gridInstance.removeRows({

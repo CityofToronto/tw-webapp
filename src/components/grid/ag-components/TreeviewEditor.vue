@@ -48,7 +48,6 @@ export default class TreeSelectEditor extends Vue {
     return this.selectedItems[0];
   }
 }
-
 </script>
 
 <style scoped>

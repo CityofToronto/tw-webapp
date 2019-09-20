@@ -1,4 +1,5 @@
-'<template>
+'
+<template>
   <v-snackbar
     v-model="notification.visible"
     :timeout="notification.timeout"
@@ -10,11 +11,7 @@
     dark
   >
     {{ notification.message }}
-    <v-btn
-      dark
-      text
-      @click="closeNotification"
-    >
+    <v-btn dark text @click="closeNotification">
       Close
     </v-btn>
   </v-snackbar>
@@ -30,7 +27,7 @@ import { NotificationPosition } from '@/store/modules/notification';
 export default class NotificationBar extends Vue {
   store: Store = useStore(this.$store);
 
-  positions = NotificationPosition
+  positions = NotificationPosition;
 
   get notification() {
     return this.store.notification.notification;
@@ -44,6 +41,5 @@ export default class NotificationBar extends Vue {
     const positions = this.store.notification.notification.position;
     return positions.includes(position);
   }
-};
-
+}
 </script>

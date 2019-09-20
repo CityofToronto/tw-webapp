@@ -12,4 +12,4 @@ export default class Store {
 
   @Module()
   public grid = new GridModule();
-};
+}

@@ -49,8 +49,8 @@ export default class TreeviewFilter extends Vue {
   }
 
   isFilterActive(): boolean {
-    return !!(this.selectedItems.length);
-  };
+    return !!this.selectedItems.length;
+  }
 
   // TODO If you select a higher level have all children filtered to
   doesFilterPass(params: IDoesFilterPassParams): boolean {

@@ -1,12 +1,9 @@
-import {
-  Mutation, State, Action, Getter,
-} from 'vuex-simple';
+import { Mutation, State, Action, Getter } from 'vuex-simple';
 
 export default class DisplayModule {
-
   // This is the state of the 'main' table pulled from the URL
-  @State() private table: {tableName: string; rowId: number}
-  
+  @State() private table: { tableName: string; rowId: number };
+
   public constructor() {
     this.table = {
       tableName: 'activity',
@@ -25,13 +22,15 @@ export default class DisplayModule {
   }
 
   @Mutation()
-  private setTableData(table: {tableName: string; rowId: number}): void {
+  private setTableData(table: { tableName: string; rowId: number }): void {
     this.table = table;
   }
 
   @Action()
-  public async pushTableData(table: {tableName: string; rowId: number}): Promise<void> {
+  public async pushTableData(table: {
+    tableName: string;
+    rowId: number;
+  }): Promise<void> {
     this.setTableData(table);
   }
-};
-  
+}

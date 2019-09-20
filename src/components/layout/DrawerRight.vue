@@ -10,7 +10,10 @@
     stateless
   >
     <v-card v-for="grid in gridList" :key="grid.tableName" class="mx-2 my-3">
-      <grid-with-toolbar :grid-type="grid.relation" :table-name="grid.tableName" />
+      <grid-with-toolbar
+        :grid-type="grid.relation"
+        :table-name="grid.tableName"
+      />
     </v-card>
   </v-navigation-drawer>
 </template>
@@ -32,11 +35,15 @@ export default class DrawerRight extends Vue {
   gridList: { tableName: string; relation: GridType }[] = [];
 
   async created() {
-    const relationships = await apolloClient.getRelationships(this.$route.params.table);
+    const relationships = await apolloClient.getRelationships(
+      this.$route.params.table,
+    );
 
     // Filter for table relationships
     this.gridList = relationships
-      .filter((relationship): boolean => relationship.name.includes('aggregate'))
+      .filter((relationship): boolean =>
+        relationship.name.includes('aggregate'),
+      )
       .map((relationship) => {
         /**
          *  Two options, activity_legislation_aggregreate returns length of 3 when split by _ (MTM)
@@ -54,7 +61,9 @@ export default class DrawerRight extends Vue {
               relation: GridType.ManyToMany,
             };
           default:
-            throw new Error(`Incorrect relationship schema for ${this.$route.params.table}`);
+            throw new Error(
+              `Incorrect relationship schema for ${this.$route.params.table}`,
+            );
         }
       });
   }
