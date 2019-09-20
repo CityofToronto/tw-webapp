@@ -52,6 +52,7 @@
         :custom-columns="componentProperties.gridProps.customColumns"
         @set-grid-instance="setGridInstance"
         @edit="editRow"
+        @add="addRow"
       />
     </div>
   </div>
@@ -109,8 +110,16 @@ export default class GridWithToolbar extends Vue {
     return this.builderVisible || this.formVisible;
   }
 
+  // TODO update this logic to be dynamic
   get validTable() {
-    const validTables = ['legislation', 'trade', 'activity', 'WORK_TYPE'];
+    const validTables = [
+      'legislation',
+      'trade',
+      'activity',
+      'WORK_TYPE',
+      'role_asset',
+      'inactive_asset',
+    ];
     return !validTables.includes(this.tableName);
   }
 
@@ -124,7 +133,12 @@ export default class GridWithToolbar extends Vue {
   }
 
   clickHandler(clickType: ToolbarOperations) {
-    const clickFunctions: { [key in ToolbarOperations]: () => void } = {
+    const clickFunctions: {
+      [key in ToolbarOperations]: (
+        clickType?: string,
+        presetData?: any,
+      ) => void;
+    } = {
       [ToolbarOperations.AddRow]: this.addRow,
       [ToolbarOperations.CloneRow]: this.cloneRow,
       [ToolbarOperations.RemoveRow]: this.removeRow,
@@ -136,7 +150,7 @@ export default class GridWithToolbar extends Vue {
     clickFunctions[clickType]();
   }
 
-  addRow() {
+  addRow(clickType?: string, presetData: { [key: string]: string } = {}) {
     this.saveFormFunction = (formData: RowData) => {
       this.gridInstance.addRows({
         rowsToAdd: [formData],
@@ -147,7 +161,7 @@ export default class GridWithToolbar extends Vue {
         },
       });
     };
-    this.formData = {};
+    this.formData = presetData;
     this.formVisible = true;
   }
 
@@ -185,6 +199,7 @@ export default class GridWithToolbar extends Vue {
       };
     } else if (selectedRows.length > 1) {
       const rowsWithIdRemoved = selectedRows.map((rowData) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, ...ommittedId } = rowData;
         return ommittedId;
       });
