@@ -1,187 +1,174 @@
+import { getDefaultColDef } from '@/config/defaults';
+import { GRID_CONFIG } from '@/config';
 import { ColDef } from 'ag-grid-community';
-import _ from 'lodash';
-import { TableTypes } from '@/apollo/types';
 import apolloClient from '@/apollo';
 import { TreeData } from '@/types/api';
-import { CellSelectionType, ColumnTypes, CustomColumn } from '@/types/grid';
-import CustomButtonColumns from './ColumnCustomDefs';
-import CustomCellTypes from './CustomCellTypes';
+import ButtonColumns from './GridButtons';
+import { CellType, ColumnButton } from '@/types/grid';
 import ColumnHeaderMap from './ColumnHeaderMap';
+import CustomCellTypes from './CustomCellTypes';
+import { CellParams, GridConfiguration } from '@/types/config';
+import { HasuraField } from '@/apollo/types';
+import { capitalize } from '@/common/utils';
 
-const getColumnProperties = async (
-  column: TableTypes,
-  relationships: TableTypes[],
-): Promise<ColDef> => {
-  const relationshipNames = relationships.map((col): string => col.name);
+interface ProcessedColumn {
+  name: string;
+  cellType: CellType;
+}
 
-  /**
-   * First check if it is a select column
-   * tradeType to TRADE_TYPE, where TRADE_TYPE is defined in Hasura
-   */
-
-  // TODO Fix the naming schema of the database to make this parsing much cleaner
-  let columnNameToCheck: string;
-  let columnNameUpperSnakeCase: string;
-  if (column.selectionType === CellSelectionType.multiple) {
-    columnNameToCheck = column.name;
-    columnNameUpperSnakeCase = _.snakeCase(
-      column.name.split('_')[1],
-    ).toUpperCase();
-  } else {
-    columnNameToCheck = _.snakeCase(column.name).toUpperCase();
-    columnNameUpperSnakeCase = _.snakeCase(column.name).toUpperCase();
-  }
-
-  // If this passes, then the column is a select or tree column
-  if (relationshipNames.includes(columnNameToCheck)) {
-    const tableFields = await apolloClient.getColumns(
-      `${columnNameUpperSnakeCase}`,
-    );
-    // If value list table has a parent column, it is tree, if not it is a simple select
-    if (tableFields.map((field): string => field.name).includes('parent')) {
-      const treeValues = await apolloClient.getValuesFromTable<TreeData[]>(
-        columnNameUpperSnakeCase,
-        ['id', 'parent', 'name'],
-      );
-      return CustomCellTypes[ColumnTypes.treeColumn](
-        treeValues,
-        column.selectionType,
-      );
-    }
-    const dropdownValues = await apolloClient.getValuesFromTable<
-      { name: string }[]
-    >(columnNameUpperSnakeCase, ['name']);
-    return CustomCellTypes[ColumnTypes.selectColumn](
-      dropdownValues.map((val): string => val.name),
-      column.selectionType,
-    );
-  }
-
-  // These are basic column types
-  const typeName = column.type.ofType
-    ? column.type.ofType.name
-    : column.type.name;
-  if (typeName === 'Int' || typeName === 'numeric') {
-    // Return numeric
-    return CustomCellTypes[ColumnTypes.numberColumn]();
-  }
-  if (typeName === 'Boolean') {
-    // Return boolean
-    return CustomCellTypes[ColumnTypes.booleanColumn]();
-  }
-  // Return any other as text column
-  return CustomCellTypes[ColumnTypes.textColumn]();
-};
-
-export class ColumnDefiner {
+export default class ColumnDefiner {
   private tableName: string;
 
-  private editableColumns: boolean;
+  private config: GridConfiguration;
 
-  private customColumns: CustomColumn[];
+  private columns: HasuraField[] = [];
 
-  public constructor(
-    tableName: string,
-    editableColumns: boolean,
-    customColumnsToAdd: CustomColumn[],
-  ) {
-    this.tableName = tableName;
-    this.editableColumns = editableColumns;
-    this.customColumns = customColumnsToAdd;
-  }
+  private processedColumns: ProcessedColumn[] = [];
+
+  private columnDefs: ColDef[] = [];
 
   /**
-   *  This function will output additional properties for each column type.
-   *  This is needed as these are unique for the column types
-   *  colType is defined here to be used in the DynamicForm.vue to render
-   *  the correct form input
-   */
-
-  /**
-   * This defines the columns, it determines if it is a number column,
-   * a boolean, a text field or selection field
-   * If selection, it fetches the values from the value list
-   */
-  private static async defineColumn(
-    column: TableTypes,
-    editable: boolean,
-    relationships: TableTypes[],
-  ): Promise<ColDef> {
-    const additionalProperties = await getColumnProperties(
-      column,
-      relationships,
-    );
-
-    const columnName = column.name.split('_')[1];
-
-    const columnData: ColDef = {
-      headerName: columnName
-        ? ColumnHeaderMap.get(columnName)
-        : ColumnHeaderMap.get(column.name),
-      field: column.name,
-      resizable: true,
-      editable: column.name !== 'id' && editable,
-      hide: column.name.includes('_id'),
-      sort: column.name === 'id' ? 'asc' : undefined,
-      sortable: true,
-      ...additionalProperties,
-    };
-    return columnData;
-  }
-
-  /**
-   * Return Ag-Grid ColumnDefs for a tableName
+   * Provides the column definitions for the grid.
    *
-   * @param editable: whether the columns are editable
-   * @returns ColDef[]
+   * @param {Table} string enum of tables
    */
+  public constructor(tableName: string) {
+    this.tableName = tableName;
+    const config = GRID_CONFIG.get(this.tableName);
+    this.config = {
+      ...getDefaultColDef(config ? config.gridType : undefined),
+      ...config,
+    };
+  }
+
+  private omitColumns(columnsToOmit: string[]): void {
+    this.columns = this.columns.filter(
+      (column): boolean => !columnsToOmit.includes(column.name),
+    );
+  }
+
+  private addToColumnDefs(columnsToAdd: ColumnButton[]): void {
+    columnsToAdd.forEach((columnToAdd): void => {
+      this.columnDefs.unshift(ButtonColumns[columnToAdd]);
+    });
+  }
+
+  private parseType(
+    column: HasuraField,
+  ): { cellType: CellType; enumValues?: string[] } {
+    // Type is defined in two places depending if nullable
+    const type = column.type.ofType
+      ? column.type.ofType.name
+      : column.type.name;
+    if (column.type.ofType.kind === 'ENUM') {
+      return {
+        cellType: CellType.selectCell,
+        enumValues: column.type.ofType.enumValues,
+      };
+    }
+    switch (type) {
+      case 'Int':
+      case 'numeric':
+      case 'bigint':
+        return { cellType: CellType.numberCell };
+      case 'Boolean':
+        return { cellType: CellType.booleanCell };
+      default:
+        return { cellType: CellType.textCell };
+    }
+  }
+
+  private processColumns(): void {
+    this.processedColumns = this.columns.map(
+      (column): ProcessedColumn => {
+        return {
+          name: column.name,
+          ...this.parseType(column),
+        };
+      },
+    );
+  }
+
+  private getCustomColDef = async (column: CellParams): Promise<ColDef> => {
+    switch (column.cellType) {
+      // Tree Column requires external data to render
+      case CellType.treeCell: {
+        const valueData = await apolloClient.getValuesFromTable<TreeData[]>({
+          tableName: column.sourceTableName,
+          columns: ['name'],
+        });
+        return CustomCellTypes[column.cellType](valueData);
+      }
+
+      case CellType.selectCell: {
+        return CustomCellTypes[column.cellType](column.enumValues);
+      }
+      default:
+        if (column.cellType) {
+          return CustomCellTypes[column.cellType]();
+        }
+        return CustomCellTypes[CellType.textCell]();
+    }
+  };
+
+  private async defineColumns(columns: ProcessedColumn[]): Promise<void> {
+    const overriddenColDefs = this.config.overrideColumnDefinitions || [];
+
+    const promiseOfColDef = columns.map(
+      async (column): Promise<ColDef> => {
+        const overrideColDef = overriddenColDefs.find(
+          (colDef: ColDef): boolean => colDef.field === column.name,
+        ) as CellParams;
+
+        const colDef = {
+          ...this.config.defaultColDef,
+          cellType: column.cellType,
+          // Attempt the map the name, if not capitalize the name field
+          headerName: ColumnHeaderMap.get(column.name)
+            ? ColumnHeaderMap.get(column.name)
+            : capitalize(column.name),
+          field: column.name,
+          editable: column.name !== 'id',
+          sort: column.name === 'id' ? 'asc' : undefined,
+          ...overrideColDef,
+        };
+
+        return {
+          ...colDef,
+          ...(await this.getCustomColDef(colDef as CellParams)),
+          ...overrideColDef,
+        };
+      },
+    );
+    this.columnDefs = await Promise.all(promiseOfColDef);
+  }
+
   public async getColumnDefs(): Promise<ColDef[]> {
-    const columns = await apolloClient.getColumns(this.tableName);
-    const relationships = await apolloClient.getRelationships(this.tableName);
+    this.columns = await apolloClient.getColumns(this.tableName);
+
+    // Omit columns defined in config
+    if (GRID_CONFIG.has(this.tableName)) {
+      if (this.config.omittedColumns) {
+        this.omitColumns(this.config.omittedColumns);
+      }
+    }
 
     /**
-     * First we set all columns to selectionType: single.
-     * This accounts for multiselect columns that are a relationship.
-     * However, they need to be defined as a column for editing.
-     * This flags these columns as selectionType: multiple for parser to know.
+     * This parses and assigns the column type
      */
-    const allColumns = columns
-      .map(
-        (column): TableTypes => ({
-          ...column,
-          selectionType: CellSelectionType.single,
-        }),
-      )
-      .concat(
-        relationships
-          // eslint-disable-next-line max-len
-          .filter(
-            (relationship): boolean =>
-              relationship.name.includes('Type') &&
-              !relationship.name.includes('aggregate'),
-          )
-          .map(
-            (relationship): TableTypes => ({
-              ...relationship,
-              selectionType: CellSelectionType.multiple,
-            }),
-          ),
-      );
+    this.processColumns();
 
-    const columnDefs = allColumns.map(
-      async (column): Promise<ColDef> =>
-        ColumnDefiner.defineColumn(column, this.editableColumns, relationships),
-    );
+    /**
+     * This assigns column definitions to the columns which is then processed
+     * by Ag-Grid to build the table.
+     */
+    await this.defineColumns(this.processedColumns);
 
-    const resolvedDefs = await Promise.all(columnDefs).then(
-      (colDefs): ColDef[] => colDefs,
-    );
+    // Adds additional column definitions to the front of the array
+    if (this.config.columnButtons) {
+      this.addToColumnDefs(this.config.columnButtons);
+    }
 
-    // Insert the custom buttons to the front of the column definitions
-    this.customColumns.forEach((customColumnName): void => {
-      resolvedDefs.unshift(CustomButtonColumns[customColumnName]);
-    });
-
-    return resolvedDefs;
+    return this.columnDefs;
   }
 }
