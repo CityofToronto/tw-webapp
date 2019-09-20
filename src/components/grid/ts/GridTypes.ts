@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { GridType, CustomColumn } from '@/types/grid';
+import { GridType, ColumnButton } from '@/types/grid';
 import { QueryType } from '@/types/api';
 
 export const getComponentProperties = (
@@ -54,7 +54,7 @@ export const getComponentProperties = (
         gridProps: {
           queryType: QueryType.ManyToMany,
           editable: false,
-          customColumns: [CustomColumn.Unlink],
+          customColumns: [ColumnButton.Unlink],
         },
       },
       [GridType.DragTo]: {
@@ -67,7 +67,7 @@ export const getComponentProperties = (
           queryType: QueryType.ManyToMany,
           autoHeight: false,
           draggable: true,
-          customColumns: [CustomColumn.Unlink],
+          customColumns: [ColumnButton.Unlink],
         },
       },
       [GridType.DragFrom]: {
@@ -80,14 +80,20 @@ export const getComponentProperties = (
           autoHeight: false,
           draggable: true,
           pagination: true,
-          customColumns: [CustomColumn.Drag],
+          customColumns: [ColumnButton.Drag],
         },
       },
       [GridType.Tree]: {
         gridComponent: () => import('../TreeGrid.vue'),
         gridTitle: `${tableName}`,
         toolbarProps: {
-          controls: ['addRow', 'cloneRow', 'fitColumns', 'sizeColumns'],
+          controls: [
+            'addRow',
+            'cloneRow',
+            'removeRow',
+            'fitColumns',
+            'sizeColumns',
+          ],
         },
         gridProps: {
           showSidebar: false,
@@ -96,6 +102,7 @@ export const getComponentProperties = (
           editable: true,
           pagination: false,
           queryType: QueryType.Direct,
+          customColumns: [ColumnButton.AddTree],
         },
       },
     };
@@ -117,7 +124,7 @@ export const getComponentProperties = (
       autoHeight: true,
       draggable: false,
       pagination: false,
-      customColumns: [CustomColumn.Edit],
+      customColumns: [ColumnButton.Edit],
       ...componentProps.gridProps,
     },
   };

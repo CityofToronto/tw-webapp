@@ -2,7 +2,7 @@ import {
   ICellRendererParams,
   IFilterParams,
   ICellEditorParams,
-  ColDef,
+  ISetFilterParams,
 } from 'ag-grid-community';
 import { QueryType, TreeStructure, TreeData } from '@/types/api';
 
@@ -41,21 +41,21 @@ export enum CustomCellRenderer {
   TreeView = 'TreeviewRenderer',
 }
 
-export enum CustomColumn {
+export enum ColumnButton {
   Edit = 'Edit',
   Unlink = 'Unlink',
   Drag = 'Drag',
   AddTree = 'AddTree',
 }
 
-export enum ColumnTypes {
-  booleanColumn,
-  textColumn,
-  numberColumn,
-  selectColumn,
-  treeColumn,
-  aliasColumn,
-  rearrangeColumn,
+export enum CellType {
+  booleanCell,
+  textCell,
+  numberCell,
+  selectCell,
+  treeCell,
+  aliasCell,
+  rearrangeCell,
 }
 
 export enum GridProviders {
@@ -86,23 +86,27 @@ type Filters =
   | 'inRange'
   | 'empty';
 
-type FilterTypes = 'text' | 'number' | 'array';
+export enum FilterType {
+  text = 'text',
+  number = 'number',
+  array = 'array',
+}
 
 export interface GridFilterModel {
   [key: string]: {
-    filterType: FilterTypes;
+    filterType: FilterType;
     values?: string[];
     filter?: string;
     operator?: string;
     type: Filters;
     condition1?: {
       filter: string;
-      filterType: string;
+      filterType: FilterType;
       type: Filters;
     };
     condition2?: {
       filter: string;
-      filterType: string;
+      filterType: FilterType;
       type: Filters;
     };
   };
@@ -119,10 +123,15 @@ export interface RowData {
   [key: string]: any;
 }
 
+export interface SetFilterParams extends ISetFilterParams {
+  values: string[];
+}
+
 export interface TreeRendererParams extends ICellRendererParams {
   params: {
     value: number[] | number;
   };
+
   treeMap: Map<number, string>;
 }
 
