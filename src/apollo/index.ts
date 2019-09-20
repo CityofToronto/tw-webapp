@@ -115,10 +115,13 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
     );
   }
 
-  public getValuesFromTable<T>(
-    tableName: string,
-    columns: string[],
-  ): Promise<T> {
+  public getValuesFromTable<T>({
+    tableName,
+    columns,
+  }: {
+    tableName: string;
+    columns: string[];
+  }): Promise<T> {
     return this.query({
       query: gql`{
           ${tableName} {
