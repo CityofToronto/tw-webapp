@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
-import { ColumnTypes } from '@/types/grid';
-import { GridType, GridConfigurationTypes } from '@/types/config';
+import { CellType, FilterType } from '@/types/grid';
+import { GridType, GridConfigurationInterface } from '@/types/config';
 
-export const gridConfig: GridConfigurationTypes = {
+export const gridConfig: GridConfigurationInterface = {
   // Properties pertaining for loading the 'WORK_TYPE' table
   WORK_TYPE: {
     gridType: GridType.Tree,
     overrideColumnDefinitions: [
       {
         field: 'asset',
-        cellType: ColumnTypes.rearrangeColumn,
+        cellType: CellType.rearrangeCell,
       },
       {
         field: 'parent',
@@ -63,20 +63,15 @@ export const gridConfig: GridConfigurationTypes = {
     pagination: false,
     rowDragManaged: true,
     overrideColumnDefinitions: [
-      // {
-      //   field: 'workType',
-      //   cellType: ColumnTypes.selectColumn,
-      //   sourceTableName: 'WORK_TYPE',
-      // },
       {
         field: 'procedureName',
         headerName: 'Procedure Name!',
-        cellType: ColumnTypes.rearrangeColumn,
+        cellType: CellType.rearrangeCell,
       },
     ],
     customFilterModel: {
       shutDown: {
-        filterType: 'text',
+        filterType: FilterType.text,
         filter: 'true',
         type: 'equals',
       },
