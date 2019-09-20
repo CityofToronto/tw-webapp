@@ -1,3 +1,3 @@
-export { DirectProvider } from './DirectProvider';
-export { OTMProvider } from './OTMProvider';
-export { MTMProvider } from './MTMProvider';
+export { DirectProvider } from './Providers/DirectProvider';
+export { OTMProvider } from './Providers/OTMProvider';
+export { MTMProvider } from './Providers/MTMProvider';
