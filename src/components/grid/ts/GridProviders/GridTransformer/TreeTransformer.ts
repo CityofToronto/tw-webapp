@@ -1,8 +1,8 @@
 import { TreeData } from '@/types/api';
-import { GridDataTransformer, RowData } from '@/types/grid';
+import { GridDataTransformer } from '@/types/grid';
 
 export default class TreeTransformer implements GridDataTransformer {
-  public transform<T extends RowData[]>(data: T): TreeData[] {
+  public transform<T extends TreeData[]>(data: T): TreeData[] {
     return data.map(
       (row): TreeData => {
         const { children, ...noChildren } = row;
