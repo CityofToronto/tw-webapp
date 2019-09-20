@@ -10,4 +10,6 @@ export default new Map([
   ['tradeQuantity', 'Quantity of Trade'],
   ['utilization', 'Wrench Time Utilization (%)'],
   ['description', 'Description'],
+  ['name', 'Name'],
+  ['parent', 'Parent'],
 ]);
