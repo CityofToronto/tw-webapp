@@ -1,4 +1,3 @@
-import { IServerSideGetRowsRequest } from 'ag-grid-community';
 import { CellSelectionType } from '@/types/grid';
 
 export type __TypeKind =
@@ -56,11 +55,6 @@ export interface AddQuery extends CallbackQuery {
 
 export interface UpdateQuery extends CallbackQuery {
   rowsToUpdate: RowData[];
-}
-
-export interface GetRowsQuery extends RelationalQuery {
-  request: IServerSideGetRowsRequest;
-  columnNames: string[];
 }
 
 export interface RemoveQuery extends CallbackQuery {
