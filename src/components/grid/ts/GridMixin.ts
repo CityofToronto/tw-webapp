@@ -20,6 +20,7 @@ import Store from '@/store/store';
 import { AgGridVue } from 'ag-grid-vue';
 import GridButton from '@/components/grid/ag-components/GridButton.vue';
 import SetFilter from '../ag-components/SetFilter.vue';
+import RearrangeRenderer from '../ag-components/RearrangeRenderer.vue';
 
 // Config
 import * as GRID_CONFIG from '../ts/grid.config';
@@ -29,6 +30,7 @@ import * as GRID_CONFIG from '../ts/grid.config';
     AgGridVue,
     GridButton,
     SetFilter,
+    RearrangeRenderer,
   },
 })
 export default class GridMixin extends Vue {
