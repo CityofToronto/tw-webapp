@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { QueryError, RowData } from '@/apollo/types';
+import { RowData } from '@/apollo/types';
 import { storeInstance } from '@/store';
 import { NotificationPosition } from '@/store/modules/notification';
 
@@ -8,7 +8,7 @@ import { NotificationPosition } from '@/store/modules/notification';
  * Then an error bar is displayed
  * Through a Vuetify snackbar
  */
-export const dispatchError = (error: QueryError): never => {
+export const dispatchError = (error: Error): never => {
   storeInstance.notification.pushNotification({
     message: error.message,
     color: 'error',

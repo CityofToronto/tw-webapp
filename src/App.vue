@@ -21,15 +21,12 @@ import TheNavbar from './components/layout/TheNavbar.vue';
     NotificationBar,
   },
 })
-export default class App extends Vue {
-
-};
-
+export default class App extends Vue {}
 </script>
 
 <style>
-@import "../node_modules/ag-grid-community/dist/styles/ag-grid.css";
-@import "../node_modules/ag-grid-community/dist/styles/ag-theme-balham.css";
+@import '../node_modules/ag-grid-community/dist/styles/ag-grid.css';
+@import '../node_modules/ag-grid-community/dist/styles/ag-theme-balham.css';
 * {
   box-sizing: border-box;
   padding: 0;
