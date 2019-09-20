@@ -1,42 +1,34 @@
-import { ColumnTypes, CellSelectionType, CustomColDef } from '@/types/grid';
+import { CellType } from '@/types/grid';
 import { TreeData } from '@/types/api';
 import { listToTree } from '@/common/listToTree';
+import { ColDef } from 'ag-grid-community';
 
 /**
  * Here is object to define CustomCellTypes and their properties
  */
 const CustomCellTypes = {
-  // Text Column
-  [ColumnTypes.textColumn]: (): CustomColDef => ({
+  // Text
+  [CellType.textCell]: (): ColDef => ({
     valueParser: ({ newValue }: { newValue: string }): string => newValue,
     filter: 'agTextColumnFilter',
-    colType: ColumnTypes.textColumn,
-    selectionType: CellSelectionType.single,
   }),
-  // Boolean Column
-  [ColumnTypes.booleanColumn]: (): CustomColDef => ({
+  // Boolean
+  [CellType.booleanCell]: (): ColDef => ({
     valueParser: ({ newValue }: { newValue: string }): boolean =>
       newValue === 'true',
     filterFramework: 'SetFilter',
     filterParams: {
       values: ['true', 'false'],
     },
-    colType: ColumnTypes.booleanColumn,
-    selectionType: CellSelectionType.single,
   }),
-  // Numeric column (Int, double, etc)
-  [ColumnTypes.numberColumn]: (): CustomColDef => ({
+  // Numeric (Int, double, etc)
+  [CellType.numberCell]: (): ColDef => ({
     valueParser: ({ newValue }: { newValue: string }): number =>
       Number(newValue),
     filter: 'agNumberColumnFilter',
-    colType: ColumnTypes.numberColumn,
-    selectionType: CellSelectionType.single,
   }),
-  // Dropdown kind of column
-  [ColumnTypes.selectColumn]: (
-    values: string[],
-    selectionType: CellSelectionType,
-  ): CustomColDef => ({
+  // Select / dropdown kind
+  [CellType.selectCell]: (values: string[]): ColDef => ({
     filterFramework: 'SetFilter',
     filterParams: {
       values,
@@ -47,16 +39,13 @@ const CustomCellTypes = {
       values,
       cellHeight: 41,
     },
-    colType: ColumnTypes.selectColumn,
-    selectionType,
   }),
   // Treeview column definition
-  async [ColumnTypes.treeColumn](
-    values: TreeData[],
-    selectionType: CellSelectionType,
-  ): Promise<CustomColDef> {
+  async [CellType.treeCell](values: TreeData[]): Promise<ColDef> {
+    // @ts-ignore
     const treeData = listToTree(values);
     const treeMap = new Map(
+      // @ts-ignore
       values.map((entry): [number, string] => [entry.id, entry.name]),
     );
     return {
@@ -74,15 +63,12 @@ const CustomCellTypes = {
       cellRendererParams: {
         treeMap,
       },
-      colType: ColumnTypes.treeColumn,
-      selectionType,
     };
   },
-  [ColumnTypes.aliasColumn](
-    value
-  ): {
-
-  },
+  [CellType.aliasCell]: (): ColDef => ({}),
+  [CellType.rearrangeCell]: (): ColDef => ({
+    cellRendererFramework: 'RearrangeRenderer',
+  }),
 };
 
 export default CustomCellTypes;
