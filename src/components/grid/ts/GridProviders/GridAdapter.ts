@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { IServerSideGetRowsRequest } from 'ag-grid-community';
 import apolloClient from '@/apollo';
-import { GridFilterModel } from '@/types/grid';
-import { TableTypes } from '@/types/api';
+import { GridFilterModel, FilterType } from '@/types/grid';
+import { ValueOf } from 'ts-essentials';
 
-// This adapts Ag-Grid into graphql query
+// This adapts Ag-Grid  into graphql query
 // I suggest you turn back
 
 const mapping = new Map([
@@ -30,7 +30,9 @@ enum GridFilterType {
   default,
 }
 
-const getFilterFunction = (type: object): ((value: string) => string) => {
+const getFilterFunction = (
+  filter: ValueOf<GridFilterModel>,
+): ((key: string, value: any) => string) => {
   // This returns how the value should be formatted for Hasura to like us
   const filterValue = (
     filterType: GridFilterType,
@@ -51,12 +53,17 @@ const getFilterFunction = (type: object): ((value: string) => string) => {
   ) => string = (
     key: string,
     condition: { type: string; filterType: string },
-  ) =>
+  ): string =>
+    //@ts-ignore
     `${key}: {${mapping.get(condition.type)}: "${filterValue(condition.type)(
+      //@ts-ignore
       condition.filter,
     )}"}`;
 
-  const parseMultiple: (key: string, value: any) => string = (key, value) => {
+  const parseMultiple: (key: string, value: any) => string = (
+    key,
+    value,
+  ): string => {
     const { condition1, condition2, operator } = value;
     return `${mapping.get(operator)}: [{${parseSingular(
       key,
@@ -64,15 +71,19 @@ const getFilterFunction = (type: object): ((value: string) => string) => {
     )}}, {${parseSingular(key, condition2)}}]`;
   };
 
-  const parseArray = (key: string, value): string =>
-    `${key}: {_in: [${value.values.map((x): string => `"${x}"`).join(',')}]}`;
+  const parseArray = (key: string, value: any): string =>
+    `${key}: {_in: [${value.values
+      .map((x: string): string => `"${x}"`)
+      .join(',')}]}`;
 
-  const filterFunctions = {
-    text: type.operator ? parseMultiple : parseSingular,
-    number: type.operator ? parseMultiple : parseSingular,
-    array: parseArray,
+  const filterFunctions: {
+    [key in FilterType]: (arg1: any, arg2: any) => string;
+  } = {
+    [FilterType.text]: filter.operator ? parseMultiple : parseSingular,
+    [FilterType.number]: filter.operator ? parseMultiple : parseSingular,
+    [FilterType.array]: parseArray,
   };
-  return filterFunctions[type.filterType];
+  return filterFunctions[filter.filterType];
 };
 
 // Maps an object to array of 'colId: sort' pairs
@@ -118,7 +129,7 @@ const isSubTreeQuery = (groupKeys: number[] | string[]): boolean => {
 export default class GridAdapter {
   private tableName: string;
 
-  public async getColumnNames(): Promise<string[]> {
+  private async getColumnNames(): Promise<string[]> {
     const tableColumns = await apolloClient.getColumns(this.tableName);
     return tableColumns.map((col): string => col.name);
   }
