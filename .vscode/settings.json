@@ -9,9 +9,5 @@
     
     "**/node_modules/**": true,
     "**/docs/**": true,
-    ".**": false,
-    "**.js": false,
-    "**.json": true,
-
   }
 }
