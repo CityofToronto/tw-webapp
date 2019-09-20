@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import apolloClient from '@/apollo';
 import { dispatchError } from '@/apollo/lib/utils';
 import GridDatasource from './GridDatasource';
-import { GridDataTransformer, RowData } from '@/types/grid';
+import { GridDataTransformer, RowData, GridFilterModel } from '@/types/grid';
 
 export class OTMDatasource extends GridDatasource {
   private tableName: string;
@@ -15,10 +15,11 @@ export class OTMDatasource extends GridDatasource {
 
   public constructor(
     tableName: string,
+    customFilterModel: GridFilterModel,
     dataTransformer: GridDataTransformer,
     relatedData: { tableName: string; rowId: number },
   ) {
-    super(dataTransformer, tableName);
+    super(tableName, customFilterModel, dataTransformer);
     this.tableName = tableName;
     this.relatedData = relatedData;
   }
@@ -46,7 +47,9 @@ export class OTMDatasource extends GridDatasource {
       })
       .then((resp): number => {
         // If nodes array is empty, there is no data and return a zero
-        const nodesExist = !!resp.data[`${this.relatedData.tableName}_aggregate`].nodes.length;
+        const nodesExist = !!resp.data[
+          `${this.relatedData.tableName}_aggregate`
+        ].nodes.length;
         // eslint-disable-next-line max-len
         return nodesExist
           ? resp.data[`${this.relatedData.tableName}_aggregate`].nodes[0][
@@ -77,7 +80,10 @@ export class OTMDatasource extends GridDatasource {
       `,
         fetchPolicy: 'network-only',
       })
-      .then((response): RowData[] => response.data[this.relatedData.tableName][0][this.tableName])
+      .then(
+        (response): RowData[] =>
+          response.data[this.relatedData.tableName][0][this.tableName],
+      )
       .catch((error): never => dispatchError(error));
   }
 }

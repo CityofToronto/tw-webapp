@@ -1,15 +1,15 @@
 /**  Query One To Many Provider Class */
 
 import gql from 'graphql-tag';
-import { IServerSideDatasource } from 'ag-grid-community';
 import { dispatchError, stringify } from '@/apollo/lib/utils';
-import { GridProvider } from '../GridProviders';
+import BaseGridProvider from './BaseGridProvider';
 import apolloClient from '@/apollo';
-import { OTMDatasource } from './Datasources/OTMDatasource';
-import { RowData, GridDataTransformer } from '@/types/grid';
+import { OTMDatasource } from '../Datasources/OTMDatasource';
+import { RowData, GridDataTransformer, GridFilterModel } from '@/types/grid';
+import GridDatasource from '../Datasources/GridDatasource';
 
-export class OTMProvider implements GridProvider {
-  public gridDatasource: IServerSideDatasource;
+export class OTMProvider extends BaseGridProvider {
+  public gridDatasource: GridDatasource;
 
   private tableName: string;
 
@@ -24,12 +24,19 @@ export class OTMProvider implements GridProvider {
    */
   public constructor(
     tableName: string,
+    customFilterModel: GridFilterModel,
     gridDataTransformer: GridDataTransformer,
     relatedData: { rowId: number; tableName: string },
   ) {
+    super();
     this.tableName = tableName;
     this.relatedData = relatedData;
-    this.gridDatasource = new OTMDatasource(tableName, gridDataTransformer, relatedData);
+    this.gridDatasource = new OTMDatasource(
+      tableName,
+      customFilterModel,
+      gridDataTransformer,
+      relatedData,
+    );
   }
 
   public addData(

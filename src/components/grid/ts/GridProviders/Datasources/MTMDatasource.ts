@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import apolloClient from '@/apollo';
 import { dispatchError } from '@/apollo/lib/utils';
 import GridDatasource from './GridDatasource';
-import { GridDataTransformer, RowData } from '@/types/grid';
+import { GridDataTransformer, RowData, GridFilterModel } from '@/types/grid';
 
 export default class MTMDatasource extends GridDatasource {
   private tableName: string;
@@ -15,10 +15,11 @@ export default class MTMDatasource extends GridDatasource {
 
   public constructor(
     tableName: string,
+    customFilterModel: GridFilterModel,
     gridDataTransformer: GridDataTransformer,
     relatedData: { tableName: string; rowId: number },
   ) {
-    super(gridDataTransformer, tableName);
+    super(tableName, customFilterModel, gridDataTransformer);
     this.tableName = tableName;
     this.relatedData = relatedData;
   }
@@ -51,8 +52,9 @@ export default class MTMDatasource extends GridDatasource {
       })
       .then(
         (response): number =>
-          response.data[`${this.relatedData.tableName}_${this.tableName}_aggregate`].aggregate
-            .count,
+          response.data[
+            `${this.relatedData.tableName}_${this.tableName}_aggregate`
+          ].aggregate.count,
       )
       .catch((error): never => dispatchError(error));
   }
@@ -63,7 +65,6 @@ export default class MTMDatasource extends GridDatasource {
    * I recommend not to touch
    */
   public async getData(request: IServerSideGetRowsRequest): Promise<RowData[]> {
-
     const linkedQuery = await apolloClient
       .query({
         query: gql`
@@ -88,7 +89,9 @@ export default class MTMDatasource extends GridDatasource {
           ],
       );
 
-    const linkedIds = linkedQuery.map((col): number => col[`${this.tableName}_id`]);
+    const linkedIds = linkedQuery.map(
+      (col): number => col[`${this.tableName}_id`],
+    );
 
     // We modify the request to filter for linkedIds
     const modifiedRequest = {

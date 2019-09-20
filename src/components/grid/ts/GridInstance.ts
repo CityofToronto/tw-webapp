@@ -11,27 +11,23 @@ import {
   UpdateQuery,
   RowData,
 } from '@/apollo/types';
-import {
-  GridProvider,
-  DirectProvider,
-  MTMProvider,
-  OTMProvider,
-} from './GridProviders';
-import { GridDataTransformer } from '@/types/grid';
+import { DirectProvider, MTMProvider, OTMProvider } from './GridProviders';
+import { GridDataTransformer, GridFilterModel } from '@/types/grid';
+import BaseGridProvider from './GridProviders/Providers/BaseGridProvider';
 
 export default class GridInstance {
   public gridApi: GridApi;
 
   public columnApi: ColumnApi;
 
-  public Provider: GridProvider;
+  public Provider: BaseGridProvider;
 
   public constructor({
     Provider,
     gridApi,
     columnApi,
   }: {
-    Provider: GridProvider;
+    Provider: BaseGridProvider;
     gridApi: GridApi;
     columnApi: ColumnApi;
   }) {
@@ -47,21 +43,28 @@ export default class GridInstance {
   public static getProvider(
     queryType: QueryType,
     tableName: string,
+    customFilterModel: GridFilterModel = {},
     relatedData: {
       tableName: string;
       rowId: number;
     },
     dataTransformer: GridDataTransformer,
-  ): GridProvider {
-    const providers: { [key in QueryType]: GridProvider } = {
-      [QueryType.Direct]: new DirectProvider(tableName, dataTransformer),
+  ): BaseGridProvider {
+    const providers: { [key in QueryType]: BaseGridProvider } = {
+      [QueryType.Direct]: new DirectProvider(
+        tableName,
+        customFilterModel,
+        dataTransformer,
+      ),
       [QueryType.OneToMany]: new OTMProvider(
         tableName,
+        customFilterModel,
         dataTransformer,
         relatedData,
       ),
       [QueryType.ManyToMany]: new MTMProvider(
         tableName,
+        customFilterModel,
         dataTransformer,
         relatedData,
       ),
@@ -71,6 +74,10 @@ export default class GridInstance {
 
   public get gridDatasource(): IServerSideDatasource {
     return this.Provider.gridDatasource;
+  }
+
+  public setGridUpdateEvent(updateEvent: (...args: any) => void): void {
+    this.Provider.gridDatasource.setGridEvent(updateEvent);
   }
 
   public purgeCache(): void {

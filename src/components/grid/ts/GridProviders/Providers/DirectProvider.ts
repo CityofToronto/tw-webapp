@@ -1,14 +1,14 @@
 /** This provider queries the table directly, not through some relationship */
 import gql from 'graphql-tag';
-import { IServerSideDatasource } from 'ag-grid-community';
-import { GridProvider } from '../GridProviders';
+import BaseGridProvider from './BaseGridProvider';
 import apolloClient from '@/apollo';
 import { dispatchError, stringify } from '@/apollo/lib/utils';
-import { QueryError, RowData } from '@/apollo/types';
-import { DirectDatasource } from './Datasources/DirectDatasource';
-import { GridDataTransformer } from '@/types/grid';
+import { RowData } from '@/apollo/types';
+import { DirectDatasource } from '../Datasources/DirectDatasource';
+import { GridDataTransformer, GridFilterModel } from '@/types/grid';
+import GridDatasource from '../Datasources/GridDatasource';
 
-export class DirectProvider implements GridProvider {
+export class DirectProvider extends BaseGridProvider {
   /**
    * Methods to add, remove and update data.
    * Additionally provides a ServerSideDatasource for Ag-Grid
@@ -18,11 +18,20 @@ export class DirectProvider implements GridProvider {
    */
   private tableName: string;
 
-  public gridDatasource: IServerSideDatasource;
+  public gridDatasource: GridDatasource;
 
-  public constructor(tableName: string, gridDataTransformer: GridDataTransformer) {
+  public constructor(
+    tableName: string,
+    customFilterModel: GridFilterModel,
+    gridDataTransformer: GridDataTransformer,
+  ) {
+    super();
     this.tableName = tableName;
-    this.gridDatasource = new DirectDatasource(tableName, gridDataTransformer);
+    this.gridDatasource = new DirectDatasource(
+      tableName,
+      customFilterModel,
+      gridDataTransformer,
+    );
   }
 
   public addData(
@@ -72,7 +81,7 @@ export class DirectProvider implements GridProvider {
       .then((): void => {
         successCallback();
       })
-      .catch((error: QueryError): void => {
+      .catch((error): void => {
         failCallback();
         dispatchError(error);
       });
@@ -102,7 +111,7 @@ export class DirectProvider implements GridProvider {
       .then((): void => {
         successCallback();
       })
-      .catch((error: QueryError): void => {
+      .catch((error): void => {
         dispatchError(error);
         failCallback();
       });

@@ -1,14 +1,14 @@
 import gql from 'graphql-tag';
-import { IServerSideDatasource } from 'ag-grid-community';
-import { GridProvider } from '../GridProviders';
-import MTMDatasource from './Datasources/MTMDatasource';
+import MTMDatasource from '../Datasources/MTMDatasource';
 import { RowData } from '@/apollo/types';
 import apolloClient from '@/apollo';
 import { dispatchError } from '@/apollo/lib/utils';
-import { GridDataTransformer } from '@/types/grid';
+import { GridDataTransformer, GridFilterModel } from '@/types/grid';
+import BaseGridProvider from './BaseGridProvider';
+import GridDatasource from '../Datasources/GridDatasource';
 
-export class MTMProvider implements GridProvider {
-  public gridDatasource: IServerSideDatasource;
+export class MTMProvider extends BaseGridProvider {
+  public gridDatasource: GridDatasource;
 
   private tableName: string;
 
@@ -21,15 +21,22 @@ export class MTMProvider implements GridProvider {
 
   public constructor(
     tableName: string,
+    customFilterModel: GridFilterModel,
     gridDataTransformer: GridDataTransformer,
     relatedData: {
       tableName: string;
       rowId: number;
     },
   ) {
+    super();
     this.tableName = tableName;
     this.relatedData = relatedData;
-    this.gridDatasource = new MTMDatasource(this.tableName, gridDataTransformer, this.relatedData);
+    this.gridDatasource = new MTMDatasource(
+      this.tableName,
+      customFilterModel,
+      gridDataTransformer,
+      this.relatedData,
+    );
     this.linkingTableName = `${this.relatedData.tableName}_${this.tableName}`;
   }
 
@@ -96,9 +103,11 @@ export class MTMProvider implements GridProvider {
 
   public updateData(
     rowToUpdate: RowData,
-    successCallback: () => void = (): void => {},
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
-  ) {
-    // TODO Implement?
+  ): void {
+    failCallback();
+    throw new Error("ERROR: Can't update data on a many to many relationship");
   }
 }

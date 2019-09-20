@@ -2,18 +2,24 @@ import { IServerSideGetRowsRequest } from 'ag-grid-community';
 import gql from 'graphql-tag';
 import apolloClient from '@/apollo';
 import { dispatchError } from '@/apollo/lib/utils';
-import { GridDataTransformer, RowData } from '@/types/grid';
+import { GridDataTransformer, RowData, GridFilterModel } from '@/types/grid';
 import GridDatasource from './GridDatasource';
 
 export class DirectDatasource extends GridDatasource {
   private tableName: string;
 
-  public constructor(tableName: string, dataTransformer: GridDataTransformer) {
-    super(dataTransformer, tableName);
+  public constructor(
+    tableName: string,
+    customFilterModel: GridFilterModel,
+    dataTransformer: GridDataTransformer,
+  ) {
+    super(tableName, customFilterModel, dataTransformer);
     this.tableName = tableName;
   }
 
-  protected async countTotalRows(request: IServerSideGetRowsRequest): Promise<number> {
+  protected async countTotalRows(
+    request: IServerSideGetRowsRequest,
+  ): Promise<number> {
     return apolloClient
       .query({
         query: gql`
@@ -32,11 +38,16 @@ export class DirectDatasource extends GridDatasource {
         `,
         fetchPolicy: 'network-only',
       })
-      .then((response): number => response.data[`${this.tableName}_aggregate`].aggregate.count)
+      .then(
+        (response): number =>
+          response.data[`${this.tableName}_aggregate`].aggregate.count,
+      )
       .catch((error): never => dispatchError(error));
   }
 
-  protected async getData(request: IServerSideGetRowsRequest): Promise<RowData[]> {
+  protected async getData(
+    request: IServerSideGetRowsRequest,
+  ): Promise<RowData[]> {
     return apolloClient
       .query({
         query: gql` {
