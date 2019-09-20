@@ -1,10 +1,6 @@
-import {
-  GridType,
-  SimpleGridConfig,
-  GridConfigurationTypes,
-} from '../types/config';
+import { GridType, GridConfiguration } from '../types/config';
 import { ColDef } from 'ag-grid-community';
-import { CustomColumn } from '@/types/grid';
+import { ColumnButton } from '@/types/grid';
 
 const defaultColDef: ColDef = {
   resizable: true,
@@ -12,28 +8,29 @@ const defaultColDef: ColDef = {
   sortable: true,
 };
 
-export const defaultValues: SimpleGridConfig = {
-  omittedColumns: [],
-  columnButtons: [CustomColumn.Edit],
-  defaultColDef,
-};
-
-export const defaults: { [key in GridType]: GridConfigurationTypes } = {
+export const defaults: {
+  [key in GridType]: GridConfiguration;
+} = {
   [GridType.Tree]: {
     gridType: GridType.Tree,
-    columnButtons: [CustomColumn.Edit],
+    columnButtons: [ColumnButton.Edit],
     autoGroupColumnDef: {},
+  },
+  [GridType.Normal]: {
+    omittedColumns: [],
+    columnButtons: [ColumnButton.Edit],
+    defaultColDef,
   },
 };
 
 export const getDefaultColDef = (
   gridType: GridType | undefined,
-): SimpleGridConfig => {
+): GridConfiguration => {
   if (gridType) {
     return {
-      ...defaultValues,
+      ...defaults[GridType.Normal],
       ...defaults[gridType],
     };
   }
-  return defaultValues;
+  return defaults[GridType.Normal];
 };
