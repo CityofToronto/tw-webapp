@@ -13,7 +13,7 @@ export default abstract class BaseGridProvider {
 
   /** Function to remove a row from source */
   abstract removeData(
-    idToRemove: number,
+    idToRemove: string,
     successCallback?: () => void,
     failCallBack?: () => void,
   ): void;

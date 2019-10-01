@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { RowData } from '@/apollo/types';
+import { RowData } from '@/types/grid';
 import { storeInstance } from '@/store';
 import { NotificationPosition } from '@/store/modules/notification';
 import GridInstance from '@/components/grid/ts/GridInstance';

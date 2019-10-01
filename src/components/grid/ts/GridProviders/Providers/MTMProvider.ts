@@ -1,9 +1,8 @@
 import gql from 'graphql-tag';
 import MTMDatasource from '../Datasources/MTMDatasource';
-import { RowData } from '@/apollo/types';
 import apolloClient from '@/apollo';
 import { dispatchError } from '@/apollo/lib/utils';
-import { GridDataTransformer, GridFilterModel } from '@/types/grid';
+import { GridDataTransformer, GridFilterModel, RowData } from '@/types/grid';
 import BaseGridProvider from './BaseGridProvider';
 import GridDatasource from '../Datasources/GridDatasource';
 
@@ -73,7 +72,7 @@ export class MTMProvider extends BaseGridProvider {
 
   // Opposite of adding a row, filter for where ids match and delete entry'
   public removeData(
-    idToDelete: number,
+    idToDelete: string,
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
   ): void {

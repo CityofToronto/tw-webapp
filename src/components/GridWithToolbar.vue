@@ -59,8 +59,7 @@ import DynamicForm from './grid/DynamicForm.vue';
 import RelationshipBuilder from './grid/RelationshipBuilder.vue';
 import GridToolbar, { ToolbarOperations } from './grid/GridToolbar.vue';
 import GridInstance from './grid/ts/GridInstance';
-import { RowData } from '@/apollo/types';
-import { GridComponentOptions, GridType } from '@/types/grid';
+import { GridComponentOptions, GridType, RowData } from '@/types/grid';
 import { dispatchError } from '@/apollo/lib/utils';
 
 @Component({

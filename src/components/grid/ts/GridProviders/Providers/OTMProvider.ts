@@ -72,7 +72,7 @@ export class OTMProvider extends BaseGridProvider {
    *  we passed through the tableName getting the relationship
    */
   public removeData(
-    idToDelete: number,
+    idToDelete: string,
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
   ): void {

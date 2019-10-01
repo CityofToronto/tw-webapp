@@ -1,5 +1,6 @@
 import { GridApi, ColumnApi, IServerSideDatasource } from 'ag-grid-community';
-import { RemoveQuery, AddQuery, UpdateQuery, RowData } from '@/apollo/types';
+import { RemoveQuery, AddQuery, UpdateQuery } from '@/apollo/types';
+import { RowData } from '@/types/grid';
 import { QueryType } from '@/types/api';
 import { DirectProvider, MTMProvider, OTMProvider } from './GridProviders';
 import {
@@ -101,7 +102,7 @@ export default class GridInstance {
 
   /**
    * rowData will be an array of objects with key: value pairs
-   * Return a successful and unsucessful callback for UI updates
+   * Return a successful and unsuccessful callback for UI updates
    */
   public addRows({ rowsToAdd, successCallback, failCallback }: AddQuery): void {
     rowsToAdd.forEach((rowData): void =>

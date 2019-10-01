@@ -1,9 +1,5 @@
 import { HasuraField } from '@/types/api';
-
-export interface RowData {
-  id: number;
-  [key: string]: any;
-}
+import { RowData } from '@/types/grid';
 
 export interface TreeResponse {
   id: number;

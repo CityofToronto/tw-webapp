@@ -57,7 +57,7 @@ const CellTypes = {
       filterFramework: 'TreeviewFilter',
       filterParams: {
         treeData,
-        treeIds: values.map((val): number => val.id),
+        treeIds: values.map((val): string => val.id),
       },
       valueParser: ({ newValue }: { newValue: string }): string => newValue,
       cellEditorFramework: 'TreeviewEditor',

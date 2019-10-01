@@ -3,9 +3,8 @@ import gql from 'graphql-tag';
 import BaseGridProvider from './BaseGridProvider';
 import apolloClient from '@/apollo';
 import { dispatchError, stringify } from '@/apollo/lib/utils';
-import { RowData } from '@/apollo/types';
 import { DirectDatasource } from '../Datasources/DirectDatasource';
-import { GridDataTransformer, GridFilterModel } from '@/types/grid';
+import { GridDataTransformer, GridFilterModel, RowData } from '@/types/grid';
 import GridDatasource from '../Datasources/GridDatasource';
 
 /**
@@ -64,7 +63,7 @@ export class DirectProvider extends BaseGridProvider {
   }
 
   public removeData(
-    idToDelete: number,
+    idToDelete: string,
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
   ): void {

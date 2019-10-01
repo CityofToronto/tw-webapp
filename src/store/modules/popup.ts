@@ -22,7 +22,7 @@ interface FormEditorData {
 type PopupDataTypes = ConfirmationData | FormEditorData;
 
 export default class PopupModule {
-  @State() private popupData!: PopupDataTypes = {
+  @State() private popupData: PopupDataTypes = {
     componentType: 'form',
     formTitle: 'Base',
     formData: {},
