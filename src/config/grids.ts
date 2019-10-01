@@ -1,37 +1,17 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
-import { CellType, FilterType } from '@/types/grid';
+import { CellType, ColumnButton, RowStyleParams } from '@/types/grid';
 import { GridType, GridConfigurationInterface } from '@/types/config';
 
 export const gridConfig: GridConfigurationInterface = {
   // Properties pertaining for loading the 'WORK_TYPE' table
-  WORK_TYPE: {
-    gridType: GridType.Tree,
-    overrideColumnDefinitions: [
-      {
-        field: 'asset',
-        cellType: CellType.rearrangeCell,
-      },
-      {
-        field: 'parent',
-        hide: true,
-      },
-      {
-        field: 'id',
-        hide: true,
-      },
-      {
-        field: 'name',
-        hide: true,
-      },
-    ],
-  },
   role_asset: {
     gridType: GridType.Tree,
     overrideColumnDefinitions: [
       {
         field: 'asset_name',
         headerName: 'Asset Name',
+        cellType: CellType.rearrangeCell,
       },
       {
         field: 'id',
@@ -47,34 +27,71 @@ export const gridConfig: GridConfigurationInterface = {
       },
     ],
   },
-  inactive_asset: {
+  unassigned_assets: {
     overrideColumnDefinitions: [
       {
-        field: 'role_id',
-        hide: true,
+        field: 'asset_serial_number',
+        headerName: 'Asset Serial Number',
+        cellType: CellType.rearrangeCell,
       },
       {
         field: 'id',
         hide: true,
+        showInForm: false,
       },
     ],
   },
-  activity: {
-    pagination: false,
-    rowDragManaged: true,
+  reconciliation_view: {
+    title: '',
+    gridType: GridType.Drop,
+    columnButtons: [ColumnButton.AddTree],
+    sortingOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
+    omittedColumns: [
+      'role_exists',
+      'role_missing_from_registry',
+      'project_id',
+      'asset_exists',
+      'asset_missing_from_registry',
+    ],
+    getRowStyle: (params: RowStyleParams) => {
+      if (params.data) {
+        if (!params.data.role_exists) {
+          return { color: '#BDBDBD' };
+        }
+      }
+    },
     overrideColumnDefinitions: [
       {
-        field: 'procedureName',
-        headerName: 'Procedure Name!',
+        field: 'id',
+        headerName: 'Role ID',
+        hide: true,
+        showInForm: false,
+      },
+      {
+        field: 'role_number',
+        headerName: 'Role Number',
+        hide: true,
+      },
+      {
+        field: 'role_name',
+        headerName: 'Role Name',
+      },
+      {
+        field: 'asset_id',
+        hide: true,
+        showInForm: false,
+      },
+      {
+        field: 'asset_serial_number',
+        headerName: 'Asset Serial Number',
         cellType: CellType.rearrangeCell,
+        showInForm: false,
+      },
+      {
+        field: 'parent',
+        hide: true,
+        showInForm: false,
       },
     ],
-    customFilterModel: {
-      shutDown: {
-        filterType: FilterType.text,
-        filter: 'true',
-        type: 'equals',
-      },
-    },
   },
 };

@@ -1,5 +1,6 @@
 import { RowData } from '@/types/grid';
 import GridDatasource from '../Datasources/GridDatasource';
+import GridInstance from '../../GridInstance';
 
 export default abstract class BaseGridProvider {
   public abstract gridDatasource: GridDatasource;

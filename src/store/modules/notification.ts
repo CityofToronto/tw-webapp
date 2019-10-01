@@ -40,7 +40,7 @@ export default class NotificationModule {
     this.message = 'false';
     this.color = 'primary';
     this.position = [NotificationPosition.Top];
-    this.timeout = 5000;
+    this.timeout = 10000;
   }
 
   @Getter()
@@ -59,7 +59,7 @@ export default class NotificationModule {
     message,
     color,
     position,
-    timeout = 5000,
+    timeout = 10000,
   }: Notification): void {
     this.visible = true;
     this.message = message;

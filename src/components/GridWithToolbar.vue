@@ -1,16 +1,6 @@
 <template>
   <div class="grid">
-    <v-alert
-      v-if="validTable"
-      type="warning"
-      prominent
-      width="100%"
-      class="alert"
-    >
-      The "{{ componentProperties.gridTitle | capitalize }}" table you are
-      querying for does not exist.
-    </v-alert>
-    <div v-else class="grid">
+    <div class="grid">
       <v-dialog
         v-model="dialogVisible"
         max-width="50%"
@@ -71,6 +61,7 @@ import GridToolbar, { ToolbarOperations } from './grid/GridToolbar.vue';
 import GridInstance from './grid/ts/GridInstance';
 import { RowData } from '@/apollo/types';
 import { GridComponentOptions, GridType } from '@/types/grid';
+import { dispatchError } from '@/apollo/lib/utils';
 
 @Component({
   components: {
@@ -110,19 +101,6 @@ export default class GridWithToolbar extends Vue {
     return this.builderVisible || this.formVisible;
   }
 
-  // TODO update this logic to be dynamic
-  get validTable() {
-    const validTables = [
-      'legislation',
-      'trade',
-      'activity',
-      'WORK_TYPE',
-      'role_asset',
-      'inactive_asset',
-    ];
-    return !validTables.includes(this.tableName);
-  }
-
   get columnDefs() {
     return this.gridInstance.columnDefs;
   }
@@ -146,6 +124,7 @@ export default class GridWithToolbar extends Vue {
       [ToolbarOperations.FitColumns]: this.fitColumns,
       [ToolbarOperations.TogglePanel]: this.togglePanel,
       [ToolbarOperations.EditLinks]: this.editLinks,
+      [ToolbarOperations.MarkDoesNotExist]: this.markDoesNotExist,
     };
     clickFunctions[clickType]();
   }
@@ -163,6 +142,56 @@ export default class GridWithToolbar extends Vue {
     };
     this.formData = presetData;
     this.formVisible = true;
+  }
+
+  markDoesNotExist() {
+    const selectedRows = this.gridInstance.getSelectedRows();
+    const newData = selectedRows.map((row) => ({
+      id: row.id,
+      entity_exists: !row.role_exists,
+    }));
+
+    // // Rearrange any selection from top to bottom
+    // try {
+    //   const parentIds = selectedRows.map((x) => x.parent);
+    //   const lowest = selectedRows.find((x) => !parentIds.includes(x.id));
+    //   if (lowest) {
+    //     const index = selectedRows.map((x) => x.id).indexOf(lowest.id);
+    //     selectedRows.splice(index, 1);
+    //     selectedRows.unshift(lowest);
+    //   }
+
+    //   selectedRows.forEach((x, index) => {
+    //     if (index === selectedRows.length - 1) {
+    //       return;
+    //     }
+    //     const parent = selectedRows.filter(
+    //       (x) => selectedRows[index].parent === x.id,
+    //     )[0];
+    //     const parentIndex = selectedRows.map((x) => x.id).indexOf(parent.id);
+    //     selectedRows.splice(parentIndex, 1);
+    //     selectedRows.splice(index + 1, 0, parent);
+    //   });
+
+    //   if (selectedRows[0].group) {
+    //     throw new Error();
+    //   }
+
+    //   this.gridInstance.updateRows({
+    //     rowsToUpdate: newData,
+    //     successCallback: () => {
+    //       this.gridInstance.purgeCache();
+    //     },
+    //   });
+    // } catch (error) {
+    //   dispatchError(error);
+    // }
+    this.gridInstance.updateRows({
+      rowsToUpdate: newData,
+      successCallback: () => {
+        this.gridInstance.purgeCache();
+      },
+    });
   }
 
   editRow(rowNode: RowNode) {

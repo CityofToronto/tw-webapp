@@ -8,14 +8,16 @@ import { DirectDatasource } from '../Datasources/DirectDatasource';
 import { GridDataTransformer, GridFilterModel } from '@/types/grid';
 import GridDatasource from '../Datasources/GridDatasource';
 
+/**
+ * Methods to add, remove and update data.
+ * Additionally provides a ServerSideDatasource for Ag-Grid
+ *
+ * @param tableName - The name of the table in the database
+ * @param customFilterModel
+ * @param gridTransformer
+ * @returns Instance with add, remove, update and Serverside Datasource
+ */
 export class DirectProvider extends BaseGridProvider {
-  /**
-   * Methods to add, remove and update data.
-   * Additionally provides a ServerSideDatasource for Ag-Grid
-   *
-   * @param tableName - The name of the table in the database
-   * @returns Instance with add, remove, update and Serverside Datasource
-   */
   private tableName: string;
 
   public gridDatasource: GridDatasource;
@@ -45,7 +47,7 @@ export class DirectProvider extends BaseGridProvider {
         mutation {
           insert_${this.tableName} (
             objects: {
-              ${stringify(rowData)}
+              ${stringify(rowData, this.tableName)}
             }
           ) {
             affected_rows
@@ -69,14 +71,14 @@ export class DirectProvider extends BaseGridProvider {
     apolloClient
       .mutate({
         mutation: gql`
-      mutation {
-        delete_${this.tableName}(
-        where: {
-          id: {_eq: ${idToDelete}}
-        }) {
-        affected_rows
-      }
-    }`,
+        mutation {
+          delete_${this.tableName}(
+            where: {
+              id: {_eq: ${idToDelete}}
+          }) {
+            affected_rows
+          }
+        }`,
       })
       .then((): void => {
         successCallback();
@@ -95,25 +97,25 @@ export class DirectProvider extends BaseGridProvider {
     apolloClient
       .mutate({
         mutation: gql`
-      mutation updateRow {
-      update_${this.tableName} (
-        where: {
-          id: { _eq: ${rowToUpdate.id} }
-        },
-        _set: {
-          ${stringify(rowToUpdate)}
-        }
-      ) {
-        affected_rows
-      }
-    }`,
+        mutation updateRow {
+          update_${this.tableName} (
+            where: {
+              id: { _eq: ${rowToUpdate.id} }
+            },
+            _set: {
+              ${stringify(rowToUpdate, this.tableName)}
+            }
+            ) {
+              affected_rows
+            }
+        }`,
       })
       .then((): void => {
         successCallback();
       })
       .catch((error): void => {
-        dispatchError(error);
         failCallback();
+        dispatchError(error);
       });
   }
 }

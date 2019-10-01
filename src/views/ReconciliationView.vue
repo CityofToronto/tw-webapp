@@ -1,3 +1,4 @@
+w
 <template>
   <v-layout row wrap fill-height px-4 py-2>
     <v-flex md6 lg8>
@@ -13,13 +14,10 @@
         <v-flex xs6 px-2>
           <v-sheet height="100%" elevation="2">
             <grid-with-toolbar
-              :tableName="'inactive_asset'"
-              :grid-type="gridTypes.Direct"
+              :table-name="'unassigned_assets'"
+              :grid-type="gridTypes.Drop"
             />
           </v-sheet>
-        </v-flex>
-        <v-flex xs6>
-          Bottom
         </v-flex>
       </v-layout>
     </v-flex>
@@ -37,7 +35,7 @@ import { GridType } from '@/types/grid';
   },
 })
 export default class TreePage extends Vue {
-  tableName: string = 'role_asset';
+  tableName: string = 'reconciliation_view';
   gridTypes = GridType;
 }
 </script>

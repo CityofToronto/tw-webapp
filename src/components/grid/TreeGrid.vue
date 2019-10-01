@@ -58,9 +58,9 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
     this.gridInitializedEvent = () => {
       this.gridInstance.setGridUpdateEvent((rowData: RowData[]) => {
         rowData
-          .filter((row): boolean => this.openRowGroups.includes(`${row.id}`))
+          .filter((row): boolean => this.openRowGroups.includes(row.id))
           .forEach((row) => {
-            this.gridApi.getRowNode(`${row.id}`).setExpanded(true);
+            this.gridApi.getRowNode(row.id).setExpanded(true);
           });
       });
     };
@@ -82,7 +82,7 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
         rowDrag: true,
         width: 400,
         cellRendererParams: {
-          aliasColumn: 'name',
+          aliasColumn: 'role_number', //TODO move to config
           checkbox: true,
           innerRendererFramework: AliasCell,
         },
@@ -111,7 +111,7 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
     }
 
     const newData = {
-      ...rowToMove,
+      id: rowToMove.id,
       parent: newParentId,
     };
     this.gridInstance.updateRows({
@@ -125,7 +125,7 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
   }
 
   onGroupOpened(event: RowGroupOpenedEvent) {
-    this.openRowGroups.push(event.node.id.toString());
+    this.openRowGroups.push(event.node.id);
   }
 
   launchFormAdder(rowNode: RowNode) {
@@ -177,5 +177,15 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
 <style>
 .hover-over {
   background-color: #e5e5ff;
+}
+
+.ag-theme-material .ag-cell-data-changed {
+  background-color: transparent !important;
+  border: 0.5px green !important;
+}
+.ag-theme-material .ag-cell-data-changed-animation {
+  background-color: transparent;
+  border: transparent green !important;
+  transition: background-color 1s;
 }
 </style>

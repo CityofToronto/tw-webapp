@@ -1,10 +1,32 @@
 import { RowData } from './grid';
 
 export interface TreeData {
-  id: number;
+  id: string;
   parent: number;
   name?: string;
   [key: string]: any;
+}
+export type __TypeKind =
+  | 'SCALAR'
+  | 'OBJECT'
+  | 'INTERFACE'
+  | 'UNION'
+  | 'ENUM'
+  | 'INPUT_OBJECT'
+  | 'LIST'
+  | 'NON_NULL';
+
+export interface HasuraField {
+  name: string;
+  type: {
+    name: string;
+    kind: __TypeKind;
+    ofType: {
+      name: string;
+      kind: __TypeKind;
+      enumValues: string[];
+    };
+  };
 }
 
 export interface TreeStructure extends TreeData {

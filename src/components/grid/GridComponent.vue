@@ -17,8 +17,6 @@
     @grid-ready="onGridReady"
     @cell-value-changed="cellValueChanged"
     @row-clicked="rowClicked"
-    @row-data-changed="rowDataChanged"
-    @row-data-updated="rowDataUpdated"
   />
 </template>
 
@@ -61,10 +59,6 @@ export default class GridComponent extends Mixins(GridMixin) {
       },
     });
   }
-
-  rowDataChanged() {}
-
-  rowDataUpdated() {}
 
   // This method is called by the edit button rendered inside the grid
   launchFormEditor(rowNode: RowNode): void {

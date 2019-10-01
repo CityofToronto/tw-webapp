@@ -58,7 +58,7 @@ export const getComponentProperties = (
         },
       },
       [GridType.DragTo]: {
-        gridComponent: () => import('../DragGridComponent.vue'),
+        gridComponent: () => import('../DropGrid.vue'),
         gridTitle: `Linked ${tableName}`,
         toolbarProps: {
           controls: ['fitColumns', 'sizeColumns'],
@@ -87,19 +87,29 @@ export const getComponentProperties = (
         gridComponent: () => import('../TreeGrid.vue'),
         gridTitle: `${tableName}`,
         toolbarProps: {
-          controls: [
-            'addRow',
-            'cloneRow',
-            'removeRow',
-            'fitColumns',
-            'sizeColumns',
-          ],
+          controls: ['markDoesNotExist', 'fitColumns', 'sizeColumns'],
         },
         gridProps: {
           showSidebar: false,
           autoHeight: false,
           draggable: false,
           editable: true,
+          pagination: false,
+          queryType: QueryType.Direct,
+          customColumns: [ColumnButton.AddTree],
+        },
+      },
+      [GridType.Drop]: {
+        gridComponent: () => import('../DropGrid.vue'),
+        gridTitle: `${tableName}`,
+        toolbarProps: {
+          controls: ['addRow', 'cloneRow', 'removeRow'],
+        },
+        gridProps: {
+          showSidebar: false,
+          autoHeight: false,
+          draggable: false,
+          editable: false,
           pagination: false,
           queryType: QueryType.Direct,
           customColumns: [ColumnButton.AddTree],

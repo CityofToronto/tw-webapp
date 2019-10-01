@@ -23,10 +23,29 @@ import { AgGridVue } from 'ag-grid-vue';
 import GridButton from '@/components/grid/ag-components/GridButton.vue';
 import SetFilter from '../ag-components/SetFilter.vue';
 import RearrangeRenderer from '../ag-components/RearrangeRenderer.vue';
+import _ from 'lodash';
 
 // Config
 import { GRID_CONFIG } from '@/config';
-import { GridConfiguration } from '@/types/config';
+import { GridConfiguration, CustomProperties } from '@/types/config';
+
+// Remove invalid properties from the config file before passing it into Ag-Grid
+const removeInvalidProperties = (config: GridConfiguration): GridOptions => {
+  // TypeScript will give type errors when another property is added to the interface
+  // It will need to be added here then
+  const invalidProperties: CustomProperties[] = [
+    'title',
+    'omittedColumns',
+    'columnButtons',
+    'overrideColumnDefinitions',
+    'customFilterModel',
+    'columnOrder',
+    'gridType',
+    'onDropFunction',
+  ];
+
+  return _.omit(config, invalidProperties);
+};
 
 @Component({
   components: {
@@ -57,15 +76,12 @@ export default class GridMixin extends Vue {
 
   dataTransformer!: GridDataTransformer;
 
-  // Instance of ColumnApi, set during onGridReady
   columnApi!: ColumnApi;
 
-  // Instance of GridApi, set during onGridReady
   gridApi!: GridApi;
 
   columnDefs: ColDef[] = [];
 
-  // Wrapper of AgGrid
   gridInstance!: GridInstance;
 
   customColDefs: ColDef = {};
@@ -78,7 +94,10 @@ export default class GridMixin extends Vue {
 
   config!: GridConfiguration;
 
-  // This event is called after the grid is finished loading for the first time
+  /**
+   * This event is called after the grid is finished loading for the first time.
+   * It is fired when the onGridReady function is completed
+   */
   gridInitializedEvent: () => void = (): void => {};
 
   async created(): Promise<void> {
@@ -96,8 +115,8 @@ export default class GridMixin extends Vue {
       rowModelType: 'serverSide',
       cacheBlockSize: 75,
       maxBlocksInCache: 5,
-      getRowNodeId: (data): string => data.id, //.toString(),
-      ...this.config,
+      getRowNodeId: (data): string => data.id,
+      ...removeInvalidProperties(this.config),
     };
 
     this.context = {
@@ -128,6 +147,10 @@ export default class GridMixin extends Vue {
 
     // Give grid instance to GridWithToolbar
     this.$emit('set-grid-instance', this.gridInstance);
+    this.store.grid.setGridInstance({
+      tableName: this.tableName,
+      gridInstance: this.gridInstance,
+    });
     this.gridInitializedEvent();
   }
 
@@ -135,36 +158,27 @@ export default class GridMixin extends Vue {
    * Cell updates and call an async function to mutate the grid
    * If the mutation fails, cell value is reset and error message is shown
    */
-  updateCellValue(
-    node: RowNode,
-    field: string,
-    newData: any,
-    oldValue: any,
-  ): void {
-    this.gridInstance.updateRows({
-      rowsToUpdate: [newData],
-      successCallback: (): void => {
-        // Update row if successfull
-        node.setData(newData);
-      },
-      failCallback: (): void => {
-        // Revert row if failure
-        node.setDataValue(field, oldValue);
-      },
-    });
-  }
-
   cellValueChanged(event: CellValueChangedEvent): void {
     /**
      * This technically updates the entire row, but the rest of the row
      * has the old data. This was done to avoid implementing updateRow and updateCell
      * which were too similar to justify both.
      */
-    this.updateCellValue(
-      event.node,
-      event.column.getColId(),
-      event.data,
-      event.oldValue,
-    );
+    this.gridInstance.updateRows({
+      rowsToUpdate: [event.data],
+      successCallback: (): void => {
+        //TODO
+        // Update row if successful
+        this.gridApi.flashCells({
+          rowNodes: [event.node],
+          columns: [event.column.getColId()],
+        });
+        event.node.setData(event.data);
+      },
+      failCallback: (): void => {
+        // Revert row if failure
+        event.node.setDataValue(event.column.getColId(), event.oldValue);
+      },
+    });
   }
 }

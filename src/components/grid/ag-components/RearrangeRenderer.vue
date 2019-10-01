@@ -4,7 +4,6 @@
     class="cell-container"
     @dragstart="onDragStart"
     @drop="onDrop"
-    @dragleave="onDragLeave"
     @dragover="onDragOver"
   >
     <span style="flex-shrink: 1">
@@ -19,21 +18,33 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import { ICellRendererParams } from 'ag-grid-community';
+import GridInstance from '../ts/GridInstance';
+import { storeInstance } from '@/store';
 
+/**
+ * RearrangeRenderer
+ *
+ */
 @Component({})
 export default class RearrangeRenderer extends Vue {
   params!: ICellRendererParams;
 
+  // When drag is started, assign the row's data to the dataTransfer object
   onDragStart(event: DragEventInit) {
-    if (event.dataTransfer) {
+    const fieldName = this.params.colDef.field;
+    if (event.dataTransfer && fieldName) {
       event.dataTransfer.setData(
         'text/plain',
-        JSON.stringify(this.params.node.data),
+        JSON.stringify({
+          fieldName,
+          ...this.params.node.data,
+        }),
       );
       event.dataTransfer.dropEffect = 'move';
     }
   }
 
+  // This updates the DOM to have it look movable
   onDragOver = (event: DragEvent) => {
     if (event.dataTransfer) {
       event.dataTransfer.dropEffect = 'move';
@@ -42,41 +53,54 @@ export default class RearrangeRenderer extends Vue {
     event.preventDefault();
   };
 
+  // This will update
   onDrop(event: DragEvent) {
+    const fieldName = this.params.colDef.field || 'unknown';
+
+    // If the field is not defined, end the event
+    if (fieldName === 'unknown') {
+      return;
+    }
+
+    // If the spot it is dragged onto is full, end the event
+    if (this.params.node.data[fieldName]) {
+      //TODO test what ag-grid gives me here
+      return;
+    }
+
+    // null check
     if (event.dataTransfer) {
-      const eventData = JSON.parse(event.dataTransfer.getData('text/plain'));
-      const fieldName = this.params.colDef.field || 'unknown';
+      // get data from event as { key: value }
+      const { fieldName, ...draggedFromData } = JSON.parse(
+        event.dataTransfer.getData('text/plain'),
+      );
 
-      // Set this to the cell dropped on
-      const newData = {
-        ...this.params.node.data,
-        [fieldName]: eventData[fieldName],
+      // Get ID of row dropped on and combine with from the row it was dragged from
+      const eventData = {
+        id: this.params.data.id,
+        asset_id: draggedFromData.id, //TODO make this configurable
       };
 
-      // Set this to the cell that was dragged from
-      const oldData = {
-        ...eventData,
-        [fieldName]: this.params.data['asset'],
-      };
+      // Update the cell that was dropped on with new value
 
-      // Update the cell that was dropped on
-      this.params.context.componentParent.updateCellValue(
-        this.params.node,
-        'asset',
-        newData,
-        this.params.node.data['asset'],
-      );
-      // Update the cell that was dragged from
-      this.params.context.componentParent.updateCellValue(
-        this.params.api.getRowNode(`${eventData.id}`),
-        'asset',
-        oldData,
-        eventData['asset'],
-      );
+      const gridInstance: GridInstance = this.params.context.componentParent
+        .gridInstance;
+
+      gridInstance.updateRows({
+        rowsToUpdate: [eventData],
+        successCallback: () => {
+          storeInstance.grid.refreshAllGridInstances();
+        },
+      });
+
+      // this.params.context.componentParent.updateCellValue(
+      //   this.params.node,
+      //   fieldName,
+      //   eventData,
+      //   this.params.node.data[fieldName],
+      // );
     }
   }
-
-  onDragLeave() {}
 }
 </script>
 

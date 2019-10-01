@@ -3,6 +3,9 @@ import {
   IFilterParams,
   ICellEditorParams,
   ISetFilterParams,
+  ColDef,
+  RowNode,
+  GridApi,
 } from 'ag-grid-community';
 import { QueryType, TreeStructure, TreeData } from '@/types/api';
 
@@ -30,6 +33,7 @@ export enum GridType {
   DragTo,
   DragFrom,
   Tree,
+  Drop,
 }
 
 export interface ColumnDefinerParams {
@@ -116,11 +120,23 @@ export interface GridSortModel {
   [key: string]: string;
 }
 
+export interface RowStyleParams {
+  data: RowData;
+  node: RowNode;
+  rowIndex: number;
+  api: GridApi;
+  context: any;
+}
+
 export interface RowData {
-  id: number;
+  id: string;
   parent?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
+}
+
+export interface ExtendedColDef extends ColDef {
+  cellType: CellType;
 }
 
 export interface SetFilterParams extends ISetFilterParams {
@@ -142,9 +158,4 @@ export interface TreeFilterParams extends IFilterParams {
 
 export interface TreeEditorParams extends ICellEditorParams {
   treeData: TreeStructure[];
-}
-
-export enum CellSelectionType {
-  single,
-  multiple,
 }

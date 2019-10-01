@@ -2,7 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Reviewer from '@/views/Reviewer.vue';
 import Home from '@/views/Home.vue';
-import TreePage from '@/views/TreePage.vue';
+import ReconciliationView from '@/views/ReconciliationView.vue';
 
 Vue.use(VueRouter);
 
@@ -16,8 +16,8 @@ const routes = [
     component: Home,
   },
   {
-    path: '/test',
-    component: TreePage,
+    path: '/reconciliation',
+    component: ReconciliationView,
   },
 ];
 

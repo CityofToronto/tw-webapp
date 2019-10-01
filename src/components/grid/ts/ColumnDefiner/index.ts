@@ -6,14 +6,15 @@ import { TreeData } from '@/types/api';
 import ButtonColumns from './GridButtons';
 import { CellType, ColumnButton } from '@/types/grid';
 import ColumnHeaderMap from './ColumnHeaderMap';
-import CustomCellTypes from './CustomCellTypes';
+import CellTypes from './CellTypes';
 import { CellParams, GridConfiguration } from '@/types/config';
-import { HasuraField } from '@/apollo/types';
+import { HasuraField } from '@/types/api';
 import { capitalize } from '@/common/utils';
 
 interface ProcessedColumn {
   name: string;
   cellType: CellType;
+  enumValues?: string[];
 }
 
 export default class ColumnDefiner {
@@ -60,7 +61,12 @@ export default class ColumnDefiner {
     const type = column.type.ofType
       ? column.type.ofType.name
       : column.type.name;
-    if (column.type.ofType.kind === 'ENUM') {
+
+    const isEnum = column.type.ofType
+      ? column.type.ofType.kind === 'ENUM'
+      : column.type.kind === 'ENUM';
+
+    if (isEnum) {
       return {
         cellType: CellType.selectCell,
         enumValues: column.type.ofType.enumValues,
@@ -78,15 +84,23 @@ export default class ColumnDefiner {
     }
   }
 
-  private processColumns(): void {
+  private processColumns(sortingOrder?: string[]): void {
+    // Parse Types
     this.processedColumns = this.columns.map(
       (column): ProcessedColumn => {
+        const additionalProperties = this.parseType(column);
         return {
           name: column.name,
-          ...this.parseType(column),
+          ...additionalProperties,
         };
       },
     );
+    // Rearrange Columns if sorting arary is defined
+    if (sortingOrder) {
+      this.processedColumns.sort(
+        (a, b) => sortingOrder.indexOf(a.name) - sortingOrder.indexOf(b.name),
+      );
+    }
   }
 
   private getCustomColDef = async (column: CellParams): Promise<ColDef> => {
@@ -97,17 +111,21 @@ export default class ColumnDefiner {
           tableName: column.sourceTableName,
           columns: ['name'],
         });
-        return CustomCellTypes[column.cellType](valueData);
+        return CellTypes[column.cellType](valueData);
       }
-
+      // Select column requires values as string[]
       case CellType.selectCell: {
-        return CustomCellTypes[column.cellType](column.enumValues);
+        return CellTypes[column.cellType](
+          column.enumValues.map((enumVal) => enumVal.name),
+        );
       }
       default:
         if (column.cellType) {
-          return CustomCellTypes[column.cellType]();
+          return CellTypes[column.cellType]();
         }
-        return CustomCellTypes[CellType.textCell]();
+        // If cellType is not defined, fall back to text cell
+        // TODO Log this as an error
+        return CellTypes[CellType.textCell]();
     }
   };
 
@@ -121,8 +139,10 @@ export default class ColumnDefiner {
         ) as CellParams;
 
         const colDef = {
+          showInForm: true,
           ...this.config.defaultColDef,
           cellType: column.cellType,
+          enumValues: column.enumValues,
           // Attempt the map the name, if not capitalize the name field
           headerName: ColumnHeaderMap.get(column.name)
             ? ColumnHeaderMap.get(column.name)
@@ -152,11 +172,11 @@ export default class ColumnDefiner {
         this.omitColumns(this.config.omittedColumns);
       }
     }
-
     /**
      * This parses and assigns the column type
+     * and sorts it to match the configuration
      */
-    this.processColumns();
+    this.processColumns(this.config.sortingOrder);
 
     /**
      * This assigns column definitions to the columns which is then processed

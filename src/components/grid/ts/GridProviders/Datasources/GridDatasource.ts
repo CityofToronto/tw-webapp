@@ -53,6 +53,7 @@ export default abstract class GridDatasource implements IServerSideDatasource {
       ...params.request.filterModel,
       ...this.customFilterModel,
     };
+
     const numberOfRows = await this.countTotalRows(params.request);
     const rowData = await this.getData(params.request);
 

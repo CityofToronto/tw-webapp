@@ -1,18 +1,12 @@
-import {
-  GridApi,
-  ColumnApi,
-  ColDef,
-  IServerSideDatasource,
-} from 'ag-grid-community';
-import {
-  RemoveQuery,
-  AddQuery,
-  QueryType,
-  UpdateQuery,
-  RowData,
-} from '@/apollo/types';
+import { GridApi, ColumnApi, IServerSideDatasource } from 'ag-grid-community';
+import { RemoveQuery, AddQuery, UpdateQuery, RowData } from '@/apollo/types';
+import { QueryType } from '@/types/api';
 import { DirectProvider, MTMProvider, OTMProvider } from './GridProviders';
-import { GridDataTransformer, GridFilterModel } from '@/types/grid';
+import {
+  GridDataTransformer,
+  GridFilterModel,
+  ExtendedColDef,
+} from '@/types/grid';
 import BaseGridProvider from './GridProviders/Providers/BaseGridProvider';
 
 export default class GridInstance {
@@ -84,10 +78,10 @@ export default class GridInstance {
     this.gridApi.purgeServerSideCache();
   }
 
-  public get columnDefs(): ColDef[] {
+  public get columnDefs(): ExtendedColDef[] {
     return this.columnApi
       .getAllColumns()
-      .map((column): ColDef => column.getColDef());
+      .map((column): ExtendedColDef => column.getColDef() as ExtendedColDef);
   }
 
   public sizeColumnsToFit(): void {

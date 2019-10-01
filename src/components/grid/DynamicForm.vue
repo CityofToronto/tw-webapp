@@ -35,6 +35,8 @@ import { ColDef } from 'ag-grid-community';
 import TreeviewInput from '@/components/form/TreeviewInput.vue';
 import { CellType } from '@/types/grid';
 import { QueryType } from '@/types/api';
+import { BaseColumnParams } from '@/types/config';
+import { MarkRequired } from 'ts-essentials';
 
 interface FormData {
   [key: string]: string;
@@ -48,7 +50,10 @@ interface FormData {
 export default class DynamicForm extends Vue {
   @Prop(String) readonly tableName!: string;
 
-  @Prop(Array) readonly columnDefs!: ColDef[];
+  @Prop(Array) readonly columnDefs!: MarkRequired<
+    BaseColumnParams,
+    'showInForm'
+  >[];
 
   @Prop({ default: () => {} }) readonly formData!: {};
 
@@ -58,11 +63,9 @@ export default class DynamicForm extends Vue {
 
   data: FormData = this.formData;
 
-  columnsToHide = ['id', 'parent'];
-
-  get properties(): ColDef[] {
+  get properties(): BaseColumnParams[] {
     return this.columnDefs
-      .filter((column) => !this.columnsToHide.includes(column.field as string))
+      .filter((column): boolean => column.showInForm)
       .filter((column): boolean => column.field !== undefined);
   }
 

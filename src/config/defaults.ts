@@ -11,6 +11,7 @@ const defaultColDef: ColDef = {
 export const defaults: {
   [key in GridType]: GridConfiguration;
 } = {
+  [GridType.Drop]: {},
   [GridType.Tree]: {
     gridType: GridType.Tree,
     columnButtons: [ColumnButton.Edit],

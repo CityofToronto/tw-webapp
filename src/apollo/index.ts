@@ -1,9 +1,10 @@
 import ApolloClient from 'apollo-client';
 import { NormalizedCacheObject, InMemoryCache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
-import { link } from './lib/link';
-import { HasuraField, TableQueryResult, __TypeKind } from './types';
+import { link, authLink } from './lib/link';
+import { TableQueryResult } from './types';
 import { dispatchError } from './lib/utils';
+import { HasuraField, __TypeKind } from '@/types/api';
 
 const isColumn = (element: HasuraField): boolean => {
   const columnType: __TypeKind = element.type.ofType
@@ -20,7 +21,7 @@ const isRelationship = (element: HasuraField): boolean =>
 class Apollo extends ApolloClient<NormalizedCacheObject> {
   public constructor() {
     super({
-      link,
+      link: authLink.concat(link),
       cache: new InMemoryCache({
         addTypename: false,
       }),

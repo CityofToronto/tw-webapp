@@ -1,3 +1,4 @@
+// * Microsoft https://github.com/microsoft/vscode-recipes/tree/master/vuejs-cli
 {
   "version": "0.2.0",
   "configurations": [
@@ -14,12 +15,27 @@
         "webpack:///*": "*",
         "webpack:///./~/*": "${webRoot}/node_modules/*"
       }
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug File",
-      "program": "${file}"
-    },
+    }
   ]
 }
+// { // Working configuraiton
+//   "version": "0.2.0",
+//   "configurations": [
+//     {
+//       "type": "chrome",
+//       "request": "launch",
+//       "name": "ChromeDebug",
+//       "url": "http://localhost:8080",
+//       "webRoot": "${workspaceFolder}",
+//       "breakOnLoad": true,
+//       "sourceMaps": true,
+//       "disableNetworkCache": true,
+//       "sourceMapPathOverrides": {
+//         "webpack:///*": "${webRoot}/*",
+//         "webpack:///./*": "${webRoot}/*",
+//         "webpack:///src/*": "${webRoot}/src/*"
+//       }
+//     }
+//   ]
+// }
+

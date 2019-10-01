@@ -1,14 +1,4 @@
-import { CellSelectionType } from '@/types/grid';
-
-export type __TypeKind =
-  | 'SCALAR'
-  | 'OBJECT'
-  | 'INTERFACE'
-  | 'UNION'
-  | 'ENUM'
-  | 'INPUT_OBJECT'
-  | 'LIST'
-  | 'NON_NULL';
+import { HasuraField } from '@/types/api';
 
 export interface RowData {
   id: number;
@@ -59,20 +49,6 @@ export interface UpdateQuery extends CallbackQuery {
 
 export interface RemoveQuery extends CallbackQuery {
   rowsToRemove: RowData[];
-}
-
-export interface HasuraField {
-  name: string;
-  type: {
-    name: string;
-    kind: __TypeKind;
-    ofType: {
-      name: string;
-      kind: __TypeKind;
-      enumValues: string[];
-    };
-  };
-  selectionType: CellSelectionType;
 }
 
 export interface TableQueryResult {

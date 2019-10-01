@@ -50,7 +50,7 @@ export class OTMProvider extends BaseGridProvider {
           mutation {
             insert_${this.tableName} (
               objects: {
-                ${stringify(rowData)},
+                ${stringify(rowData, this.tableName)},
                 ${this.relatedData.tableName}_id: ${this.relatedData.rowId}
               }
             ) {
@@ -112,7 +112,7 @@ export class OTMProvider extends BaseGridProvider {
           id: { _eq: ${rowToUpdate.id} }
         },
         _set: {
-          ${stringify(rowToUpdate)}
+          ${stringify(rowToUpdate, this.tableName)}
         }
       ) {
         returning {

@@ -60,6 +60,7 @@ export enum ToolbarOperations {
   SizeColumns = 'sizeColumns',
   TogglePanel = 'togglePanel',
   EditLinks = 'editLinks',
+  MarkDoesNotExist = 'markDoesNotExist',
 }
 
 enum Position {
@@ -97,6 +98,13 @@ export default class GridToolbar extends Vue {
       text: 'Clone',
       clickType: ToolbarOperations.CloneRow,
       tooltip: 'Clone Currently Selected Row(s)',
+      position: Position.Center,
+    },
+    {
+      icon: 'remove_circle',
+      text: 'Does Not Exist',
+      clickType: ToolbarOperations.MarkDoesNotExist,
+      tooltip: 'Mark All Selected Rows as Does Not Exist',
       position: Position.Center,
     },
     {

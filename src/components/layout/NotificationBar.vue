@@ -1,4 +1,3 @@
-'
 <template>
   <v-snackbar
     v-model="notification.visible"
@@ -9,6 +8,7 @@
     :left="isPositionActive(positions.Left)"
     :right="isPositionActive(positions.Right)"
     dark
+    @input="closeNotification"
   >
     {{ notification.message }}
     <v-btn dark text @click="closeNotification">
@@ -31,6 +31,10 @@ export default class NotificationBar extends Vue {
 
   get notification() {
     return this.store.notification.notification;
+  }
+
+  set notification(payload) {
+    this.store.notification.popNotification();
   }
 
   closeNotification() {

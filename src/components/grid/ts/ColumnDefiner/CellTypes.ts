@@ -1,12 +1,17 @@
 import { CellType } from '@/types/grid';
 import { TreeData } from '@/types/api';
 import { listToTree } from '@/common/listToTree';
-import { ColDef } from 'ag-grid-community';
+import {
+  ColDef,
+  ValueFormatterParams,
+  ValueSetterParams,
+  ValueGetterParams,
+} from 'ag-grid-community';
 
 /**
- * Here is object to define CustomCellTypes and their properties
+ * Here is object to define CellTypes and their properties
  */
-const CustomCellTypes = {
+const CellTypes = {
   // Text
   [CellType.textCell]: (): ColDef => ({
     valueParser: ({ newValue }: { newValue: string }): string => newValue,
@@ -71,4 +76,4 @@ const CustomCellTypes = {
   }),
 };
 
-export default CustomCellTypes;
+export default CellTypes;
