@@ -1,6 +1,10 @@
 /* eslint-disable vue/valid-v-on */
 <template>
-  <div style="height:100%" @drop="onDrop" @dragover="onDragOver">
+  <div
+    style="height:100%"
+    @drop.prevent="onDrop"
+    @dragover.prevent="onDragOver"
+  >
     <ag-grid-vue
       style="width: 100%; height: 100%"
       class="ag-theme-material"
