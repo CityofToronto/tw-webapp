@@ -30,6 +30,7 @@ import {
   RowNode,
   ICellRendererParams,
   RowGroupOpenedEvent,
+  RowDragEvent,
 } from 'ag-grid-community';
 import { Component, Mixins } from 'vue-property-decorator';
 import GridMixin from './ts/GridMixin';
@@ -103,7 +104,7 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
     this.setPotentialParent(null);
   }
 
-  onRowDragEnd(event: RowDragEnterEvent) {
+  onRowDragEnd(event: RowDragEvent) {
     const rowToMove = event.node.data;
     const newParentId = event.overNode ? event.overNode.data.id : null;
     if (newParentId === rowToMove.id) {
@@ -117,6 +118,7 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
     this.gridInstance.updateRows({
       rowsToUpdate: [newData],
       successCallback: () => {
+        this.onGroupOpened(event);
         this.gridInstance.purgeCache();
       },
     });
@@ -129,9 +131,8 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
     );
   }
 
-  onGroupOpened(event: RowGroupOpenedEvent) {
+  onGroupOpened(event: RowDragEvent) {
     const idOpened = event.node.id;
-    console.log(event.node);
     // If it is present, remove it, if not add it
     if (!event.node.expanded) {
       this.openRowGroups = this.openRowGroups.filter(
@@ -140,7 +141,6 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
     } else {
       this.openRowGroups.push(idOpened);
     }
-    console.log(this.openRowGroups);
   }
 
   launchFormAdder(rowNode: RowNode) {
