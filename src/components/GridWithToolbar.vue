@@ -63,6 +63,8 @@ import GridInstance from './grid/ts/GridInstance';
 import { GridComponentOptions, GridType, RowData } from '@/types/grid';
 import { dispatchError } from '@/apollo/lib/utils';
 import { GRID_CONFIG } from '@/config';
+import { GridConfiguration } from '@/types/config';
+import TreeGrid from './grid/DropGrid.vue';
 
 @Component({
   components: {
@@ -90,7 +92,11 @@ export default class GridWithToolbar extends Vue {
 
   currentNode!: RowNode;
 
-  config: GridConfigurations;
+  config!: GridConfiguration;
+
+  $refs!: {
+    gridComponent: TreeGrid;
+  };
 
   saveFormFunction!: (formData: RowData) => void;
 
@@ -112,7 +118,7 @@ export default class GridWithToolbar extends Vue {
     if (this.config.title) {
       return this.config.title;
     } else {
-      return componentProperties.gridTitle;
+      return this.componentProperties.gridTitle;
     }
   }
 
