@@ -131,9 +131,9 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
 
   onGroupOpened(event: RowGroupOpenedEvent) {
     const idOpened = event.node.id;
-
+    console.log(event.node);
     // If it is present, remove it, if not add it
-    if (this.openRowGroups.includes(idOpened)) {
+    if (!event.node.expanded) {
       this.openRowGroups = this.openRowGroups.filter(
         (item) => item !== idOpened,
       );
