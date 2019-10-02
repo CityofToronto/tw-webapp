@@ -27,11 +27,12 @@
 
       <grid-toolbar
         :toolbar-items="componentProperties.toolbarProps.controls"
-        :grid-title="componentProperties.gridTitle"
+        :grid-title="gridTitle"
         @toolbarClick="clickHandler"
       />
       <component
         :is="componentProperties.gridComponent"
+        ref="gridComponent"
         :table-name="tableName"
         :show-side-bar="componentProperties.gridProps.showSidebar"
         :auto-height="componentProperties.gridProps.autoHeight"
@@ -61,6 +62,7 @@ import GridToolbar, { ToolbarOperations } from './grid/GridToolbar.vue';
 import GridInstance from './grid/ts/GridInstance';
 import { GridComponentOptions, GridType, RowData } from '@/types/grid';
 import { dispatchError } from '@/apollo/lib/utils';
+import { GRID_CONFIG } from '@/config';
 
 @Component({
   components: {
@@ -88,6 +90,8 @@ export default class GridWithToolbar extends Vue {
 
   currentNode!: RowNode;
 
+  config: GridConfigurations;
+
   saveFormFunction!: (formData: RowData) => void;
 
   store: Store = useStore(this.$store);
@@ -102,6 +106,18 @@ export default class GridWithToolbar extends Vue {
 
   get columnDefs() {
     return this.gridInstance.columnDefs;
+  }
+
+  get gridTitle() {
+    if (this.config.title) {
+      return this.config.title;
+    } else {
+      return componentProperties.gridTitle;
+    }
+  }
+
+  created() {
+    this.config = GRID_CONFIG.get(this.tableName);
   }
 
   closeBuilder() {
@@ -124,6 +140,7 @@ export default class GridWithToolbar extends Vue {
       [ToolbarOperations.TogglePanel]: this.togglePanel,
       [ToolbarOperations.EditLinks]: this.editLinks,
       [ToolbarOperations.MarkDoesNotExist]: this.markDoesNotExist,
+      [ToolbarOperations.CollapseAll]: this.collapseAll,
     };
     clickFunctions[clickType]();
   }
@@ -206,6 +223,10 @@ export default class GridWithToolbar extends Vue {
     };
     this.formData = rowNode.data;
     this.formVisible = true;
+  }
+
+  collapseAll() {
+    this.$refs.gridComponent.collapseAll();
   }
 
   cloneRow() {
