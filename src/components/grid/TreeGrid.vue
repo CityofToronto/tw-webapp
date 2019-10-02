@@ -117,15 +117,30 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
     this.gridInstance.updateRows({
       rowsToUpdate: [newData],
       successCallback: () => {
-        this.gridApi.purgeServerSideCache();
-        // this.refreshBranch(event.node)
-        // this.refreshBranch(event.overNode)
+        this.gridInstance.purgeCache();
       },
     });
   }
 
+  // Collapse all nodes in the openRowGroups array
+  collapseAll() {
+    this.openRowGroups.forEach((rowId) =>
+      this.gridApi.getRowNode(rowId).setExpanded(false),
+    );
+  }
+
   onGroupOpened(event: RowGroupOpenedEvent) {
-    this.openRowGroups.push(event.node.id);
+    const idOpened = event.node.id;
+
+    // If it is present, remove it, if not add it
+    if (this.openRowGroups.includes(idOpened)) {
+      this.openRowGroups = this.openRowGroups.filter(
+        (item) => item !== idOpened,
+      );
+    } else {
+      this.openRowGroups.push(idOpened);
+    }
+    console.log(this.openRowGroups);
   }
 
   launchFormAdder(rowNode: RowNode) {

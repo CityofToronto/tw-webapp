@@ -87,7 +87,12 @@ export const getComponentProperties = (
         gridComponent: () => import('../TreeGrid.vue'),
         gridTitle: `${tableName}`,
         toolbarProps: {
-          controls: ['markDoesNotExist', 'fitColumns', 'sizeColumns'],
+          controls: [
+            'markDoesNotExist',
+            'collapseAll',
+            'fitColumns',
+            'sizeColumns',
+          ],
         },
         gridProps: {
           showSidebar: false,

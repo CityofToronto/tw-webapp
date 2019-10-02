@@ -28,6 +28,7 @@ export const gridConfig: GridConfigurationInterface = {
     ],
   },
   unassigned_assets: {
+    title: 'Unassigned Assets',
     overrideColumnDefinitions: [
       {
         field: 'asset_serial_number',
@@ -42,7 +43,7 @@ export const gridConfig: GridConfigurationInterface = {
     ],
   },
   reconciliation_view: {
-    title: '',
+    title: 'Reconciliation',
     gridType: GridType.Drop,
     columnButtons: [ColumnButton.AddTree],
     sortingOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],

@@ -14,12 +14,12 @@ export const defaults: {
   [GridType.Drop]: {},
   [GridType.Tree]: {
     gridType: GridType.Tree,
-    columnButtons: [ColumnButton.Edit],
+    columnButtons: [],
     autoGroupColumnDef: {},
   },
   [GridType.Normal]: {
     omittedColumns: [],
-    columnButtons: [ColumnButton.Edit],
+    columnButtons: [],
     defaultColDef,
   },
 };

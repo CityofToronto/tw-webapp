@@ -61,6 +61,7 @@ export enum ToolbarOperations {
   TogglePanel = 'togglePanel',
   EditLinks = 'editLinks',
   MarkDoesNotExist = 'markDoesNotExist',
+  CollapseAll = 'collapseAll',
 }
 
 enum Position {
@@ -102,9 +103,16 @@ export default class GridToolbar extends Vue {
     },
     {
       icon: 'remove_circle',
-      text: 'Does Not Exist',
+      text: 'Toggle Existence',
       clickType: ToolbarOperations.MarkDoesNotExist,
       tooltip: 'Mark All Selected Rows as Does Not Exist',
+      position: Position.Center,
+    },
+    {
+      icon: 'expand_less',
+      text: 'Collapse All',
+      clickType: ToolbarOperations.CollapseAll,
+      tooltip: 'Close All Currently Open Groups',
       position: Position.Center,
     },
     {
