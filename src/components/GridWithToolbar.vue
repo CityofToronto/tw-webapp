@@ -64,7 +64,7 @@ import { GridComponentOptions, GridType, RowData } from '@/types/grid';
 import { dispatchError } from '@/apollo/lib/utils';
 import { GRID_CONFIG } from '@/config';
 import { GridConfiguration } from '@/types/config';
-import TreeGrid from './grid/DropGrid.vue';
+import TreeGrid from './grid/TreeGrid.vue';
 
 @Component({
   components: {
