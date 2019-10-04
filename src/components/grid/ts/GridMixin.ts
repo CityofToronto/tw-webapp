@@ -6,7 +6,7 @@ import { useStore } from 'vuex-simple';
 
 // Types
 import { QueryType } from '@/types/api';
-import { GridDataTransformer } from '@/types/grid';
+import { GridDataTransformer, RowData } from '@/types/grid';
 import {
   ColumnApi,
   GridApi,
@@ -82,9 +82,9 @@ export default class GridMixin extends Vue {
 
   columnDefs: ColDef[] = [];
 
-  gridInstance!: GridInstance;
+  customColDefs!: ColDef;
 
-  customColDefs: ColDef = {};
+  gridInstance!: GridInstance;
 
   context: { componentParent: object } = { componentParent: {} };
 
@@ -112,9 +112,6 @@ export default class GridMixin extends Vue {
       sideBar: this.showSideBar,
       rowSelection: 'multiple',
       rowDeselection: true,
-      rowModelType: 'serverSide',
-      cacheBlockSize: 75,
-      maxBlocksInCache: 5,
       getRowNodeId: (data): string => data.id,
       ...removeInvalidProperties(this.config),
     };
@@ -134,7 +131,8 @@ export default class GridMixin extends Vue {
     this.gridInstance = new GridInstance({
       columnApi: this.columnApi,
       gridApi: this.gridApi,
-      Provider: GridInstance.getProvider(
+      gridOptions: this.gridOptions,
+      gridProvider: GridInstance.getProvider(
         this.queryType,
         this.tableName,
         this.config ? this.config.customFilterModel : {},
@@ -143,7 +141,8 @@ export default class GridMixin extends Vue {
         this.dataTransformer,
       ),
     });
-    this.gridApi.setServerSideDatasource(this.gridInstance.gridDatasource);
+
+    this.gridApi.setRowData(await this.gridInstance.gridProvider.getData());
 
     // Give grid instance to GridWithToolbar
     this.$emit('set-grid-instance', this.gridInstance);
@@ -164,21 +163,39 @@ export default class GridMixin extends Vue {
      * has the old data. This was done to avoid implementing updateRow and updateCell
      * which were too similar to justify both.
      */
-    this.gridInstance.updateRows({
-      rowsToUpdate: [event.data],
-      successCallback: (): void => {
-        //TODO
-        // Update row if successful
-        this.gridApi.flashCells({
-          rowNodes: [event.node],
-          columns: [event.column.getColId()],
-        });
-        event.node.setData(event.data);
-      },
-      failCallback: (): void => {
-        // Revert row if failure
-        event.node.setDataValue(event.column.getColId(), event.oldValue);
-      },
-    });
+    this.gridInstance
+      .updateRows({
+        rowsToUpdate: [event.data],
+      })
+      .forEach((rowPromise) => {
+        rowPromise
+          .then((data) => {
+            this.gridInstance.gridApi.updateRowData({ update: [data] });
+            this.gridApi.flashCells({
+              rowNodes: [event.node],
+              columns: [event.column.getColId()],
+            });
+          })
+          .catch(() => {
+            event.node.setDataValue(event.column.getColId(), event.oldValue);
+          });
+      });
+
+    // this.gridInstance.updateRows({
+    //   rowsToUpdate: [event.data],
+    //   successCallback: (): void => {
+    //     //TODO
+    //     // Update row if successful
+    //     this.gridApi.flashCells({
+    //       rowNodes: [event.node],
+    //       columns: [event.column.getColId()],
+    //     });
+    //     event.node.setData(event.data);
+    //   },
+    //   failCallback: (): void => {
+    //     // Revert row if failure
+    //     event.node.setDataValue(event.column.getColId(), event.oldValue);
+    //   },
+    // });
   }
 }

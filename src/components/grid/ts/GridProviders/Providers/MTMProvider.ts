@@ -1,15 +1,13 @@
-import gql from 'graphql-tag';
-import MTMDatasource from '../Datasources/MTMDatasource';
 import apolloClient from '@/apollo';
 import { dispatchError } from '@/apollo/lib/utils';
 import { GridDataTransformer, GridFilterModel, RowData } from '@/types/grid';
-import BaseGridProvider from './BaseGridProvider';
+import gql from 'graphql-tag';
 import GridDatasource from '../Datasources/GridDatasource';
+import MTMDatasource from '../Datasources/MTMDatasource';
+import BaseGridProvider from './BaseGridProvider';
 
 export class MTMProvider extends BaseGridProvider {
   public gridDatasource: GridDatasource;
-
-  private tableName: string;
 
   private relatedData: {
     tableName: string;
@@ -27,8 +25,7 @@ export class MTMProvider extends BaseGridProvider {
       rowId: number;
     },
   ) {
-    super();
-    this.tableName = tableName;
+    super(tableName);
     this.relatedData = relatedData;
     this.gridDatasource = new MTMDatasource(
       this.tableName,
@@ -39,13 +36,18 @@ export class MTMProvider extends BaseGridProvider {
     this.linkingTableName = `${this.relatedData.tableName}_${this.tableName}`;
   }
 
+  public async getData(): Promise<RowData[]> {
+    return [];
+  }
+
   // Row to add in this case is just an ID
   // We create a link in the linking table
-  public addData(
+  // @ts-ignore
+  public async addData(
     rowToAdd: RowData,
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
-  ): void {
+  ): Promise<void> {
     apolloClient
       .mutate({
         mutation: gql`
@@ -61,16 +63,15 @@ export class MTMProvider extends BaseGridProvider {
         }
       `,
       })
-      .then((): void => {
+      .then((response): void => {
         successCallback();
+        return response.data[`insert_${this.tableName}`].returning[0];
       })
-      .catch((error): void => {
-        failCallback();
-        dispatchError(error);
-      });
+      .catch((error): never => dispatchError(error));
   }
 
   // Opposite of adding a row, filter for where ids match and delete entry'
+  // @ts-ignore
   public removeData(
     idToDelete: string,
     successCallback: () => void = (): void => {},
@@ -100,6 +101,7 @@ export class MTMProvider extends BaseGridProvider {
       });
   }
 
+  // @ts-ignore
   public updateData(
     rowToUpdate: RowData,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

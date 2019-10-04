@@ -13,20 +13,24 @@ interface ConfirmationData {
 interface FormEditorData {
   componentType: 'form';
   formTitle: string;
-  formData: {
-    [p: string]: any;
-  };
+  formData: FormData;
   columnDefs: ColDef[];
+  confirmCallback: () => void;
+  cancelCallback?: () => void;
 }
 
 type PopupDataTypes = ConfirmationData | FormEditorData;
 
 export default class PopupModule {
+  @State() private visible: boolean = false;
+
   @State() private popupData: PopupDataTypes = {
     componentType: 'form',
     formTitle: 'Base',
     formData: {},
     columnDefs: [],
+    confirmCallback: () => {},
+    cancelCallback: () => this.closePopup(),
   };
 
   @Getter()
@@ -39,8 +43,19 @@ export default class PopupModule {
     return this.popupData.componentType;
   }
 
+  @Getter()
+  public get isVisible(): boolean {
+    return this.visible;
+  }
+
   @Mutation()
   public setPopup(data: PopupDataTypes) {
     this.popupData = data;
+    this.visible = true;
+  }
+
+  @Mutation()
+  public closePopup() {
+    this.visible = false;
   }
 }

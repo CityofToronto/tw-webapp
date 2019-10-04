@@ -1,13 +1,18 @@
-import { GridApi, ColumnApi, IServerSideDatasource } from 'ag-grid-community';
-import { RemoveQuery, AddQuery, UpdateQuery } from '@/apollo/types';
-import { RowData } from '@/types/grid';
+import { AddQuery, RemoveQuery, UpdateQuery } from '@/apollo/types';
 import { QueryType } from '@/types/api';
-import { DirectProvider, MTMProvider, OTMProvider } from './GridProviders';
 import {
+  ExtendedColDef,
   GridDataTransformer,
   GridFilterModel,
-  ExtendedColDef,
+  RowData,
 } from '@/types/grid';
+import {
+  ColumnApi,
+  GridApi,
+  GridOptions,
+  IServerSideDatasource,
+} from 'ag-grid-community';
+import { DirectProvider, MTMProvider, OTMProvider } from './GridProviders';
 import BaseGridProvider from './GridProviders/Providers/BaseGridProvider';
 
 export default class GridInstance {
@@ -15,20 +20,27 @@ export default class GridInstance {
 
   public columnApi: ColumnApi;
 
-  public Provider: BaseGridProvider;
+  public gridProvider: BaseGridProvider;
+
+  public gridOptions: GridOptions;
+
+  public gridTitle: String = '';
 
   public constructor({
-    Provider,
     gridApi,
     columnApi,
+    gridOptions,
+    gridProvider,
   }: {
-    Provider: BaseGridProvider;
+    gridProvider: BaseGridProvider;
     gridApi: GridApi;
     columnApi: ColumnApi;
+    gridOptions: GridOptions;
   }) {
-    this.Provider = Provider;
+    this.gridProvider = gridProvider;
     this.gridApi = gridApi;
     this.columnApi = columnApi;
+    this.gridOptions = gridOptions;
   }
 
   /**
@@ -68,11 +80,11 @@ export default class GridInstance {
   }
 
   public get gridDatasource(): IServerSideDatasource {
-    return this.Provider.gridDatasource;
+    return this.gridProvider.gridDatasource;
   }
 
   public setGridUpdateEvent(updateEvent: (...args: any) => void): void {
-    this.Provider.gridDatasource.setGridEvent(updateEvent);
+    this.gridProvider.gridDatasource.setGridEvent(updateEvent);
   }
 
   public purgeCache(): void {
@@ -104,19 +116,30 @@ export default class GridInstance {
    * rowData will be an array of objects with key: value pairs
    * Return a successful and unsuccessful callback for UI updates
    */
-  public addRows({ rowsToAdd, successCallback, failCallback }: AddQuery): void {
-    rowsToAdd.forEach((rowData): void =>
-      this.Provider.addData(rowData, successCallback, failCallback),
-    );
+  public async addRows({
+    rowsToAdd,
+    successCallback,
+    failCallback,
+  }: AddQuery): Promise<void> {
+    rowsToAdd.map((rowData): void => {
+      this.gridProvider
+        .addData(rowData, successCallback, failCallback)
+        .then((response) =>
+          this.gridApi.updateRowData({
+            add: [response],
+          }),
+        );
+    });
   }
 
   public removeRows({
     rowsToRemove,
     successCallback,
     failCallback,
-  }: RemoveQuery): void {
-    rowsToRemove.forEach((row): void =>
-      this.Provider.removeData(row.id, successCallback, failCallback),
+  }: RemoveQuery): Promise<RowData>[] {
+    return rowsToRemove.map(
+      (row): Promise<RowData> =>
+        this.gridProvider.removeData(row.id, successCallback, failCallback),
     );
   }
 
@@ -124,9 +147,10 @@ export default class GridInstance {
     rowsToUpdate,
     successCallback,
     failCallback,
-  }: UpdateQuery): void {
-    rowsToUpdate.forEach((row): void =>
-      this.Provider.updateData(row, successCallback, failCallback),
+  }: UpdateQuery): Promise<RowData>[] {
+    return rowsToUpdate.map(
+      (row): Promise<RowData> =>
+        this.gridProvider.updateData(row, successCallback, failCallback),
     );
   }
 }

@@ -65,15 +65,16 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
           });
       });
     };
-
     this.dataTransformer = new TreeTransformer();
     this.gridOptions = {
       ...this.gridOptions,
       groupSelectsChildren: false,
       treeData: true,
+      getDataPath: (data) => data.full_path.split('.'),
       // dataItem.group is populated in the TreeTransformer
       // boolean to show whether or not there are children
-      isServerSideGroup: (dataItem): boolean => dataItem.group,
+      isServerSideGroup: (dataItem): boolean =>
+        dataItem.children_aggregate.aggregate.count,
       // What column to group by, here it is the id column as it should
       // always be present in the data
       getServerSideGroupKey: (dataItem): string => `${dataItem.id}`,

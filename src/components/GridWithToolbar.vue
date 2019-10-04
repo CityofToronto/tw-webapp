@@ -115,8 +115,8 @@ export default class GridWithToolbar extends Vue {
   }
 
   get gridTitle() {
-    if (this.config.title) {
-      return this.config.title;
+    if (this.config) {
+      return this.config.title || this.componentProperties.gridTitle;
     } else {
       return this.componentProperties.gridTitle;
     }
@@ -153,17 +153,41 @@ export default class GridWithToolbar extends Vue {
 
   addRow(clickType?: string, presetData: { [key: string]: string } = {}) {
     this.saveFormFunction = (formData: RowData) => {
-      this.gridInstance.addRows({
-        rowsToAdd: [formData],
-        successCallback: () => {
+      // this.gridInstance.addRows({
+      //   rowsToAdd: [formData],
+      //   successCallback: () => {
+      //     this.formVisible = false;
+      //     // this.gridInstance.purgeCache();
+      //     this.gridInstance.gridApi.updateRowData({
+      //       add: [formData],
+      //     });
+      //     this.formData = {};
+      //   },
+      // });
+      this.gridInstance
+        .addRows({
+          rowsToAdd: [formData],
+        })
+        .forEach(async (rowPromise) => {
+          const rowData = await rowPromise;
+          this.gridInstance.gridApi.updateRowData({
+            add: [rowData],
+          });
           this.formVisible = false;
-          this.gridInstance.purgeCache();
-          this.formData = {};
-        },
-      });
+          this.printRowData();
+        });
     };
     this.formData = presetData;
     this.formVisible = true;
+  }
+
+  printRowData() {
+    const rowData: RowData[] = [];
+    this.gridInstance.gridApi.forEachNode(function(node) {
+      rowData.push(node.data);
+    });
+    console.log('Row Data:');
+    console.log(rowData);
   }
 
   markDoesNotExist() {
@@ -218,14 +242,25 @@ export default class GridWithToolbar extends Vue {
 
   editRow(rowNode: RowNode) {
     this.saveFormFunction = (formData: RowData) => {
-      this.gridInstance.updateRows({
-        rowsToUpdate: [formData],
-        successCallback: () => {
-          this.formVisible = false;
-          rowNode.setData(formData);
-          this.formData = {};
-        },
-      });
+      // this.gridInstance.updateRows({
+      //   rowsToUpdate: [formData],
+      //   successCallback: () => {
+      //     this.formVisible = false;
+      //     rowNode.setData(formData);
+      //     this.formData = {};
+      //   },
+      // });
+      this.gridInstance
+        .updateRows({
+          rowsToUpdate: [formData],
+        })
+        .forEach(async (rowPromise) => {
+          const rowData = await rowPromise;
+          this.gridInstance.gridApi.updateRowData({
+            update: [rowData],
+          });
+        });
+      this.formVisible = false;
     };
     this.formData = rowNode.data;
     this.formVisible = true;
@@ -242,9 +277,9 @@ export default class GridWithToolbar extends Vue {
       this.formVisible = true;
       this.saveFormFunction = (formData: RowData) => {
         // Strip the ID so that it is automatically assigned a new one
-        const { id, ...ommittedId } = formData;
+        const { id, ...omittedId } = formData;
         this.gridInstance.addRows({
-          rowsToAdd: [ommittedId],
+          rowsToAdd: [omittedId],
           successCallback: () => {
             this.formVisible = false;
             this.gridInstance.purgeCache();
@@ -255,8 +290,8 @@ export default class GridWithToolbar extends Vue {
     } else if (selectedRows.length > 1) {
       const rowsWithIdRemoved = selectedRows.map((rowData) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { id, ...ommittedId } = rowData;
-        return ommittedId;
+        const { id, ...omittedId } = rowData;
+        return omittedId;
       });
       this.gridInstance.addRows({
         rowsToAdd: rowsWithIdRemoved,
@@ -273,12 +308,16 @@ export default class GridWithToolbar extends Vue {
   }
 
   removeRow() {
-    this.gridInstance.removeRows({
-      rowsToRemove: this.gridInstance.getSelectedRows(),
-      successCallback: () => {
-        this.gridInstance.purgeCache();
-      },
-    });
+    this.gridInstance
+      .removeRows({
+        rowsToRemove: this.gridInstance.getSelectedRows(),
+      })
+      .forEach(async (rowPromise) => {
+        const rowData = await rowPromise;
+        this.gridInstance.gridApi.updateRowData({
+          remove: [rowData],
+        });
+      });
   }
 
   editLinks() {
@@ -360,5 +399,17 @@ $virtual-item-height: 5px;
   margin: auto;
   width: 100%;
   top: 40%;
+}
+
+.hover-over {
+  background-color: #e5e5ff;
+}
+
+.ag-theme-material .ag-cell-data-changed {
+  background-color: #a5d6a7 !important;
+}
+.ag-theme-material .ag-cell-data-changed-animation {
+  background-color: transparent;
+  transition: background-color 1s;
 }
 </style>

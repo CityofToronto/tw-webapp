@@ -116,6 +116,10 @@ export interface GridFilterModel {
   };
 }
 
+export interface FormData {
+  [key: string]: string;
+}
+
 export interface GridSortModel {
   [key: string]: string;
 }

@@ -11,8 +11,6 @@ import GridDatasource from '../Datasources/GridDatasource';
 export class OTMProvider extends BaseGridProvider {
   public gridDatasource: GridDatasource;
 
-  private tableName: string;
-
   private relatedData: {
     tableName: string;
     rowId: number;
@@ -28,8 +26,7 @@ export class OTMProvider extends BaseGridProvider {
     gridDataTransformer: GridDataTransformer,
     relatedData: { rowId: number; tableName: string },
   ) {
-    super();
-    this.tableName = tableName;
+    super(tableName);
     this.relatedData = relatedData;
     this.gridDatasource = new OTMDatasource(
       tableName,
@@ -39,12 +36,16 @@ export class OTMProvider extends BaseGridProvider {
     );
   }
 
-  public addData(
+  public async getData(): Promise<RowData[]> {
+    return [];
+  }
+
+  public async addData(
     rowData: RowData,
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
-  ): void {
-    apolloClient
+  ): Promise<RowData> {
+    return apolloClient
       .mutate({
         mutation: gql`
           mutation {
@@ -54,29 +55,31 @@ export class OTMProvider extends BaseGridProvider {
                 ${this.relatedData.tableName}_id: ${this.relatedData.rowId}
               }
             ) {
-              affected_rows
+              returning {
+                ${await this.getColumnNames()}
+              }
             }
           }`,
       })
-      .then((): void => {
-        successCallback();
-      })
-      .catch((error): void => {
-        failCallback();
-        dispatchError(error);
-      });
+      .then(
+        (response): RowData => {
+          successCallback();
+          return response.data[`insert_${this.tableName}`].returning[0];
+        },
+      )
+      .catch((error): never => dispatchError(error));
   }
 
   /**
    * You have to delete from the table directly unlike querying where
    *  we passed through the tableName getting the relationship
    */
-  public removeData(
+  public async removeData(
     idToDelete: string,
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
-  ): void {
-    apolloClient
+  ): Promise<RowData> {
+    return apolloClient
       .mutate({
         mutation: gql`
       mutation {
@@ -84,26 +87,28 @@ export class OTMProvider extends BaseGridProvider {
         where: {
           id: {_eq: ${idToDelete}}
         }) {
-        affected_rows
+          returning {
+              ${await this.getColumnNames()}
+            }
       }
     }`,
       })
-      .then((): void => {
-        successCallback();
-      })
-      .catch((error): void => {
-        failCallback();
-        dispatchError(error);
-      });
+      .then(
+        (response): RowData => {
+          successCallback();
+          return response.data[`delete_${this.tableName}`].returning[0];
+        },
+      )
+      .catch((error): never => dispatchError(error));
   }
 
   // This is the same operation as a direct edit
-  public updateData(
+  public async updateData(
     rowToUpdate: RowData,
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
-  ): void {
-    apolloClient
+  ): Promise<RowData> {
+    return apolloClient
       .mutate({
         mutation: gql`
       mutation updateRow {
@@ -121,12 +126,12 @@ export class OTMProvider extends BaseGridProvider {
       }
     }`,
       })
-      .then((): void => {
-        successCallback();
-      })
-      .catch((error): void => {
-        dispatchError(error);
-        failCallback();
-      });
+      .then(
+        (response): RowData => {
+          successCallback();
+          return response.data[`update_${this.tableName}`].returning[0];
+        },
+      )
+      .catch((error): never => dispatchError(error));
   }
 }

@@ -17,8 +17,6 @@ import GridDatasource from '../Datasources/GridDatasource';
  * @returns Instance with add, remove, update and Serverside Datasource
  */
 export class DirectProvider extends BaseGridProvider {
-  private tableName: string;
-
   public gridDatasource: GridDatasource;
 
   public constructor(
@@ -26,8 +24,7 @@ export class DirectProvider extends BaseGridProvider {
     customFilterModel: GridFilterModel,
     gridDataTransformer: GridDataTransformer,
   ) {
-    super();
-    this.tableName = tableName;
+    super(tableName);
     this.gridDatasource = new DirectDatasource(
       tableName,
       customFilterModel,
@@ -35,12 +32,27 @@ export class DirectProvider extends BaseGridProvider {
     );
   }
 
-  public addData(
+  public async getData(): Promise<RowData[]> {
+    return apolloClient
+      .query({
+        query: gql` {
+          ${this.tableName} {
+            ${await this.getColumnNames()}
+          }
+      }`,
+      })
+      .then((response): RowData[] => response.data[this.tableName])
+      .catch((error): never => dispatchError(error));
+  }
+
+  public async addData(
     rowData: RowData,
     successCallback: () => void = (): void => {},
-    failCallback: () => void = (): void => {},
-  ): void {
-    apolloClient
+    failCallback: () => never = (): never => {
+      throw Error('Call Failed');
+    },
+  ): Promise<RowData> {
+    return apolloClient
       .mutate({
         mutation: gql`
         mutation {
@@ -49,25 +61,27 @@ export class DirectProvider extends BaseGridProvider {
               ${stringify(rowData, this.tableName)}
             }
           ) {
-            affected_rows
+            returning {
+              ${await this.getColumnNames()}
+            }
           }
         }`,
       })
-      .then((): void => {
-        successCallback();
-      })
-      .catch((error): void => {
-        failCallback();
-        dispatchError(error);
-      });
+      .then(
+        (response): RowData => {
+          successCallback();
+          return response.data[`insert_${this.tableName}`].returning[0];
+        },
+      )
+      .catch((error): never => dispatchError(error));
   }
 
-  public removeData(
+  public async removeData(
     idToDelete: string,
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
-  ): void {
-    apolloClient
+  ): Promise<RowData> {
+    return apolloClient
       .mutate({
         mutation: gql`
         mutation {
@@ -75,25 +89,27 @@ export class DirectProvider extends BaseGridProvider {
             where: {
               id: {_eq: ${idToDelete}}
           }) {
-            affected_rows
+            returning {
+              ${await this.getColumnNames()}
+            }
           }
         }`,
       })
-      .then((): void => {
-        successCallback();
-      })
-      .catch((error): void => {
-        failCallback();
-        dispatchError(error);
-      });
+      .then(
+        (response): RowData => {
+          successCallback();
+          return response.data[`delete_${this.tableName}`].returning[0];
+        },
+      )
+      .catch((error): never => dispatchError(error));
   }
 
-  public updateData(
+  public async updateData(
     rowToUpdate: RowData,
     successCallback: () => void = (): void => {},
     failCallback: () => void = (): void => {},
-  ): void {
-    apolloClient
+  ): Promise<RowData> {
+    return apolloClient
       .mutate({
         mutation: gql`
         mutation updateRow {
@@ -105,16 +121,18 @@ export class DirectProvider extends BaseGridProvider {
               ${stringify(rowToUpdate, this.tableName)}
             }
             ) {
-              affected_rows
+              returning {
+                ${await this.getColumnNames()}
+              }
             }
         }`,
       })
-      .then((): void => {
-        successCallback();
-      })
-      .catch((error): void => {
-        failCallback();
-        dispatchError(error);
-      });
+      .then(
+        (response): RowData => {
+          successCallback();
+          return response.data[`update_${this.tableName}`].returning[0];
+        },
+      )
+      .catch((error): never => dispatchError(error));
   }
 }

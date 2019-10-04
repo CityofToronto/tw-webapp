@@ -10,10 +10,10 @@
     stateless
   >
     <v-card v-for="grid in gridList" :key="grid.tableName" class="mx-2 my-3">
-      <grid-with-toolbar
+      <!-- <grid-with-toolbar
         :grid-type="grid.relation"
         :table-name="grid.tableName"
-      />
+      /> -->
     </v-card>
   </v-navigation-drawer>
 </template>

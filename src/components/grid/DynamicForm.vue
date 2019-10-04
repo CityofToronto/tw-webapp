@@ -38,10 +38,6 @@ import { QueryType } from '@/types/api';
 import { BaseColumnParams } from '@/types/config';
 import { MarkRequired } from 'ts-essentials';
 
-interface FormData {
-  [key: string]: string;
-}
-
 @Component({
   components: {
     TreeviewInput,
