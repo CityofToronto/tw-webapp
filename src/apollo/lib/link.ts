@@ -9,7 +9,7 @@ import { getMainDefinition } from 'apollo-utilities';
 const uri = 'http://hasura.tw-webapp.duckdns.org/v1/graphql';
 const authToken = process.env.HASURA_SECRET || 'eDfGfj041tHBYkX9';
 
-export const link = new HttpLink({
+export const httpLink = new HttpLink({
   uri,
 });
 
@@ -18,29 +18,27 @@ export const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      //authorization: authToken,
       'x-hasura-admin-secret': authToken,
-      //authorization: token ? `Bearer ${token}` : '',
     },
   };
 });
 
-// const wsLink = new WebSocketLink({
-//   uri: 'wss://tw-backend.duckdns.org:8080/v1/graphql',
-//   options: {
-//     reconnect: true,
-//   },
-// });
+const wsLink = new WebSocketLink({
+  uri: 'wss://hasura.tw-webapp.duckdns.org/v1/graphql',
+  options: {
+    reconnect: true,
+  },
+});
 
-// export const link = split(
-//   // split based on operation type
-//   ({ query }): boolean => {
-//     const definition = getMainDefinition(query);
-//     return (
-//       definition.kind === 'OperationDefinition' &&
-//       definition.operation === 'subscription'
-//     );
-//   },
-//   // wsLink,
-//   httpLink,
-// );
+export const link = split(
+  // split based on operation type
+  ({ query }): boolean => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === 'OperationDefinition' &&
+      definition.operation === 'subscription'
+    );
+  },
+  wsLink,
+  httpLink,
+);

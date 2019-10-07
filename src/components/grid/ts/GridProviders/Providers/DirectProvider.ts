@@ -6,6 +6,7 @@ import { dispatchError, stringify } from '@/apollo/lib/utils';
 import { DirectDatasource } from '../Datasources/DirectDatasource';
 import { GridDataTransformer, GridFilterModel, RowData } from '@/types/grid';
 import GridDatasource from '../Datasources/GridDatasource';
+import GridInstance from '../../GridInstance';
 
 /**
  * Methods to add, remove and update data.
@@ -30,6 +31,16 @@ export class DirectProvider extends BaseGridProvider {
       customFilterModel,
       gridDataTransformer,
     );
+  }
+
+  public async subscribeToData(gridInstance: GridInstance): void {
+    apolloClient.subscribe({
+      query: gql` {
+        ${this.tableName} {
+          ${await this.getColumnNames()}
+        }
+      }`,
+    });
   }
 
   public async getData(): Promise<RowData[]> {
