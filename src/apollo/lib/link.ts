@@ -6,7 +6,7 @@ import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
 
 // TODO Proper authenication
-const uri = 'http://hasura.tw-webapp.duckdns.org/v1/graphql';
+const uri = 'https://hasura.tw-webapp-next.duckdns.org/v1/graphql';
 const authToken = process.env.HASURA_SECRET || 'eDfGfj041tHBYkX9';
 
 export const link = new HttpLink({
