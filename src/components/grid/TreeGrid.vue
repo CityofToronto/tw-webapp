@@ -35,7 +35,6 @@ import {
 import { Component, Mixins } from 'vue-property-decorator';
 import GridMixin from './ts/GridMixin';
 import { RowData } from '@/types/grid';
-import TreeTransformer from './ts/GridProviders/GridTransformer/TreeTransformer';
 import AliasCell from '@/components/grid/ag-components/AliasCell.vue';
 
 @Component({
@@ -49,35 +48,9 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
   openRowGroups: string[] = [];
 
   async created() {
-    this.customColDefs = {
-      cellClassRules: {
-        'hover-over': (params: ICellRendererParams) =>
-          params.node === this.potentialParent,
-      },
-    };
-
-    this.gridInitializedEvent = () => {
-      this.gridInstance.setGridUpdateEvent((rowData: RowData[]) => {
-        rowData
-          .filter((row): boolean => this.openRowGroups.includes(row.id))
-          .forEach((row) => {
-            this.gridApi.getRowNode(row.id).setExpanded(true);
-          });
-      });
-    };
-    this.dataTransformer = new TreeTransformer();
     this.gridOptions = {
       ...this.gridOptions,
       groupSelectsChildren: false,
-      treeData: true,
-      getDataPath: (data) => data.full_path.split('.'),
-      // dataItem.group is populated in the TreeTransformer
-      // boolean to show whether or not there are children
-      isServerSideGroup: (dataItem): boolean =>
-        dataItem.children_aggregate.aggregate.count,
-      // What column to group by, here it is the id column as it should
-      // always be present in the data
-      getServerSideGroupKey: (dataItem): string => `${dataItem.id}`,
       suppressRowClickSelection: true,
       autoGroupColumnDef: {
         resizable: true,
@@ -118,10 +91,6 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
     };
     this.gridInstance.updateRows({
       rowsToUpdate: [newData],
-      successCallback: () => {
-        this.onGroupOpened(event);
-        this.gridInstance.purgeCache();
-      },
     });
   }
 
@@ -146,21 +115,6 @@ export default class TreeGridComponent extends Mixins(GridMixin) {
 
   launchFormAdder(rowNode: RowNode) {
     this.$emit('add', rowNode, { parent: rowNode.data.id });
-  }
-
-  refreshBranch(node: RowNode) {
-    const getParent = (parentId: string): RowNode => {
-      return this.gridApi.getRowNode(parentId).parent as RowNode;
-    };
-    let branch: string[] = [node.data.id];
-    let parentNode: RowNode = node.parent as RowNode;
-    while (parentNode.level > 0) {
-      branch.push(parentNode.id);
-      if (parentNode.parent) {
-        parentNode = getParent(parentNode.id);
-      }
-    }
-    this.gridApi.purgeServerSideCache(branch.reverse());
   }
 
   setPotentialParent(overNode: RowNode | null) {

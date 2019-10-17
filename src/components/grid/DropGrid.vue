@@ -15,7 +15,7 @@
       :header-height="7 * 7"
       :context="context"
       :animate-rows="true"
-      :row-drag-managaged="true"
+      :row-drag-managed="true"
       @grid-ready="onGridReady"
     />
   </div>

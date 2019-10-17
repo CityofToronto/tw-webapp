@@ -3,10 +3,8 @@ import gql from 'graphql-tag';
 import BaseGridProvider from './BaseGridProvider';
 import apolloClient from '@/apollo';
 import { dispatchError, stringify } from '@/apollo/lib/utils';
-import { DirectDatasource } from '../Datasources/DirectDatasource';
-import { GridDataTransformer, GridFilterModel, RowData } from '@/types/grid';
-import GridDatasource from '../Datasources/GridDatasource';
-import GridInstance from '../../GridInstance';
+import { RowData, RequiredConfig } from '@/types/grid';
+import GridInstance from '../GridInstance';
 
 /**
  * Methods to add, remove and update data.
@@ -18,29 +16,25 @@ import GridInstance from '../../GridInstance';
  * @returns Instance with add, remove, update and Serverside Datasource
  */
 export class DirectProvider extends BaseGridProvider {
-  public gridDatasource: GridDatasource;
-
-  public constructor(
-    tableName: string,
-    customFilterModel: GridFilterModel,
-    gridDataTransformer: GridDataTransformer,
-  ) {
-    super(tableName);
-    this.gridDatasource = new DirectDatasource(
-      tableName,
-      customFilterModel,
-      gridDataTransformer,
-    );
+  public constructor(config: RequiredConfig) {
+    super(config);
   }
 
-  public async subscribeToData(gridInstance: GridInstance): void {
-    apolloClient.subscribe({
-      query: gql` {
-        ${this.tableName} {
-          ${await this.getColumnNames()}
+  public async subscribeToData(gridInstance: GridInstance) {
+    this.subscription = apolloClient
+      .subscribe({
+        query: gql` 
+        subscription {
+          ${this.tableName} {
+            ${await this.getColumnNames()}
+          }
         }
-      }`,
-    });
+      `,
+      })
+      .subscribe({
+        next: ({ data }) =>
+          gridInstance.gridApi.setRowData(data[this.tableName]),
+      });
   }
 
   public async getData(): Promise<RowData[]> {
@@ -56,20 +50,15 @@ export class DirectProvider extends BaseGridProvider {
       .catch((error): never => dispatchError(error));
   }
 
-  public async addData(
-    rowData: RowData,
-    successCallback: () => void = (): void => {},
-    failCallback: () => never = (): never => {
-      throw Error('Call Failed');
-    },
-  ): Promise<RowData> {
+  public async addData(rowData: RowData): Promise<RowData> {
+    console.log(stringify(rowData, this.tableID));
     return apolloClient
       .mutate({
         mutation: gql`
         mutation {
           insert_${this.tableName} (
             objects: {
-              ${stringify(rowData, this.tableName)}
+              ${stringify(rowData, this.tableID)}
             }
           ) {
             returning {
@@ -79,19 +68,13 @@ export class DirectProvider extends BaseGridProvider {
         }`,
       })
       .then(
-        (response): RowData => {
-          successCallback();
-          return response.data[`insert_${this.tableName}`].returning[0];
-        },
+        (response): RowData =>
+          response.data[`insert_${this.tableName}`].returning[0],
       )
       .catch((error): never => dispatchError(error));
   }
 
-  public async removeData(
-    idToDelete: string,
-    successCallback: () => void = (): void => {},
-    failCallback: () => void = (): void => {},
-  ): Promise<RowData> {
+  public async removeData(idToDelete: string): Promise<RowData> {
     return apolloClient
       .mutate({
         mutation: gql`
@@ -107,19 +90,13 @@ export class DirectProvider extends BaseGridProvider {
         }`,
       })
       .then(
-        (response): RowData => {
-          successCallback();
-          return response.data[`delete_${this.tableName}`].returning[0];
-        },
+        (response): RowData =>
+          response.data[`delete_${this.tableName}`].returning[0],
       )
       .catch((error): never => dispatchError(error));
   }
 
-  public async updateData(
-    rowToUpdate: RowData,
-    successCallback: () => void = (): void => {},
-    failCallback: () => void = (): void => {},
-  ): Promise<RowData> {
+  public async updateData(rowToUpdate: RowData): Promise<RowData> {
     return apolloClient
       .mutate({
         mutation: gql`
@@ -129,7 +106,7 @@ export class DirectProvider extends BaseGridProvider {
               id: { _eq: ${rowToUpdate.id} }
             },
             _set: {
-              ${stringify(rowToUpdate, this.tableName)}
+              ${stringify(rowToUpdate, this.tableID)}
             }
             ) {
               returning {
@@ -139,10 +116,8 @@ export class DirectProvider extends BaseGridProvider {
         }`,
       })
       .then(
-        (response): RowData => {
-          successCallback();
-          return response.data[`update_${this.tableName}`].returning[0];
-        },
+        (response): RowData =>
+          response.data[`update_${this.tableName}`].returning[0],
       )
       .catch((error): never => dispatchError(error));
   }

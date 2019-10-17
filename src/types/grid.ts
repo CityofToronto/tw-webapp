@@ -8,6 +8,10 @@ import {
   GridApi,
 } from 'ag-grid-community';
 import { QueryType, TreeStructure, TreeData } from '@/types/api';
+import GridInstance from '@/components/grid/ts/GridInstance';
+import Store from '@/store/store';
+import { GridConfiguration } from './config';
+import { MarkRequired, Merge } from 'ts-essentials';
 
 export interface GridComponentOptions {
   gridTitle: string;
@@ -23,6 +27,11 @@ export interface GridComponentOptions {
   };
 }
 
+export type RequiredConfig = MarkRequired<
+  GridConfiguration,
+  'tableName' | 'tableID' | 'title'
+>;
+
 /**
  * Custom pre-defined Grid Types for defining the props of GridComponent.vue
  */
@@ -36,20 +45,22 @@ export enum GridType {
   Drop,
 }
 
+export interface FunctionProps {
+  gridInstance: GridInstance;
+  vueStore: Store;
+}
+
+export type MergeContext<T> = Merge<T, { context: GridContext }>;
+
+export interface GridContext {
+  gridInstance: GridInstance;
+  vueStore: Store;
+  parentComponent: any;
+}
+
 export interface ColumnDefinerParams {
   omittedColumns: string[];
   hiddenColumns: string[];
-}
-
-export enum CustomCellRenderer {
-  TreeView = 'TreeviewRenderer',
-}
-
-export enum ColumnButton {
-  Edit = 'Edit',
-  Unlink = 'Unlink',
-  Drag = 'Drag',
-  AddTree = 'AddTree',
 }
 
 export enum CellType {
@@ -66,14 +77,6 @@ export enum GridProviders {
   Direct,
   OneToMany,
   ManyToMany,
-}
-
-export interface GridDataTransformer {
-  /**
-   * Transform data into a form that is different
-   * but that can still be handled by Ag-Grid
-   */
-  transform<T extends TreeData[]>(data: T): RowData[];
 }
 
 type Filters =

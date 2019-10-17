@@ -20,6 +20,7 @@ import { Vue, Component } from 'vue-property-decorator';
 import { ICellRendererParams } from 'ag-grid-community';
 import GridInstance from '../ts/GridInstance';
 import { storeInstance } from '@/store';
+import { MergeContext } from '@/types/grid';
 
 /**
  * RearrangeRenderer
@@ -27,7 +28,7 @@ import { storeInstance } from '@/store';
  */
 @Component({})
 export default class RearrangeRenderer extends Vue {
-  params!: ICellRendererParams;
+  params!: MergeContext<ICellRendererParams>;
 
   // When drag is started, assign the row's data to the dataTransfer object
   onDragStart(event: DragEventInit) {
@@ -83,22 +84,9 @@ export default class RearrangeRenderer extends Vue {
 
       // Update the cell that was dropped on with new value
 
-      const gridInstance: GridInstance = this.params.context.componentParent
-        .gridInstance;
-
-      gridInstance.updateRows({
+      this.params.context.gridInstance.updateRows({
         rowsToUpdate: [eventData],
-        successCallback: () => {
-          storeInstance.grid.refreshAllGridInstances();
-        },
       });
-
-      // this.params.context.componentParent.updateCellValue(
-      //   this.params.node,
-      //   fieldName,
-      //   eventData,
-      //   this.params.node.data[fieldName],
-      // );
     }
   }
 }

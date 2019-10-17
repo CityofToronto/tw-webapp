@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-title>Edit {{ tableName | capitalize }}</v-card-title>
+    <v-card-title>{{ popupData.popupTitle }}</v-card-title>
     <v-divider />
     <v-card-text style="height: 600px">
       <component
@@ -19,10 +19,14 @@
     <v-divider />
     <v-card-actions>
       <v-spacer />
-      <v-btn color="blue darken-1" text @click="$emit('close-form')">
+      <v-btn color="blue darken-1" text @click="popupData.cancelCallback()">
         Cancel
       </v-btn>
-      <v-btn color="blue darken-1" text @click="saveForm">
+      <v-btn
+        color="blue darken-1"
+        text
+        @click="popupData.confirmCallback(data)"
+      >
         Save
       </v-btn>
     </v-card-actions>
@@ -37,6 +41,9 @@ import { CellType } from '@/types/grid';
 import { QueryType } from '@/types/api';
 import { BaseColumnParams } from '@/types/config';
 import { MarkRequired } from 'ts-essentials';
+import Store from '@/store/store';
+import { useStore } from 'vuex-simple';
+import { FormEditorData } from '@/store/modules/popup';
 
 @Component({
   components: {
@@ -44,30 +51,25 @@ import { MarkRequired } from 'ts-essentials';
   },
 })
 export default class DynamicForm extends Vue {
-  @Prop(String) readonly tableName!: string;
+  store: Store = useStore(this.$store);
 
-  @Prop(Array) readonly columnDefs!: MarkRequired<
-    BaseColumnParams,
-    'showInForm'
-  >[];
+  data: { [p: string]: any } = {};
 
-  @Prop({ default: () => {} }) readonly formData!: {};
-
-  @Prop({ default: false }) readonly formDisplay!: boolean;
-
-  @Prop(String) readonly queryType!: QueryType;
-
-  data: FormData = this.formData;
+  get popupData() {
+    return this.store.popup.popupProperties as FormEditorData;
+  }
 
   get properties(): BaseColumnParams[] {
-    return this.columnDefs
-      .filter((column): boolean => column.showInForm)
+    return this.popupData.columnDefs
+      .filter((column): boolean =>
+        column.showInForm ? column.showInForm : true,
+      )
       .filter((column): boolean => column.field !== undefined);
   }
 
   beforeMount() {
-    // This prepopulates the data, and if it does not exist populate key with empty string
-    this.columnDefs.forEach((column): void => {
+    // This repopulates the data, and if it does not exist populate key with empty string
+    this.popupData.columnDefs.forEach((column): void => {
       if (column.field !== undefined) {
         this.data[column.field] = this.data[column.field]
           ? this.data[column.field]

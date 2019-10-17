@@ -1,12 +1,41 @@
 import { ColDef, GridOptions } from 'ag-grid-community';
-import { CellType, ColumnButton, GridFilterModel } from './grid';
+import { CellType } from './grid';
 import { MarkRequired } from 'ts-essentials';
 import GridInstance from '@/components/grid/ts/GridInstance';
+import { ToolbarItem } from '@/components/grid/ts/toolbarItems';
+import Store from '@/store/store';
+import { ExtendedMenuItem } from '@/components/grid/ts/contextItems';
+import { GridButton } from '@/components/grid/ts/ColumnDefiner/gridButtons';
 
 export enum GridType {
   Tree = 'tree',
   Normal = 'normal',
   Drop = 'drop',
+}
+
+type DefaultContextItems =
+  | 'autoSizeAll'
+  | 'expandAll'
+  | 'contractAll'
+  | 'copy'
+  | 'copyWithHeadersCopy '
+  | 'paste'
+  | 'resetColumns'
+  | 'export'
+  | 'chartRange'
+  | 'separator';
+
+export interface VueEvent<T> {
+  type: string;
+  callback: ({
+    event,
+    gridInstance,
+    vueStore,
+  }: {
+    event: T;
+    gridInstance: GridInstance;
+    vueStore: Store;
+  }) => void;
 }
 
 export type CustomProperties = keyof Omit<
@@ -19,11 +48,23 @@ export type GridConfiguration =
   | TreeGridConfig
   | DropGridConfig;
 
-export interface GridConfigurationInterface {
-  [key: string]: GridConfiguration;
-}
+export type GridConfigurationInterface = Record<string, GridConfiguration>;
 
 interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
+  /**
+   * ID of table to fetch from database
+   * By default it uses the key of the this object
+   */
+  tableID?: string;
+  /**
+   * Name of table to fetch from database
+   * By default it uses the key of the this object
+   */
+  tableName?: string;
+  /**
+   * Define a title that is displayed on the toolbar. If omitted with use the
+   * name of the database table.
+   */
   title?: string;
   /**
    * Columns that are omitted from editing and display but are still queried.
@@ -31,39 +72,53 @@ interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
    */
   omittedColumns?: string[];
   /**
-   * Array of custom column buttons.
+   * Array of custom grid buttons.
    * Examples are edit, delete
    */
-  columnButtons?: ColumnButton[];
+  gridButtons?: GridButton[];
   /**
    * Array of extended column definitions (based on their CellType)
    */
   overrideColumnDefinitions?: CellParams[];
   /**
-   * Permanent low level filter
-   */
-  customFilterModel?: GridFilterModel;
-  /**
    * Order of the columns from left to right
    */
   columnOrder?: string[];
+  /**
+   * Items displayed in the toolbar
+   */
+  toolbarItems: ToolbarItem[];
+  /**
+   * Events to bind to the ag-Grid instance
+   */
+  gridEvents?: VueEvent<any>[];
+  /**
+   * Custom items to add to the context menu (right click)
+   * By default, it has copy, paste and export.
+   * separator draws a line between items
+   */
+  contextMenu?: (ExtendedMenuItem | DefaultContextItems)[];
 }
 
 export interface SimpleGridConfig extends BaseGridConfig {
   gridType?: Exclude<GridType, GridType.Tree | GridType.Drop>;
 }
 
-export interface TreeGridConfig extends BaseGridConfig {
+export interface TreeGridConfig
+  extends MarkRequired<BaseGridConfig, 'getDataPath'> {
   /**
    * Table column field to group by.
    * By default it uses the 'id' field.
    */
   gridType: GridType.Tree;
+  /**
+   * This must be set to true
+   */
+  treeData: boolean;
 }
 
 export interface DropGridConfig extends BaseGridConfig {
   gridType: GridType.Drop;
-  onDropFunction?: (event: DragEvent, gridInstance: GridInstance) => void;
 }
 
 /**

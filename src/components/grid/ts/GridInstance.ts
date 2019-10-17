@@ -1,19 +1,10 @@
 import { AddQuery, RemoveQuery, UpdateQuery } from '@/apollo/types';
 import { QueryType } from '@/types/api';
-import {
-  ExtendedColDef,
-  GridDataTransformer,
-  GridFilterModel,
-  RowData,
-} from '@/types/grid';
-import {
-  ColumnApi,
-  GridApi,
-  GridOptions,
-  IServerSideDatasource,
-} from 'ag-grid-community';
-import { DirectProvider, MTMProvider, OTMProvider } from './GridProviders';
-import BaseGridProvider from './GridProviders/Providers/BaseGridProvider';
+import { ExtendedColDef, RowData, RequiredConfig } from '@/types/grid';
+import { ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
+import { DirectProvider, OTMProvider } from './GridProviders';
+import BaseGridProvider from './GridProviders/BaseGridProvider';
+import ComponentApi from './componentApi';
 
 export default class GridInstance {
   public gridApi: GridApi;
@@ -23,6 +14,8 @@ export default class GridInstance {
   public gridProvider: BaseGridProvider;
 
   public gridOptions: GridOptions;
+
+  public componentApi: ComponentApi;
 
   public gridTitle: String = '';
 
@@ -41,6 +34,7 @@ export default class GridInstance {
     this.gridApi = gridApi;
     this.columnApi = columnApi;
     this.gridOptions = gridOptions;
+    this.componentApi = new ComponentApi(this);
   }
 
   /**
@@ -49,46 +43,28 @@ export default class GridInstance {
    */
   public static getProvider(
     queryType: QueryType,
-    tableName: string,
-    customFilterModel: GridFilterModel = {},
+    config: RequiredConfig,
     relatedData: {
       tableName: string;
       rowId: number;
     },
-    dataTransformer: GridDataTransformer,
   ): BaseGridProvider {
     const providers: { [key in QueryType]: BaseGridProvider } = {
-      [QueryType.Direct]: new DirectProvider(
-        tableName,
-        customFilterModel,
-        dataTransformer,
-      ),
-      [QueryType.OneToMany]: new OTMProvider(
-        tableName,
-        customFilterModel,
-        dataTransformer,
-        relatedData,
-      ),
-      [QueryType.ManyToMany]: new MTMProvider(
-        tableName,
-        customFilterModel,
-        dataTransformer,
-        relatedData,
-      ),
+      [QueryType.Direct]: new DirectProvider(config),
+      [QueryType.OneToMany]: new OTMProvider(config, relatedData),
+      [QueryType.ManyToMany]: new OTMProvider(config, relatedData), // TODO CHANGE THIS TO MTM
     };
     return providers[queryType];
   }
 
-  public get gridDatasource(): IServerSideDatasource {
-    return this.gridProvider.gridDatasource;
+  public forceUpdateData() {
+    this.gridProvider
+      .getData()
+      .then((response) => this.gridApi.setRowData(response));
   }
 
-  public setGridUpdateEvent(updateEvent: (...args: any) => void): void {
-    this.gridProvider.gridDatasource.setGridEvent(updateEvent);
-  }
-
-  public purgeCache(): void {
-    this.gridApi.purgeServerSideCache();
+  public subscribeToMore() {
+    return this.gridProvider.subscribeToData(this);
   }
 
   public get columnDefs(): ExtendedColDef[] {
@@ -116,41 +92,33 @@ export default class GridInstance {
    * rowData will be an array of objects with key: value pairs
    * Return a successful and unsuccessful callback for UI updates
    */
-  public async addRows({
-    rowsToAdd,
-    successCallback,
-    failCallback,
-  }: AddQuery): Promise<void> {
+  public async addRows({ rowsToAdd }: AddQuery): Promise<void> {
     rowsToAdd.map((rowData): void => {
-      this.gridProvider
-        .addData(rowData, successCallback, failCallback)
-        .then((response) =>
-          this.gridApi.updateRowData({
-            add: [response],
-          }),
-        );
+      this.gridProvider.addData(rowData).then((response) =>
+        this.gridApi.updateRowData({
+          add: [response],
+        }),
+      );
     });
   }
 
-  public removeRows({
-    rowsToRemove,
-    successCallback,
-    failCallback,
-  }: RemoveQuery): Promise<RowData>[] {
-    return rowsToRemove.map(
-      (row): Promise<RowData> =>
-        this.gridProvider.removeData(row.id, successCallback, failCallback),
-    );
+  public async removeRows({ rowsToRemove }: RemoveQuery): Promise<void> {
+    rowsToRemove.map((row): void => {
+      this.gridProvider.removeData(row.id).then((response) =>
+        this.gridApi.updateRowData({
+          remove: [response],
+        }),
+      );
+    });
   }
 
-  public updateRows({
-    rowsToUpdate,
-    successCallback,
-    failCallback,
-  }: UpdateQuery): Promise<RowData>[] {
-    return rowsToUpdate.map(
-      (row): Promise<RowData> =>
-        this.gridProvider.updateData(row, successCallback, failCallback),
-    );
+  public async updateRows({ rowsToUpdate }: UpdateQuery): Promise<void> {
+    rowsToUpdate.map((rowData): void => {
+      this.gridProvider.updateData(rowData).then((response) =>
+        this.gridApi.updateRowData({
+          update: [response],
+        }),
+      );
+    });
   }
 }

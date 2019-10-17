@@ -35,9 +35,9 @@ export default class DrawerRight extends Vue {
   gridList: { tableName: string; relation: GridType }[] = [];
 
   async created() {
-    const relationships = await apolloClient.getRelationships(
-      this.$route.params.table,
-    );
+    // const relationships = await apolloClient.getRelationships(
+    //   this.$route.params.table,
+    // );
 
     // Filter for table relationships
     this.gridList = relationships
@@ -46,8 +46,8 @@ export default class DrawerRight extends Vue {
       )
       .map((relationship) => {
         /**
-         *  Two options, activity_legislation_aggregreate returns length of 3 when split by _ (MTM)
-         *  trade_aggregrate returns length of 2 when split by _ (OTM)
+         *  Two options, activity_legislation_aggregate returns length of 3 when split by _ (MTM)
+         *  trade_aggregate returns length of 2 when split by _ (OTM)
          */
         switch (relationship.name.split('_').length) {
           case 2:

@@ -3,8 +3,7 @@ import { GRID_CONFIG } from '@/config';
 import { ColDef } from 'ag-grid-community';
 import apolloClient from '@/apollo';
 import { TreeData } from '@/types/api';
-import ButtonColumns from './GridButtons';
-import { CellType, ColumnButton } from '@/types/grid';
+import { CellType, RequiredConfig } from '@/types/grid';
 import ColumnHeaderMap from './ColumnHeaderMap';
 import CellTypes from './CellTypes';
 import { CellParams, GridConfiguration } from '@/types/config';
@@ -33,9 +32,8 @@ export default class ColumnDefiner {
    *
    * @param {Table} string enum of tables
    */
-  public constructor(tableName: string) {
-    this.tableName = tableName;
-    const config = GRID_CONFIG.get(this.tableName);
+  public constructor(config: RequiredConfig) {
+    this.tableName = config.tableName;
     this.config = {
       ...getDefaultColDef(config ? config.gridType : undefined),
       ...config,
@@ -48,9 +46,9 @@ export default class ColumnDefiner {
     );
   }
 
-  private addToColumnDefs(columnsToAdd: ColumnButton[]): void {
+  private addToColumnDefs(columnsToAdd: ColDef[]): void {
     columnsToAdd.forEach((columnToAdd): void => {
-      this.columnDefs.unshift(ButtonColumns[columnToAdd]);
+      this.columnDefs.unshift(columnToAdd);
     });
   }
 
@@ -95,7 +93,7 @@ export default class ColumnDefiner {
         };
       },
     );
-    // Rearrange Columns if sorting arary is defined
+    // Rearrange Columns if sorting array is defined
     if (sortingOrder) {
       this.processedColumns.sort(
         (a, b) => sortingOrder.indexOf(a.name) - sortingOrder.indexOf(b.name),
@@ -185,8 +183,8 @@ export default class ColumnDefiner {
     await this.defineColumns(this.processedColumns);
 
     // Adds additional column definitions to the front of the array
-    if (this.config.columnButtons) {
-      this.addToColumnDefs(this.config.columnButtons);
+    if (this.config.gridButtons) {
+      this.addToColumnDefs(this.config.gridButtons);
     }
 
     return this.columnDefs;

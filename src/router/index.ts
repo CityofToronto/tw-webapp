@@ -1,27 +1,43 @@
 import Vue from 'vue';
-import VueRouter from 'vue-router';
-import Reviewer from '@/views/Reviewer.vue';
-import Home from '@/views/Home.vue';
+import VueRouter, { RouteConfig } from 'vue-router';
+import HomePage from '@/views/HomePage.vue';
+import LoginPage from '@/views/LoginPage.vue';
 import ReconciliationView from '@/views/ReconciliationView.vue';
 
 Vue.use(VueRouter);
 
-const routes = [
+const routes: RouteConfig[] = [
   {
-    path: '/review/:table',
-    component: Reviewer,
+    path: '/',
+    component: HomePage,
   },
   {
-    path: '*',
-    component: Home,
+    path: '/login',
+    component: LoginPage,
   },
   {
     path: '/reconciliation',
     component: ReconciliationView,
   },
+  {
+    path: '*',
+    redirect: '/',
+  },
 ];
 
-export default new VueRouter({
+export const router = new VueRouter({
   routes,
   mode: 'history',
+});
+
+router.beforeEach((to, from, next) => {
+  const publicPages = ['/login'];
+  const authRequired = !publicPages.includes(to.path);
+  const loggedIn = localStorage.getItem('user');
+
+  if (authRequired && !loggedIn) {
+    return next('/login');
+  }
+
+  next();
 });

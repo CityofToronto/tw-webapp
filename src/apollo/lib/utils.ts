@@ -24,9 +24,9 @@ export const dispatchError = (error: Error): never => {
 const fieldsToRemove = ['id', 'group'];
 
 // Converts an object into a string that Hasura understands
-export const stringify = (data: RowData, tableName: string): string => {
+export const stringify = (data: RowData, tableID: string): string => {
   const gridInstance = storeInstance.grid.getGridInstance(
-    tableName,
+    tableID,
   ) as GridInstance;
   const selectedCellFields = gridInstance.columnDefs
     .filter((col) => col.cellType === CellType.selectCell)

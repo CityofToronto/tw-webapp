@@ -4,13 +4,10 @@ import gql from 'graphql-tag';
 import { dispatchError, stringify } from '@/apollo/lib/utils';
 import BaseGridProvider from './BaseGridProvider';
 import apolloClient from '@/apollo';
-import { OTMDatasource } from '../Datasources/OTMDatasource';
-import { RowData, GridDataTransformer, GridFilterModel } from '@/types/grid';
-import GridDatasource from '../Datasources/GridDatasource';
+import { RowData, RequiredConfig } from '@/types/grid';
+import GridInstance from '../GridInstance';
 
 export class OTMProvider extends BaseGridProvider {
-  public gridDatasource: GridDatasource;
-
   private relatedData: {
     tableName: string;
     rowId: number;
@@ -21,20 +18,14 @@ export class OTMProvider extends BaseGridProvider {
    * Therefore when we change that object outside the class, it will update all in here
    */
   public constructor(
-    tableName: string,
-    customFilterModel: GridFilterModel,
-    gridDataTransformer: GridDataTransformer,
+    config: RequiredConfig,
     relatedData: { rowId: number; tableName: string },
   ) {
-    super(tableName);
+    super(config);
     this.relatedData = relatedData;
-    this.gridDatasource = new OTMDatasource(
-      tableName,
-      customFilterModel,
-      gridDataTransformer,
-      relatedData,
-    );
   }
+
+  public async subscribeToData(gridInstance: GridInstance) {}
 
   public async getData(): Promise<RowData[]> {
     return [];
@@ -51,7 +42,7 @@ export class OTMProvider extends BaseGridProvider {
           mutation {
             insert_${this.tableName} (
               objects: {
-                ${stringify(rowData, this.tableName)},
+                ${stringify(rowData, this.tableID)},
                 ${this.relatedData.tableName}_id: ${this.relatedData.rowId}
               }
             ) {
@@ -117,7 +108,7 @@ export class OTMProvider extends BaseGridProvider {
           id: { _eq: ${rowToUpdate.id} }
         },
         _set: {
-          ${stringify(rowToUpdate, this.tableName)}
+          ${stringify(rowToUpdate, this.tableID)}
         }
       ) {
         returning {

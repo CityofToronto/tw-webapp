@@ -6,7 +6,7 @@ import 'ag-grid-enterprise';
 import 'vuetify/dist/vuetify.min.css';
 import App from './App.vue';
 import store from './store';
-import router from './router';
+import { router } from './router';
 
 Vue.config.productionTip = false;
 

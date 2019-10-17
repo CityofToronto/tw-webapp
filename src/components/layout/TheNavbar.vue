@@ -22,12 +22,35 @@
       <v-spacer />
 
       <!-- Items on the Toolbar -->
+      <template v-if="!!loginStatus">
+        <v-menu v-model="menu" :close-on-click="true" offset-y>
+          <template v-slot:activator="{ on }">
+            <v-btn text v-on="on">
+              {{ username }}
+            </v-btn>
+          </template>
+          <v-card>
+            <v-list>
+              <v-list-item>
+                <v-list-item-avatar>
+                  <img :src="`https://ui-avatars.com/api/?name=${username}`" />
+                </v-list-item-avatar>
 
-      <v-btn v-for="item in toolBarItems" :key="item.id" icon>
-        <v-icon @click="item.buttonFunction">
-          {{ item.icon }}
-        </v-icon>
-      </v-btn>
+                <v-list-item-content>
+                  <v-list-item-title>Amber Brasher</v-list-item-title>
+                  <v-list-item-subtitle>
+                    Technical Assistant
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text color="primary" @click="logout">Logout</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
+      </template>
     </v-app-bar>
 
     <!-- Left and Right Drawers -->
@@ -38,6 +61,8 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import NavigationDrawer from './NavigationDrawer.vue';
+import Store from '@/store/store';
+import { useStore } from 'vuex-simple';
 
 @Component({
   components: {
@@ -49,24 +74,21 @@ export default class Navbar extends Vue {
 
   rightSideDrawer = false;
 
-  projectForm = false;
+  menu = false;
 
-  mini = true;
+  store: Store = useStore(this.$store);
 
-  toolBarItems = [
-    {
-      id: 0,
-      icon: 'person',
-      buttonFunction: () => {},
-    },
-    {
-      id: 1,
-      icon: 'help_outline',
-      buttonFunction: () => {
-        window.open('https://toronto.ca');
-      },
-    },
-  ];
+  get username() {
+    return this.store.auth.username;
+  }
+
+  get loginStatus() {
+    return this.store.auth.loginStatus;
+  }
+
+  logout() {
+    this.$router.push('/');
+  }
 
   currentProject = 'Highland Creek';
 }

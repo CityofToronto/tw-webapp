@@ -3,10 +3,12 @@
 <template>
   <ag-grid-vue
     :style="
-      autoHeight ? 'width: 100%;' : 'width: 100%; height: calc(100% - 48px);'
+      config.autoHeight
+        ? 'width: 100%;'
+        : 'width: 100%; height: calc(100% - 48px);'
     "
     class="ag-theme-material"
-    :dom-layout="autoHeight ? 'autoHeight' : 'normal'"
+    :dom-layout="config.autoHeight ? 'autoHeight' : 'normal'"
     :grid-options="gridOptions"
     :column-defs="columnDefs"
     :row-height="7 * 6"
@@ -16,7 +18,7 @@
     pagination-auto-page-size="true"
     @grid-ready="onGridReady"
     @cell-value-changed="cellValueChanged"
-    @row-clicked="rowClicked"
+    v-on="events"
   />
 </template>
 
@@ -49,20 +51,6 @@ export default class GridComponent extends Mixins(GridMixin) {
     if (this.queryType !== QueryType.Direct) {
       this.gridApi.purgeServerSideCache();
     }
-  }
-
-  removeEntry(rowNode: RowNode) {
-    this.gridInstance.removeRows({
-      rowsToRemove: [rowNode.data],
-      successCallback: () => {
-        this.gridApi.purgeServerSideCache();
-      },
-    });
-  }
-
-  // This method is called by the edit button rendered inside the grid
-  launchFormEditor(rowNode: RowNode): void {
-    this.$emit('edit', rowNode);
   }
 
   rowClicked(event: RowEvent): void {

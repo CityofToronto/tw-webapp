@@ -1,15 +1,23 @@
 import { Mutation, State, Action, Getter } from 'vuex-simple';
 import GridInstance from '@/components/grid/ts/GridInstance';
+import { RowNode, GridApi } from 'ag-grid-community';
 
 export default class GridModule {
   // This is the state of the 'main' table pulled from the URL
   @State() private table: { tableName: string; rowId: number };
+
+  @State() private potentialParentState!: RowNode | null;
 
   public constructor() {
     this.table = {
       tableName: 'activity',
       rowId: 45,
     };
+  }
+
+  @Getter()
+  public get potentialParent() {
+    return this.potentialParentState;
   }
 
   @Getter()
@@ -27,6 +35,37 @@ export default class GridModule {
     this.table = table;
   }
 
+  @Mutation()
+  public setPotentialParent({
+    parentNode,
+    gridApi,
+  }: {
+    parentNode: RowNode | null;
+    gridApi: GridApi;
+  }) {
+    let newPotentialParent: RowNode | null;
+    if (parentNode) {
+      newPotentialParent = parentNode;
+    } else {
+      newPotentialParent = null;
+    }
+    if (this.potentialParent === newPotentialParent) {
+      return;
+    }
+    let rowsToRefresh: RowNode[] = [];
+    if (this.potentialParent) {
+      rowsToRefresh.push(this.potentialParent);
+    }
+    if (newPotentialParent) {
+      rowsToRefresh.push(newPotentialParent);
+    }
+    this.potentialParentState = newPotentialParent;
+    gridApi.refreshCells({
+      rowNodes: rowsToRefresh,
+      force: true,
+    });
+  }
+
   @Action()
   public async pushTableData(table: {
     tableName: string;
@@ -35,42 +74,25 @@ export default class GridModule {
     this.setTableData(table);
   }
 
-  @State() private gridInstances: {
-    [p: string]: GridInstance;
-  } = {};
+  @State() private gridInstances: Map<string, GridInstance> = new Map();
 
-  @Getter()
-  public get getGridInstance(): (
-    tableName: string,
-  ) => GridInstance | undefined {
-    return (tableName: string) => {
-      if (this.gridInstances[tableName]) {
-        return this.gridInstances[tableName];
-      }
-      return undefined;
-    };
+  public getGridInstance(tableID: string): GridInstance | undefined {
+    return this.gridInstances.get(tableID);
   }
 
   @Mutation()
   public setGridInstance({
-    tableName,
+    tableID,
     gridInstance,
   }: {
-    tableName: string;
+    tableID: string;
     gridInstance: GridInstance;
   }): void {
-    this.gridInstances[tableName] = gridInstance;
+    this.gridInstances.set(tableID, gridInstance);
   }
 
   @Action()
-  public refreshAllGridInstances() {
-    Object.entries(this.gridInstances).forEach(([, gridInstance]) =>
-      gridInstance.purgeCache(),
-    );
-  }
-
-  @Action()
-  public pushGridInstance(tableName: string, gridInstance: GridInstance): void {
-    this.setGridInstance({ tableName, gridInstance });
+  public forceUpdateAllGrids(): void {
+    this.gridInstances.forEach((grid) => grid.forceUpdateData());
   }
 }

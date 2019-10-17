@@ -1,7 +1,7 @@
 import ApolloClient from 'apollo-client';
 import { NormalizedCacheObject, InMemoryCache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
-import { link, authLink } from './lib/link';
+import { link } from './lib/link';
 import { TableQueryResult } from './types';
 import { dispatchError } from './lib/utils';
 import { HasuraField, __TypeKind } from '@/types/api';
@@ -21,7 +21,7 @@ const isRelationship = (element: HasuraField): boolean =>
 class Apollo extends ApolloClient<NormalizedCacheObject> {
   public constructor() {
     super({
-      link: authLink.concat(link),
+      link,
       cache: new InMemoryCache({
         addTypename: false,
       }),

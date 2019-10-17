@@ -1,22 +1,15 @@
-w
 <template>
   <v-layout row wrap fill-height px-4 py-2>
     <v-flex md6 lg8>
       <v-sheet height="100%" elevation="2">
-        <grid-with-toolbar
-          :table-name="tableName"
-          :grid-type="gridTypes.Tree"
-        />
+        <grid-with-toolbar :config-key="'reconciliation_view'" />
       </v-sheet>
     </v-flex>
     <v-flex md6 lg4>
       <v-layout column fill-height>
         <v-flex xs6 px-2>
           <v-sheet height="100%" elevation="2">
-            <grid-with-toolbar
-              :table-name="'unassigned_assets'"
-              :grid-type="gridTypes.Drop"
-            />
+            <grid-with-toolbar :config-key="'unassigned_assets'" />
           </v-sheet>
         </v-flex>
       </v-layout>
@@ -34,8 +27,5 @@ import { GridType } from '@/types/grid';
     GridWithToolbar,
   },
 })
-export default class TreePage extends Vue {
-  tableName: string = 'reconciliation_view';
-  gridTypes = GridType;
-}
+export default class ReconciliationView extends Vue {}
 </script>

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-member-accessibility */
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import ColumnDefiner from './ColumnDefiner';
 import GridInstance from './GridInstance';
@@ -6,7 +5,6 @@ import { useStore } from 'vuex-simple';
 
 // Types
 import { QueryType } from '@/types/api';
-import { GridDataTransformer, RowData } from '@/types/grid';
 import {
   ColumnApi,
   GridApi,
@@ -14,7 +12,8 @@ import {
   GridOptions,
   AgGridEvent,
   CellValueChangedEvent,
-  RowNode,
+  GetContextMenuItemsParams,
+  MenuItemDef,
 } from 'ag-grid-community';
 import Store from '@/store/store';
 
@@ -26,8 +25,9 @@ import RearrangeRenderer from '../ag-components/RearrangeRenderer.vue';
 import _ from 'lodash';
 
 // Config
-import { GRID_CONFIG } from '@/config';
 import { GridConfiguration, CustomProperties } from '@/types/config';
+import { RequiredConfig, GridContext, MergeContext } from '@/types/grid';
+import { ActionParams, ContextMenuParams } from './contextItems';
 
 // Remove invalid properties from the config file before passing it into Ag-Grid
 const removeInvalidProperties = (config: GridConfiguration): GridOptions => {
@@ -36,12 +36,15 @@ const removeInvalidProperties = (config: GridConfiguration): GridOptions => {
   const invalidProperties: CustomProperties[] = [
     'title',
     'omittedColumns',
-    'columnButtons',
+    'contextMenu',
+    'gridButtons',
     'overrideColumnDefinitions',
-    'customFilterModel',
     'columnOrder',
     'gridType',
-    'onDropFunction',
+    'toolbarItems',
+    'gridEvents',
+    'tableName',
+    'tableID',
   ];
 
   return _.omit(config, invalidProperties);
@@ -58,23 +61,9 @@ const removeInvalidProperties = (config: GridConfiguration): GridOptions => {
 export default class GridMixin extends Vue {
   @Prop(String) readonly queryType!: QueryType;
 
-  @Prop(Boolean) readonly pagination!: boolean;
-
-  @Prop(Boolean) readonly editable!: boolean;
-
-  @Prop(Boolean) readonly autoHeight!: boolean;
-
-  @Prop(Boolean) readonly draggable!: boolean;
-
-  @Prop(Boolean) readonly showSideBar!: boolean;
-
-  @Prop(String) readonly tableName!: string;
-
-  @Prop(String) readonly height!: string;
+  @Prop({ required: true, type: Object }) readonly config!: RequiredConfig;
 
   store: Store = useStore(this.$store);
-
-  dataTransformer!: GridDataTransformer;
 
   columnApi!: ColumnApi;
 
@@ -82,17 +71,13 @@ export default class GridMixin extends Vue {
 
   columnDefs: ColDef[] = [];
 
-  customColDefs!: ColDef;
-
   gridInstance!: GridInstance;
 
-  context: { componentParent: object } = { componentParent: {} };
+  context: GridContext = {} as GridContext;
 
   gridOptions!: GridOptions;
 
-  omittedColumns: string[] = [];
-
-  config!: GridConfiguration;
+  events: { [p: string]: (e: any) => void } = {};
 
   /**
    * This event is called after the grid is finished loading for the first time.
@@ -100,24 +85,33 @@ export default class GridMixin extends Vue {
    */
   gridInitializedEvent: () => void = (): void => {};
 
-  async created(): Promise<void> {
-    this.config = GRID_CONFIG.get(this.tableName);
+  eventHandler(event: any, eventFunction: Function) {
+    eventFunction({
+      event,
+      gridInstance: this.gridInstance,
+      vueStore: this.store,
+    });
+  }
 
-    this.omittedColumns = this.config
-      ? this.config.omittedColumns
-        ? this.config.omittedColumns
-        : []
-      : [];
+  async created(): Promise<void> {
+    if (this.config.gridEvents) {
+      this.config.gridEvents.forEach(
+        (event) =>
+          (this.events = {
+            ...this.events,
+            [event.type]: (e) => this.eventHandler(e, event.callback),
+          }),
+      );
+    }
+
     this.gridOptions = {
-      sideBar: this.showSideBar,
       rowSelection: 'multiple',
       rowDeselection: true,
+      deltaRowDataMode: true,
+      getContextMenuItems: this.getContextMenuItems,
       getRowNodeId: (data): string => data.id,
+      // ag-Grid strip properties that don't exist in agGrid
       ...removeInvalidProperties(this.config),
-    };
-
-    this.context = {
-      componentParent: this,
     };
   }
 
@@ -125,32 +119,61 @@ export default class GridMixin extends Vue {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
 
-    const colDefiner = new ColumnDefiner(this.tableName);
-    this.columnDefs = await colDefiner.getColumnDefs();
-
     this.gridInstance = new GridInstance({
       columnApi: this.columnApi,
       gridApi: this.gridApi,
       gridOptions: this.gridOptions,
       gridProvider: GridInstance.getProvider(
         this.queryType,
-        this.tableName,
-        this.config ? this.config.customFilterModel : {},
+        this.config,
         // pass in a reference to VueX so that the datasource reacts with updates elsewhere
         this.store.grid,
-        this.dataTransformer,
       ),
     });
 
+    // Set context for ag grid components to use
+    this.context = {
+      gridInstance: this.gridInstance,
+      vueStore: this.store,
+      parentComponent: this,
+    };
+
+    // Get the column properties
+    this.columnDefs = await new ColumnDefiner(this.config).getColumnDefs();
+
+    // Get initial data and load the grid with it
     this.gridApi.setRowData(await this.gridInstance.gridProvider.getData());
+
+    // Set-up the subscription
+    this.gridInstance.subscribeToMore();
 
     // Give grid instance to GridWithToolbar
     this.$emit('set-grid-instance', this.gridInstance);
     this.store.grid.setGridInstance({
-      tableName: this.tableName,
+      tableID: this.config.tableID,
       gridInstance: this.gridInstance,
     });
+
     this.gridInitializedEvent();
+  }
+
+  getContextMenuItems(
+    params: MergeContext<GetContextMenuItemsParams>,
+  ): (MenuItemDef | string)[] {
+    if (this.config.contextMenu) {
+      const mappedMenu = this.config.contextMenu.map((item) => {
+        if (typeof item === 'string') {
+          return item;
+        }
+        return {
+          ...item,
+          action: () => item.action(params),
+        };
+      });
+      return ['copy', 'export', 'separator', ...mappedMenu];
+    } else {
+      return ['copy', 'export'];
+    }
   }
 
   /**
@@ -158,44 +181,12 @@ export default class GridMixin extends Vue {
    * If the mutation fails, cell value is reset and error message is shown
    */
   cellValueChanged(event: CellValueChangedEvent): void {
-    /**
-     * This technically updates the entire row, but the rest of the row
-     * has the old data. This was done to avoid implementing updateRow and updateCell
-     * which were too similar to justify both.
-     */
     this.gridInstance
       .updateRows({
         rowsToUpdate: [event.data],
       })
-      .forEach((rowPromise) => {
-        rowPromise
-          .then((data) => {
-            this.gridInstance.gridApi.updateRowData({ update: [data] });
-            this.gridApi.flashCells({
-              rowNodes: [event.node],
-              columns: [event.column.getColId()],
-            });
-          })
-          .catch(() => {
-            event.node.setDataValue(event.column.getColId(), event.oldValue);
-          });
+      .catch(() => {
+        event.node.setDataValue(event.column.getColId(), event.oldValue);
       });
-
-    // this.gridInstance.updateRows({
-    //   rowsToUpdate: [event.data],
-    //   successCallback: (): void => {
-    //     //TODO
-    //     // Update row if successful
-    //     this.gridApi.flashCells({
-    //       rowNodes: [event.node],
-    //       columns: [event.column.getColId()],
-    //     });
-    //     event.node.setData(event.data);
-    //   },
-    //   failCallback: (): void => {
-    //     // Revert row if failure
-    //     event.node.setDataValue(event.column.getColId(), event.oldValue);
-    //   },
-    // });
   }
 }
