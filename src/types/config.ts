@@ -101,7 +101,7 @@ interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
 }
 
 export interface SimpleGridConfig extends BaseGridConfig {
-  gridType?: Exclude<GridType, GridType.Tree | GridType.Drop>;
+  gridType?: 'normal';
 }
 
 export interface TreeGridConfig
@@ -110,7 +110,7 @@ export interface TreeGridConfig
    * Table column field to group by.
    * By default it uses the 'id' field.
    */
-  gridType: GridType.Tree;
+  gridType: 'tree';
   /**
    * This must be set to true
    */
@@ -118,7 +118,7 @@ export interface TreeGridConfig
 }
 
 export interface DropGridConfig extends BaseGridConfig {
-  gridType: GridType.Drop;
+  gridType: 'drop';
 }
 
 /**

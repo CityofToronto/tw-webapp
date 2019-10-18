@@ -6,11 +6,11 @@ import { FormData } from '@/types/grid';
 import { BaseColumnParams } from '@/types/config';
 
 export default class ComponentApi {
-  gridInstance: GridInstance;
+  private gridInstance: GridInstance;
 
-  gridApi: GridApi;
+  private gridApi: GridApi;
 
-  columnApi: ColumnApi;
+  private columnApi: ColumnApi;
 
   store: Store = storeInstance;
 

@@ -1,4 +1,5 @@
 import { Mutation, State, Action, Getter } from 'vuex-simple';
+import { forceReconnect } from '@/apollo/lib/link';
 
 interface UserData {
   username: string;
@@ -7,7 +8,10 @@ interface UserData {
 
 export default class AuthModule {
   @State() private loggedIn!: boolean;
-  @State() private userData!: UserData;
+  @State() private userData: UserData = {
+    name: 'Amber',
+    username: 'tony.huang',
+  };
 
   @Getter()
   public get loginStatus() {
@@ -19,8 +23,14 @@ export default class AuthModule {
     return this.userData.username;
   }
 
+  @Action()
+  public getUsername(): string {
+    return this.userData.username;
+  }
+
   @Mutation()
   public setUsername(username: string) {
     this.userData.username = username;
+    forceReconnect();
   }
 }

@@ -21,6 +21,12 @@
       <!-- Push Items to The Right -->
       <v-spacer />
 
+      <v-toolbar-items>
+        <v-btn text class="project-title" @click="changeUser">
+          {{ username }}
+        </v-btn>
+      </v-toolbar-items>
+
       <!-- Items on the Toolbar -->
       <template v-if="!!loginStatus">
         <v-menu v-model="menu" :close-on-click="true" offset-y>
@@ -88,6 +94,12 @@ export default class Navbar extends Vue {
 
   logout() {
     this.$router.push('/');
+  }
+
+  changeUser() {
+    this.store.auth.setUsername(
+      this.username === 'amber.brasher' ? 'tony.huang' : 'amber.brasher',
+    );
   }
 
   currentProject = 'Highland Creek';

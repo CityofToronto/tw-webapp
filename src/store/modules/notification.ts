@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign, no-shadow */
-// This file extends snackbars from the vuetify library
+// This file extends snack bars from the vuetify library
 // https://vuetifyjs.com/en/components/snackbars
 import { State, Mutation, Getter, Action } from 'vuex-simple';
 

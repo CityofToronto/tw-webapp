@@ -50,6 +50,11 @@ export interface FunctionProps {
   vueStore: Store;
 }
 
+export interface GridButtonRendererParams {
+  icon: string | ((params: MergeContext<ICellRendererParams>) => string);
+  clickFunction?: (params: MergeContext<ICellRendererParams>) => void;
+}
+
 export type MergeContext<T> = Merge<T, { context: GridContext }>;
 
 export interface GridContext {

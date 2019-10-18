@@ -1,23 +1,29 @@
 <template>
   <v-icon @click.stop="clickHandler">
-    {{ params.icon }}
+    {{ iconName }}
   </v-icon>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Watch } from 'vue-property-decorator';
 import { ICellRendererParams } from 'ag-grid-community';
-
-interface RendererParams extends ICellRendererParams {
-  clickFunction(params: ICellRendererParams): void;
-}
+import { MergeContext, GridButtonRendererParams } from '@/types/grid';
 
 @Component({})
 export default class GridButton extends Vue {
-  params!: RendererParams;
+  params!: GridButtonRendererParams & ICellRendererParams;
 
   clickHandler() {
-    this.params.clickFunction(this.params);
+    if (this.params.clickFunction) {
+      this.params.clickFunction(this.params);
+    }
+  }
+
+  get iconName() {
+    if (typeof this.params.icon === 'function') {
+      return this.params.icon(this.params);
+    }
+    return this.params.icon;
   }
 }
 </script>

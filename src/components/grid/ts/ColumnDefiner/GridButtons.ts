@@ -1,5 +1,5 @@
-import { MergeContext } from '@/types/grid';
-import { ColDef, ICellRendererParams } from 'ag-grid-community';
+import { MergeContext, GridButtonRendererParams } from '@/types/grid';
+import { ColDef } from 'ag-grid-community';
 
 const buttonDefault: Omit<GridButton, 'cellRendererParams'> = {
   resizable: false,
@@ -25,24 +25,14 @@ export interface GridButton extends ColDef {
   minWidth: 40;
   cellClass: 'thin-column';
   cellRendererFramework: 'GridButton';
-  cellRendererParams: {
-    icon: string;
-    clickFunction?: (params: MergeContext<ICellRendererParams>) => void;
-  };
+  cellRendererParams: GridButtonRendererParams;
 }
-
-export const dragButton: GridButton = {
-  ...buttonDefault,
-  cellRendererParams: {
-    icon: 'drag_handle',
-  },
-};
 
 export const unlinkButton: GridButton = {
   ...buttonDefault,
   cellRendererParams: {
     icon: 'link_off',
-    // TODO Implement Unlink button
+    clickFunction: () => {},
   },
 };
 
@@ -63,3 +53,10 @@ export const addChildButton: GridButton = {
       context.gridInstance.componentApi.addChildToRow(node),
   },
 };
+
+export const createGridButton = (
+  cellRendererParams: GridButtonRendererParams,
+): GridButton => ({
+  ...buttonDefault,
+  cellRendererParams,
+});

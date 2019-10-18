@@ -28,7 +28,7 @@ export const gridConfig: GridConfigurationInterface = {
   unassigned_assets: {
     gridType: GridType.Normal,
     toolbarItems: [],
-    title: 'Unassigned Assets',
+    title: 'Assets Without a Role',
     gridEvents: [gridEvents.onDropAsset, gridEvents.dragOver],
     overrideColumnDefinitions: [
       {

@@ -5,6 +5,7 @@ import { ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
 import { DirectProvider, OTMProvider } from './GridProviders';
 import BaseGridProvider from './GridProviders/BaseGridProvider';
 import ComponentApi from './componentApi';
+import _ from 'lodash';
 
 export default class GridInstance {
   public gridApi: GridApi;
@@ -114,11 +115,24 @@ export default class GridInstance {
 
   public async updateRows({ rowsToUpdate }: UpdateQuery): Promise<void> {
     rowsToUpdate.map((rowData): void => {
-      this.gridProvider.updateData(rowData).then((response) =>
-        this.gridApi.updateRowData({
-          update: [response],
-        }),
-      );
+      const node = this.gridApi.getRowNode(rowData.id);
+      // Clone the old data so it doesn't get mutated by the api
+      const oldData = { ...node.data };
+      const combinedData = { ...oldData, ...rowData };
+
+      node.setData(combinedData);
+      this.gridProvider
+        .updateData(rowData)
+        .then((response) =>
+          this.gridApi.updateRowData({
+            update: [response],
+          }),
+        )
+        .catch(() =>
+          this.gridApi.updateRowData({
+            update: [oldData],
+          }),
+        );
     });
   }
 }

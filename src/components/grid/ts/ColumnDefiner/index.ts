@@ -165,10 +165,8 @@ export default class ColumnDefiner {
     this.columns = await apolloClient.getColumns(this.tableName);
 
     // Omit columns defined in config
-    if (GRID_CONFIG.has(this.tableName)) {
-      if (this.config.omittedColumns) {
-        this.omitColumns(this.config.omittedColumns);
-      }
+    if (this.config.omittedColumns) {
+      this.omitColumns(this.config.omittedColumns);
     }
     /**
      * This parses and assigns the column type
