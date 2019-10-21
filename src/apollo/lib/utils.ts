@@ -3,8 +3,9 @@ import { RowData } from '@/types/grid';
 import { storeInstance } from '@/store';
 import { NotificationPosition } from '@/store/modules/notification';
 import GridInstance from '@/components/grid/ts/GridInstance';
-import { ColDef } from 'ag-grid-community';
 import { CellType } from '@/types/grid';
+
+import Vue from 'vue';
 
 /**
  * Takes in an error object
@@ -12,11 +13,7 @@ import { CellType } from '@/types/grid';
  * Through a Vuetify snackbar
  */
 export const dispatchError = (error: Error): never => {
-  storeInstance.notification.pushNotification({
-    message: error.message,
-    color: 'error',
-    position: [NotificationPosition.Top],
-  });
+  Vue.$toast(error.message, { type: 'error' });
   console.error(error);
   throw new Error(error.message);
 };

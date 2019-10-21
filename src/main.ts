@@ -1,5 +1,8 @@
 import Vue, { VNode } from 'vue';
 import Vuetify from 'vuetify';
+// import Notifications from 'vue-notification';
+import Toast from 'vue-toastification';
+import 'vue-toastification/dist/index.css';
 
 import 'ag-grid-enterprise';
 
@@ -11,6 +14,7 @@ import { router } from './router';
 Vue.config.productionTip = false;
 
 Vue.use(Vuetify);
+Vue.use(Toast);
 
 const vuetify = new Vuetify({
   icons: {
