@@ -18,7 +18,6 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { RowNode } from 'ag-grid-community';
 import { useStore } from 'vuex-simple';
-import { getComponentProperties } from './grid/ts/GridTypes';
 import Store from '@/store/store';
 
 import RelationshipBuilder from './grid/RelationshipBuilder.vue';
@@ -98,6 +97,8 @@ $virtual-item-height: 5px;
   margin: auto !important;
   overflow: visible !important;
   padding: 0px 0px !important;
+  // border-right: 0.5px solid #e2e2e2 !important;
+  text-align: center;
 }
 
 // Adds a border left of the ag-grid sidebar
