@@ -15,7 +15,16 @@ export default class GridButton extends Vue {
 
   clickHandler() {
     if (this.params.clickFunction) {
+      // Handle the custom click
       this.params.clickFunction(this.params);
+      // Ag-Grid doesn't refresh the cell if it based on another value, so force it
+      this.params.api.refreshCells({
+        rowNodes: [this.params.node],
+        force: true,
+        columns: [this.params.column.getColId()],
+      });
+      // Deselect the row for a bit better of a user experience
+      this.params.api.deselectAll();
     }
   }
 
