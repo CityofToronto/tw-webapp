@@ -4,7 +4,7 @@ import { storeInstance } from '@/store';
 
 // TODO Proper authentication
 const GRAPHQL_ENDPOINT = 'wss://hasura.tw-webapp-next.duckdns.org/v1/graphql';
-const authToken = 'eDfGfj041tHBYkX9';
+const authToken = process.env.VUE_APP_API;
 
 const subscriptionClient = new SubscriptionClient(GRAPHQL_ENDPOINT, {
   reconnect: true,
