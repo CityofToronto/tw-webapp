@@ -46,6 +46,7 @@ export class DirectProvider extends BaseGridProvider {
             ${await this.getColumnNames()}
           }
         }`,
+        fetchPolicy: 'network-only',
       })
       .then((response): RowData[] => response.data[this.tableName])
       .catch((error): never => dispatchError(error));
