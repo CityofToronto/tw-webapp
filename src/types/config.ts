@@ -136,6 +136,7 @@ type ColDefRequiredField = MarkRequired<ColDef, 'field'>;
 
 export interface BaseColumnParams extends ColDefRequiredField {
   showInForm?: boolean;
+  readonly?: boolean;
   cellType?: Exclude<CellType, CellType.treeCell | CellType.selectCell>;
 }
 interface SelectColumnParams extends ColDefRequiredField {
