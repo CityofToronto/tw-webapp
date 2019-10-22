@@ -5,7 +5,7 @@ import GridInstance from '@/components/grid/ts/GridInstance';
 import { ToolbarItem } from '@/components/grid/ts/toolbarItems';
 import Store from '@/store/store';
 import { ExtendedMenuItem } from '@/components/grid/ts/contextItems';
-import { GridButton } from '@/components/grid/ts/ColumnDefiner/gridButtons';
+import { GridButton } from '@/components/grid/ts/ColumnFactory/gridButtons';
 
 export enum GridType {
   Tree = 'tree',
