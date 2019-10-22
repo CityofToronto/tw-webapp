@@ -70,8 +70,6 @@
     "sass-loader": "^7.1.0",
     "ts-essentials": "^3.0.2",
     "ts-jest": "^23.0.0",
-    "typedoc": "^0.15.0",
-    "typedoc-plugin-markdown": "^2.1.4",
     "typescript": "^3.7.0-beta",
     "vue-cli-plugin-vuetify": "^1.1.0",
     "vue-template-compiler": "^2.6.10",
