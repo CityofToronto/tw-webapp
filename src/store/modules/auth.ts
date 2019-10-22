@@ -15,7 +15,7 @@ interface UserData {
 export default class AuthModule {
   @State() private loggedIn!: boolean;
   @State() private userData: UserData = {
-    name: 'Amber',
+    name: 'Amber Brasher',
     username: 'amber.brasher',
     projects: [
       {
