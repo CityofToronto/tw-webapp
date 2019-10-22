@@ -86,7 +86,7 @@ export default class ComponentApi {
    */
   addChildToRow(rowNode: RowNode & { data: { parent: number } }) {
     this.addRow({
-      parent: rowNode.data.parent,
+      parent: rowNode.data.id,
     });
   }
 
