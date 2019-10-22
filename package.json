@@ -12,8 +12,8 @@
   "dependencies": {
     "@typescript-eslint/parser": "^2.4.0",
     "ag-grid-community": "^21.1.0",
-    "ag-grid-enterprise": "^21.1.0",
-    "ag-grid-vue": "^21.1.0",
+    "ag-grid-enterprise": "^21.2.2",
+    "ag-grid-vue": "^21.2.2",
     "apollo-cache-inmemory": "^1.6.2",
     "apollo-client": "^2.6.3",
     "apollo-link": "^1.2.13",
