@@ -43,7 +43,7 @@ export default class ReconciliationView extends Vue {
     gridType: 'normal',
     treeData: true,
     suppressRowClickSelection: true,
-    gridButtons: [gridButtons.editButton],
+    gridButtons: [gridButtons.addChildButton],
     toolbarItems: [
       toolbarItems.addRow,
       toolbarItems.expandAll,
@@ -57,7 +57,7 @@ export default class ReconciliationView extends Vue {
       gridEvents.rowDragMoved,
       gridEvents.rowDragEnd,
     ],
-    sortingOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
+    columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
     omittedColumns: [
       'role_exists',
       'role_missing_from_registry',
@@ -118,7 +118,7 @@ export default class ReconciliationView extends Vue {
       {
         field: 'parent',
         hide: true,
-        showInForm: false,
+        showInForm: true,
       },
     ],
   };
