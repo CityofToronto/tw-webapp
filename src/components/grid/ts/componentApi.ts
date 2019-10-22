@@ -33,6 +33,7 @@ export default class ComponentApi {
     confirmCallback: (...args: any[]) => void;
     data: FormData;
     popupTitle: string;
+    columnDefs?: BaseColumnParams[];
   }) {
     this.store.popup.setPopup({
       popupTitle,
@@ -110,5 +111,26 @@ export default class ComponentApi {
         rowsToAdd: removedIds,
       });
     }
+  }
+
+  /**
+   * View the row with none of the fields editable
+   */
+  viewRow(rowNode: RowNode) {
+    // const data
+
+    const columnDefs = this.gridInstance.columnDefs.map((colDef) => ({
+      ...colDef,
+      readonly: true,
+    })) as BaseColumnParams[];
+
+    this.store.popup.setPopup({
+      componentType: 'form',
+      columnDefs,
+      formData: rowNode.data,
+      confirmCallback: () => this.store.popup.closePopup(),
+      popupTitle: 'Viewing Entry',
+      cancelButtonText: '',
+    });
   }
 }
