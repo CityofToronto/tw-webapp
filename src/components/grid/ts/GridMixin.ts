@@ -1,5 +1,5 @@
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import ColumnDefiner from './ColumnDefiner';
+import ColumnFactory from './ColumnFactory';
 import GridInstance from './GridInstance';
 import { useStore } from 'vuex-simple';
 
@@ -27,7 +27,6 @@ import _ from 'lodash';
 // Config
 import { GridConfiguration, CustomProperties } from '@/types/config';
 import { RequiredConfig, GridContext, MergeContext } from '@/types/grid';
-import { ActionParams, ContextMenuParams } from './contextItems';
 
 // Remove invalid properties from the config file before passing it into Ag-Grid
 const removeInvalidProperties = (config: GridConfiguration): GridOptions => {
@@ -139,7 +138,7 @@ export default class GridMixin extends Vue {
     };
 
     // Get the column properties
-    this.columnDefs = await new ColumnDefiner(this.config).getColumnDefs();
+    this.columnDefs = await new ColumnFactory(this.config).getColumnDefs();
 
     // Get initial data and load the grid with it
     this.gridApi.setRowData(await this.gridInstance.gridProvider.getData());
