@@ -1,5 +1,3 @@
-/* eslint-disable no-console, vue/no-unused-components */
-
 <template>
   <div style="height: calc(100% - 48px);" v-on="events">
     <ag-grid-vue

@@ -14,7 +14,6 @@ import Vue from 'vue';
  */
 export const dispatchError = (error: Error): never => {
   Vue.$toast(error.message, { type: 'error' });
-  console.error(error);
   throw new Error(error.message);
 };
 

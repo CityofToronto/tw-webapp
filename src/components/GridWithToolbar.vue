@@ -66,8 +66,6 @@ export default class GridWithToolbar extends Vue {
         gridInstance: this.gridInstance,
         vueStore: this.store,
       });
-    } else {
-      console.warn('Store or GridInstance is not initialized!');
     }
   }
 
