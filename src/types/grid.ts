@@ -63,11 +63,6 @@ export interface GridContext {
   parentComponent: any;
 }
 
-export interface ColumnDefinerParams {
-  omittedColumns: string[];
-  hiddenColumns: string[];
-}
-
 export enum CellType {
   booleanCell,
   textCell,
@@ -76,12 +71,6 @@ export enum CellType {
   treeCell,
   aliasCell,
   rearrangeCell,
-}
-
-export enum GridProviders {
-  Direct,
-  OneToMany,
-  ManyToMany,
 }
 
 type Filters =
