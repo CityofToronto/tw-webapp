@@ -54,10 +54,19 @@ export const removeRow: ToolbarItem = {
 
 export const collapseAll: ToolbarItem = {
   icon: 'expand_less',
-  text: 'Collapse All',
+  text: 'Collapse',
   tooltip: 'Close All Currently Open Groups',
   clickFunction: ({ gridInstance }: FunctionProps): void => {
     gridInstance.gridApi.forEachNode((node) => node.setExpanded(false));
+  },
+};
+
+export const expandAll: ToolbarItem = {
+  icon: 'expand_more',
+  text: 'Expand',
+  tooltip: 'Expand All Currently Closed Groups',
+  clickFunction: ({ gridInstance }: FunctionProps): void => {
+    gridInstance.gridApi.forEachNode((node) => node.setExpanded(true));
   },
 };
 
