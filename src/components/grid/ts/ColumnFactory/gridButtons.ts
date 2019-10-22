@@ -1,6 +1,5 @@
-import { MergeContext, GridButtonRendererParams } from '@/types/grid';
+import { GridButtonRendererParams } from '@/types/grid';
 import { ColDef } from 'ag-grid-community';
-import Vue from 'vue';
 
 const buttonDefault: Omit<GridButton, 'cellRendererParams'> = {
   resizable: false,
