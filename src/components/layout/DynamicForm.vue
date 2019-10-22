@@ -62,7 +62,7 @@ export default class DynamicForm extends Vue {
   get properties(): BaseColumnParams[] {
     return this.popupData.columnDefs
       .filter((column): boolean =>
-        column.showInForm ? column.showInForm : true,
+        typeof column.showInForm !== 'undefined' ? column.showInForm : true,
       )
       .filter((column): boolean => column.field !== undefined);
   }
@@ -76,6 +76,7 @@ export default class DynamicForm extends Vue {
           : '';
       }
     });
+    this.data = { ...this.data, ...this.popupData.formData };
   }
 
   getColumnType = (columnType: CellType) => {
