@@ -17,5 +17,6 @@ export interface ExtendedMenuItem extends Omit<MenuItemDef, 'action'> {
 
 export const selectAllChildren: ExtendedMenuItem = {
   name: 'Select All Children',
-  action: (params: ContextMenuParams) => console.log(params),
+  action: (params: ContextMenuParams) =>
+    params.node.allLeafChildren.forEach((rowNode) => rowNode.setSelected(true)),
 };
