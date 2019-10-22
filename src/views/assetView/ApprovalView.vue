@@ -17,6 +17,41 @@ import * as toolbarItems from '@/components/grid/ts/toolbarItems';
 import agComponents from '@/components/grid/ag-components';
 import { MergeContext } from '@/types/grid';
 import { ICellRendererParams } from 'ag-grid-community';
+import { createGridButton } from '@/components/grid/ts/ColumnFactory/gridButtons';
+
+const approveButton = createGridButton({
+  icon: (params) =>
+    params.data.reserved && !params.data.approved ? 'check' : '',
+  clickFunction: (params) => {
+    const rowData = params.data;
+    params.context.gridInstance.updateRows({
+      rowsToUpdate: [
+        {
+          id: params.data.id,
+          approved: true,
+        },
+      ],
+    });
+  },
+});
+
+const rejectButton = createGridButton({
+  icon: (params) => (params.data.reserved ? 'close' : ''),
+  clickFunction: (params) => {
+    params.context.gridInstance.updateRows({
+      rowsToUpdate: [
+        {
+          id: params.data.id,
+          reserved: false,
+        },
+      ],
+    });
+    params.api.refreshCells({
+      rowNodes: [params.node],
+      force: true,
+    });
+  },
+});
 
 @Component({
   components: {
@@ -29,6 +64,7 @@ export default class ApprovalView extends Vue {
     tableName: 'reservation_view',
     title: 'Approval',
     toolbarItems: [
+      toolbarItems.expandAll,
       toolbarItems.collapseAll,
       toolbarItems.fitColumns,
       toolbarItems.sizeColumns,
@@ -39,11 +75,16 @@ export default class ApprovalView extends Vue {
       'full_path',
       'parent',
       'dummy',
-      'project_id',
+      'reserved',
+      'approved',
     ],
+    columnOrder: ['role_name', 'project_id', 'approval_status'],
+    gridButtons: [rejectButton, approveButton],
     treeData: true,
     getDataPath: (data) => data.full_path.split('.'),
     autoGroupColumnDef: {
+      resizable: true,
+      headerName: 'Role Name',
       width: 400,
       cellRendererParams: {
         aliasColumn: 'role_number',
@@ -52,51 +93,17 @@ export default class ApprovalView extends Vue {
     },
     overrideColumnDefinitions: [
       {
+        field: 'approval_status',
+        headerName: 'Approval Status',
+        filter: true,
+      },
+      {
         field: 'project_id',
         headerName: 'Reserved By (Project ID)',
       },
       {
-        field: 'approved',
-        cellStyle: { 'text-align': 'center' },
-        cellRendererFramework: 'GridButton',
-        cellRendererParams: {
-          icon: (params: MergeContext<ICellRendererParams>) => {
-            if (params.data.approved === true) {
-              return 'check_box';
-            }
-            return 'check_box_outline_blank';
-          },
-          clickFunction: (params: MergeContext<ICellRendererParams>) => {
-            if (params.data.approved && params.data.reserved) {
-              const newData = {
-                id: params.data.id,
-                // reserved: false,
-                approved: false,
-              };
-              params.context.vueStore.popup.setPopup({
-                componentType: 'confirmation',
-                message: `The reservation of this role has been approved.
-                  Are you sure you want to unreserve it?`,
-                popupTitle: 'Action Confirmation',
-                confirmCallback: () => {
-                  params.context.vueStore.popup.closePopup();
-                  params.context.gridInstance.updateRows({
-                    rowsToUpdate: [newData],
-                  });
-                },
-              });
-            } else if (!params.data.approved && params.data.reserved) {
-              params.context.gridInstance.updateRows({
-                rowsToUpdate: [
-                  {
-                    id: params.data.id,
-                    approved: true,
-                  },
-                ],
-              });
-            }
-          },
-        },
+        field: 'role_name',
+        headerName: 'Role Name',
       },
     ],
   };
