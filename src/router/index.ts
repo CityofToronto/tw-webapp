@@ -1,27 +1,60 @@
 import Vue from 'vue';
-import VueRouter from 'vue-router';
-import Reviewer from '@/views/Reviewer.vue';
-import Home from '@/views/Home.vue';
-import ReconciliationView from '@/views/ReconciliationView.vue';
+import VueRouter, { RouteConfig } from 'vue-router';
+import HomePage from '@/views/HomePage.vue';
+import LoginPage from '@/views/LoginPage.vue';
+import ReconciliationView from '@/views/assetView/ReconciliationView.vue';
+import ReservationView from '@/views/assetView/ReservationView.vue';
+import UpdateView from '@/views/assetView/UpdateView.vue';
+import ApprovalView from '@/views/assetView/ApprovalView.vue';
 
 Vue.use(VueRouter);
 
-const routes = [
+const routes: RouteConfig[] = [
   {
-    path: '/review/:table',
-    component: Reviewer,
+    path: '/',
+    component: HomePage,
+  },
+  {
+    path: '/login',
+    component: LoginPage,
+  },
+  {
+    path: '/assets/reservation',
+    component: ReservationView,
+    name: 'reservation',
+  },
+  {
+    path: '/assets/reconciliation',
+    component: ReconciliationView,
+    name: 'reconciliation',
+  },
+  {
+    path: '/assets/update',
+    component: UpdateView,
+  },
+  {
+    path: '/admin/approval',
+    component: ApprovalView,
   },
   {
     path: '*',
-    component: Home,
-  },
-  {
-    path: '/reconciliation',
-    component: ReconciliationView,
+    redirect: '/',
   },
 ];
 
-export default new VueRouter({
+export const router = new VueRouter({
   routes,
   mode: 'history',
 });
+
+// router.beforeEach((to, from, next) => {
+//   const publicPages = ['/login'];
+//   const authRequired = !publicPages.includes(to.path);
+//   const loggedIn = localStorage.getItem('user');
+
+//   if (authRequired && !loggedIn) {
+//     return next('/login');
+//   }
+
+//   next();
+// });

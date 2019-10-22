@@ -1,23 +1,25 @@
-/* eslint-disable no-console, vue/no-unused-components */
-
 <template>
-  <ag-grid-vue
-    :style="
-      autoHeight ? 'width: 100%;' : 'width: 100%; height: calc(100% - 48px);'
-    "
-    class="ag-theme-material"
-    :dom-layout="autoHeight ? 'autoHeight' : 'normal'"
-    :grid-options="gridOptions"
-    :column-defs="columnDefs"
-    :row-height="7 * 6"
-    :header-height="7 * 7"
-    :context="context"
-    :animate-rows="true"
-    pagination-auto-page-size="true"
-    @grid-ready="onGridReady"
-    @cell-value-changed="cellValueChanged"
-    @row-clicked="rowClicked"
-  />
+  <div style="height: calc(100% - 48px);" v-on="events">
+    <ag-grid-vue
+      :style="
+        config.autoHeight
+          ? 'width: 100%;'
+          : 'width: 100%; height: calc(100% - 48px);'
+      "
+      class="ag-theme-material"
+      :dom-layout="config.autoHeight ? 'autoHeight' : 'normal'"
+      :grid-options="gridOptions"
+      :column-defs="columnDefs"
+      :row-height="7 * 6"
+      :header-height="7 * 7"
+      :context="context"
+      :animate-rows="true"
+      pagination-auto-page-size="true"
+      @grid-ready="onGridReady"
+      @cell-value-changed="cellValueChanged"
+      v-on="events"
+    />
+  </div>
 </template>
 
 <script lang="ts">
@@ -48,31 +50,6 @@ export default class GridComponent extends Mixins(GridMixin) {
   onRowIdChanged() {
     if (this.queryType !== QueryType.Direct) {
       this.gridApi.purgeServerSideCache();
-    }
-  }
-
-  removeEntry(rowNode: RowNode) {
-    this.gridInstance.removeRows({
-      rowsToRemove: [rowNode.data],
-      successCallback: () => {
-        this.gridApi.purgeServerSideCache();
-      },
-    });
-  }
-
-  // This method is called by the edit button rendered inside the grid
-  launchFormEditor(rowNode: RowNode): void {
-    this.$emit('edit', rowNode);
-  }
-
-  rowClicked(event: RowEvent): void {
-    if (this.queryType === QueryType.Direct) {
-      const rowId = event.data.id as number;
-
-      this.store.grid.pushTableData({
-        tableName: this.tableName,
-        rowId,
-      });
     }
   }
 }

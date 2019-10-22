@@ -2,6 +2,7 @@
   <div id="app">
     <v-app id="main">
       <TheNavbar />
+      <PopupLoader />
       <NotificationBar />
       <v-content>
         <router-view />
@@ -14,11 +15,13 @@
 import { Vue, Component } from 'vue-property-decorator';
 import NotificationBar from './components/layout/NotificationBar.vue';
 import TheNavbar from './components/layout/TheNavbar.vue';
+import PopupLoader from './components/layout/PopupLoader.vue';
 
 @Component({
   components: {
     TheNavbar,
     NotificationBar,
+    PopupLoader,
   },
 })
 export default class App extends Vue {}
@@ -36,7 +39,6 @@ export default class App extends Vue {}
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
 }
 </style>

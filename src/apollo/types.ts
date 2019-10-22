@@ -30,20 +30,16 @@ export enum QueryType {
   ManyToMany = 'ManyToMany',
 }
 
-interface CallbackQuery {
-  successCallback?: () => void;
-  failCallback?: () => void;
-}
-
-export interface AddQuery extends CallbackQuery {
+export interface AddQuery {
   rowsToAdd: { [key: string]: any }[];
 }
 
-export interface UpdateQuery extends CallbackQuery {
+export interface UpdateQuery {
   rowsToUpdate: RowData[];
+  optimistic?: boolean;
 }
 
-export interface RemoveQuery extends CallbackQuery {
+export interface RemoveQuery {
   rowsToRemove: RowData[];
 }
 

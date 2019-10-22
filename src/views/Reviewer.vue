@@ -4,12 +4,11 @@
       <v-sheet height="100%" elevation="2">
         <grid-with-toolbar
           :key="$route.params.table"
-          :table-name="$route.params.table"
-          :grid-type="GridTypes.Full"
+          :config-key="$route.params.table"
         />
       </v-sheet>
 
-      <drawer-right :right-side-drawer="infoPanel" />
+      <!-- <drawer-right :right-side-drawer="infoPanel" /> -->
     </v-flex>
   </v-layout>
 </template>

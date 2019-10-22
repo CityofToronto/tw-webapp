@@ -1,34 +1,41 @@
-import { GridApi, ColumnApi, IServerSideDatasource } from 'ag-grid-community';
-import { RemoveQuery, AddQuery, UpdateQuery } from '@/apollo/types';
-import { RowData } from '@/types/grid';
+import { AddQuery, RemoveQuery, UpdateQuery } from '@/apollo/types';
 import { QueryType } from '@/types/api';
-import { DirectProvider, MTMProvider, OTMProvider } from './GridProviders';
-import {
-  GridDataTransformer,
-  GridFilterModel,
-  ExtendedColDef,
-} from '@/types/grid';
-import BaseGridProvider from './GridProviders/Providers/BaseGridProvider';
+import { ExtendedColDef, RowData, RequiredConfig } from '@/types/grid';
+import { ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
+import { DirectProvider, OTMProvider } from './GridProviders';
+import BaseGridProvider from './GridProviders/BaseGridProvider';
+import ComponentApi from './componentApi';
+import _ from 'lodash';
 
 export default class GridInstance {
   public gridApi: GridApi;
 
   public columnApi: ColumnApi;
 
-  public Provider: BaseGridProvider;
+  public gridProvider: BaseGridProvider;
+
+  public gridOptions: GridOptions;
+
+  public componentApi: ComponentApi;
+
+  public gridTitle: String = '';
 
   public constructor({
-    Provider,
     gridApi,
     columnApi,
+    gridOptions,
+    gridProvider,
   }: {
-    Provider: BaseGridProvider;
+    gridProvider: BaseGridProvider;
     gridApi: GridApi;
     columnApi: ColumnApi;
+    gridOptions: GridOptions;
   }) {
-    this.Provider = Provider;
+    this.gridProvider = gridProvider;
     this.gridApi = gridApi;
     this.columnApi = columnApi;
+    this.gridOptions = gridOptions;
+    this.componentApi = new ComponentApi(this);
   }
 
   /**
@@ -37,46 +44,28 @@ export default class GridInstance {
    */
   public static getProvider(
     queryType: QueryType,
-    tableName: string,
-    customFilterModel: GridFilterModel = {},
+    config: RequiredConfig,
     relatedData: {
       tableName: string;
       rowId: number;
     },
-    dataTransformer: GridDataTransformer,
   ): BaseGridProvider {
     const providers: { [key in QueryType]: BaseGridProvider } = {
-      [QueryType.Direct]: new DirectProvider(
-        tableName,
-        customFilterModel,
-        dataTransformer,
-      ),
-      [QueryType.OneToMany]: new OTMProvider(
-        tableName,
-        customFilterModel,
-        dataTransformer,
-        relatedData,
-      ),
-      [QueryType.ManyToMany]: new MTMProvider(
-        tableName,
-        customFilterModel,
-        dataTransformer,
-        relatedData,
-      ),
+      [QueryType.Direct]: new DirectProvider(config),
+      [QueryType.OneToMany]: new OTMProvider(config, relatedData),
+      [QueryType.ManyToMany]: new OTMProvider(config, relatedData), // TODO CHANGE THIS TO MTM
     };
     return providers[queryType];
   }
 
-  public get gridDatasource(): IServerSideDatasource {
-    return this.Provider.gridDatasource;
+  public forceUpdateData() {
+    this.gridProvider
+      .getData()
+      .then((response) => this.gridApi.setRowData(response));
   }
 
-  public setGridUpdateEvent(updateEvent: (...args: any) => void): void {
-    this.Provider.gridDatasource.setGridEvent(updateEvent);
-  }
-
-  public purgeCache(): void {
-    this.gridApi.purgeServerSideCache();
+  public subscribeToMore() {
+    return this.gridProvider.subscribeToData(this);
   }
 
   public get columnDefs(): ExtendedColDef[] {
@@ -104,29 +93,46 @@ export default class GridInstance {
    * rowData will be an array of objects with key: value pairs
    * Return a successful and unsuccessful callback for UI updates
    */
-  public addRows({ rowsToAdd, successCallback, failCallback }: AddQuery): void {
-    rowsToAdd.forEach((rowData): void =>
-      this.Provider.addData(rowData, successCallback, failCallback),
-    );
+  public async addRows({ rowsToAdd }: AddQuery): Promise<void> {
+    rowsToAdd.map((rowData): void => {
+      this.gridProvider.addData(rowData).then((response) =>
+        this.gridApi.updateRowData({
+          add: [response],
+        }),
+      );
+    });
   }
 
-  public removeRows({
-    rowsToRemove,
-    successCallback,
-    failCallback,
-  }: RemoveQuery): void {
-    rowsToRemove.forEach((row): void =>
-      this.Provider.removeData(row.id, successCallback, failCallback),
-    );
+  public async removeRows({ rowsToRemove }: RemoveQuery): Promise<void> {
+    rowsToRemove.map((row): void => {
+      this.gridProvider.removeData(row.id).then((response) =>
+        this.gridApi.updateRowData({
+          remove: [response],
+        }),
+      );
+    });
   }
 
-  public updateRows({
-    rowsToUpdate,
-    successCallback,
-    failCallback,
-  }: UpdateQuery): void {
-    rowsToUpdate.forEach((row): void =>
-      this.Provider.updateData(row, successCallback, failCallback),
-    );
+  public async updateRows({ rowsToUpdate }: UpdateQuery): Promise<void> {
+    rowsToUpdate.map((rowData): void => {
+      const node = this.gridApi.getRowNode(rowData.id);
+      // Clone the old data so it doesn't get mutated by the api
+      const oldData = { ...node.data };
+      const combinedData = { ...oldData, ...rowData };
+
+      node.setData(combinedData);
+      this.gridProvider
+        .updateData(rowData)
+        .then((response) =>
+          this.gridApi.updateRowData({
+            update: [response],
+          }),
+        )
+        .catch(() =>
+          this.gridApi.updateRowData({
+            update: [oldData],
+          }),
+        );
+    });
   }
 }

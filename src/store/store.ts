@@ -3,6 +3,7 @@ import DisplayModule from './modules/display';
 import NotificationModule from './modules/notification';
 import GridModule from './modules/grid';
 import PopupModule from './modules/popup';
+import AuthModule from './modules/auth';
 
 export default class Store {
   @Module()
@@ -16,4 +17,7 @@ export default class Store {
 
   @Module()
   public popup = new PopupModule();
+
+  @Module()
+  public auth = new AuthModule();
 }

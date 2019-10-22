@@ -3,8 +3,9 @@ import { RowData } from '@/types/grid';
 import { storeInstance } from '@/store';
 import { NotificationPosition } from '@/store/modules/notification';
 import GridInstance from '@/components/grid/ts/GridInstance';
-import { ColDef } from 'ag-grid-community';
 import { CellType } from '@/types/grid';
+
+import Vue from 'vue';
 
 /**
  * Takes in an error object
@@ -12,21 +13,16 @@ import { CellType } from '@/types/grid';
  * Through a Vuetify snackbar
  */
 export const dispatchError = (error: Error): never => {
-  storeInstance.notification.pushNotification({
-    message: error.message,
-    color: 'error',
-    position: [NotificationPosition.Top],
-  });
-  console.error(error);
+  Vue.$toast(error.message, { type: 'error' });
   throw new Error(error.message);
 };
 
 const fieldsToRemove = ['id', 'group'];
 
 // Converts an object into a string that Hasura understands
-export const stringify = (data: RowData, tableName: string): string => {
+export const stringify = (data: RowData, tableID: string): string => {
   const gridInstance = storeInstance.grid.getGridInstance(
-    tableName,
+    tableID,
   ) as GridInstance;
   const selectedCellFields = gridInstance.columnDefs
     .filter((col) => col.cellType === CellType.selectCell)

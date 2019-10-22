@@ -9,97 +9,67 @@
     stateless
   >
     <v-list dense>
-      <!-- List Group for PM Modules -->
-      <v-list-group
-        v-for="item in items"
-        :key="item.title"
-        v-model="item.active"
-        :prepend-icon="item.action"
-      >
-        <template v-slot:activator>
-          <v-list-item>
+      <div v-for="mod in modules" :key="mod.title">
+        <v-list-group
+          v-if="!mod.admin || showAdminPanel"
+          :prepend-icon="mod.icon"
+          value="true"
+          no-action
+        >
+          <template v-slot:activator>
             <v-list-item-content>
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
+              <v-list-item-title v-text="mod.title"></v-list-item-title>
+            </v-list-item-content>
+          </template>
+          <v-list-item
+            v-for="item in mod.items"
+            :key="item.title"
+            :to="item.route"
+          >
+            <v-list-item-content>
+              <v-list-item-title v-text="item.title"></v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-        </template>
-
-        <v-list-item
-          v-for="subItem in item.items"
-          :key="subItem.title"
-          :to="subItem.route"
-        >
-          <v-list-item-content>
-            <v-list-item-title>{{ subItem.title }}</v-list-item-title>
-          </v-list-item-content>
-
-          <v-list-item-action>
-            <v-icon>{{ subItem.action }}</v-icon>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list-group>
-
-      <!-- Items for Other Models Modules -->
-      <v-list-item
-        v-for="item in navigationItems"
-        :key="item.title"
-        :to="item.route"
-      >
-        <v-list-item-action class="center">
-          <v-icon>{{ item.icon }}</v-icon>
-        </v-list-item-action>
-        <v-list-item-content>
-          <v-list-item-title>
-            {{ item.title }}
-          </v-list-item-title>
-        </v-list-item-content>
-
-        <v-list-item-content />
-      </v-list-item>
+        </v-list-group>
+      </div>
     </v-list>
   </v-navigation-drawer>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
+import Store from '@/store/store';
+import { useStore } from 'vuex-simple';
 
 @Component({})
 export default class NavigationDrawer extends Vue {
   @Prop(Boolean) readonly leftSideDrawer: boolean = false;
 
-  navigationItems = [
-    {
-      id: 1,
-      icon: 'list',
-      title: 'Hierarchy',
-      route: '/hierarchy',
-    },
-    {
-      id: 2,
-      icon: 'data_usage',
-      title: 'Data Model',
-      route: '/model',
-    },
-  ];
+  store: Store = useStore(this.$store);
 
-  items = [
+  get showAdminPanel() {
+    return this.store.auth.user.username === 'tony.huang';
+  }
+
+  modules = [
     {
-      action: 'assignment',
-      title: 'Activities',
+      icon: 'assignment',
+      title: 'Project Asset',
       active: true,
+      admin: false,
       items: [
-        { title: 'Overview', route: '/review/activity', action: 'assignment' },
+        { title: 'Reservation', route: '/assets/reservation' },
+        { title: 'Record Reconciliation', route: '/assets/reconciliation' },
+        { title: 'Change Representation', route: '/assets/update' },
       ],
+    },
+    {
+      icon: 'person',
+      admin: true,
+      title: 'Administration',
+      active: true,
+      items: [{ title: 'Reservation Approval', route: '/admin/approval' }],
     },
   ];
 }
 </script>
-
-<style scoped>
-/* This makes a grouped list not have a border around it */
-.theme--light.v-list,
-.v-list__group--active:after,
-.theme--light.v-list .v-list__group--active:before {
-  background: transparent;
-}
-</style>

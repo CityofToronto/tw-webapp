@@ -1,5 +1,7 @@
 <template>
-  <component :is="componentType" />
+  <v-dialog v-model="isVisible" width="500">
+    <component :is="componentType" />
+  </v-dialog>
 </template>
 
 <script lang="ts">
@@ -19,6 +21,14 @@ export default class PopupLoader extends Vue {
       case 'form':
         return () => import('./DynamicForm.vue');
     }
+  }
+
+  get isVisible() {
+    return this.store.popup.isVisible;
+  }
+
+  set isVisible(value) {
+    this.store.popup.closePopup();
   }
 }
 </script>

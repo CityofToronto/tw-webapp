@@ -1,23 +1,38 @@
 <template>
   <v-icon @click.stop="clickHandler">
-    {{ params.icon }}
+    {{ iconName }}
   </v-icon>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Watch } from 'vue-property-decorator';
 import { ICellRendererParams } from 'ag-grid-community';
-
-interface RendererParams extends ICellRendererParams {
-  clickFunction(params: ICellRendererParams): void;
-}
+import { MergeContext, GridButtonRendererParams } from '@/types/grid';
 
 @Component({})
 export default class GridButton extends Vue {
-  params!: RendererParams;
+  params!: GridButtonRendererParams & ICellRendererParams;
 
   clickHandler() {
-    this.params.clickFunction(this.params);
+    if (this.params.clickFunction) {
+      // Handle the custom click
+      this.params.clickFunction(this.params);
+      // Ag-Grid doesn't refresh the cell if it based on another value, so force it
+      this.params.api.refreshCells({
+        rowNodes: [this.params.node],
+        force: true,
+        columns: [this.params.column.getColId()],
+      });
+      // Deselect the row for a bit better of a user experience
+      this.params.api.deselectAll();
+    }
+  }
+
+  get iconName() {
+    if (typeof this.params.icon === 'function') {
+      return this.params.icon(this.params);
+    }
+    return this.params.icon;
   }
 }
 </script>

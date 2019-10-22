@@ -13,5 +13,17 @@
   "cSpell.words": [
     "Hasura",
     "vuex"
+  ],
+  "cSpell.enabledLanguageIds": [
+    "css",
+    "html",
+    "javascript",
+    "json",
+    "markdown",
+    "plaintext",
+    "scss",
+    "text",
+    "typescript",
+    "vue",
   ]
 }
