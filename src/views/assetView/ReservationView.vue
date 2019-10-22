@@ -32,13 +32,38 @@ export default class ReservationView extends Vue {
       toolbarItems.fitColumns,
       toolbarItems.sizeColumns,
     ],
-    columnOrder: ['role_name', 'reserved'],
-    omittedColumns: ['id', 'role_number', 'full_path', 'parent', 'dummy'],
+    columnOrder: ['role_name', 'reserved', 'project_id', 'approval_status'],
+    omittedColumns: [
+      'id',
+      'role_number',
+      'full_path',
+      'parent',
+      'dummy',
+      'approved',
+    ],
     treeData: true,
     getDataPath: (data) => data.full_path.split('.'),
-    contextMenu: [],
+    contextMenu: [
+      {
+        icon: '<i class="material-icons">playlist_add_check</i>',
+        name: 'Reserve Branch',
+        action: (params) => {
+          const rowsToUpdate = params.node.allLeafChildren
+            .filter(({ data }) => !data.reserved)
+            .map(({ data }) => ({
+              id: data.id,
+              reserved: true,
+            }));
+          params.context.gridInstance.updateRows({
+            rowsToUpdate,
+          });
+        },
+      },
+    ],
     autoGroupColumnDef: {
+      headerName: 'Role',
       width: 400,
+      resizable: true,
       cellRendererParams: {
         aliasColumn: 'role_number',
         innerRendererFramework: agComponents.AliasCell,
@@ -46,7 +71,16 @@ export default class ReservationView extends Vue {
     },
     overrideColumnDefinitions: [
       {
-        field: 'approved',
+        field: 'approval_status',
+        headerName: 'Approval Status',
+      },
+      {
+        field: 'project_id',
+        headerName: 'Reserved By (Project ID)',
+      },
+      {
+        field: 'role_name',
+        headerName: 'Role Name',
       },
       {
         field: 'reserved',
