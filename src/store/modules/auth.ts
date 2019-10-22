@@ -1,16 +1,32 @@
 import { Mutation, State, Action, Getter } from 'vuex-simple';
 import { forceReconnect } from '@/apollo/lib/link';
 
+interface Project {
+  name: string;
+  id: number;
+}
+
 interface UserData {
   username: string;
   name: string;
+  projects: Project[];
 }
 
 export default class AuthModule {
   @State() private loggedIn!: boolean;
   @State() private userData: UserData = {
     name: 'Amber',
-    username: 'tony.huang',
+    username: 'amber.brasher',
+    projects: [
+      {
+        id: 1,
+        name: 'Floor Redesign',
+      },
+      {
+        id: 3,
+        name: 'Heater Outfitting',
+      },
+    ],
   };
 
   @Getter()
@@ -23,14 +39,28 @@ export default class AuthModule {
     return this.userData.username;
   }
 
-  @Action()
-  public getUsername(): string {
-    return this.userData.username;
+  @Getter()
+  public get user(): UserData {
+    return this.userData;
   }
 
   @Mutation()
-  public setUsername(username: string) {
-    this.userData.username = username;
+  public setUserData(userData: UserData) {
+    this.userData = userData;
+    this.activeProject = userData.projects[0];
     forceReconnect();
+  }
+
+  @State() private activeProject: Project = this.userData.projects[0];
+
+  @Mutation()
+  public setActiveProject(project: Project) {
+    this.activeProject = project;
+    forceReconnect();
+  }
+
+  @Getter()
+  public get activeProjectData() {
+    return this.activeProject;
   }
 }
