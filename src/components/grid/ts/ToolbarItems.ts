@@ -7,7 +7,6 @@ export interface ToolbarItem {
   tooltip: string;
   clickFunction: ToolbarFunction;
 }
-'';
 
 export type ToolbarFunction = ({
   gridInstance,
