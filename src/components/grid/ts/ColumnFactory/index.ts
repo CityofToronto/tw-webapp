@@ -1,14 +1,12 @@
-import { getDefaultColDef } from '@/config/defaults';
-import { GRID_CONFIG } from '@/config';
 import { ColDef } from 'ag-grid-community';
 import apolloClient from '@/apollo';
 import { TreeData } from '@/types/api';
 import { CellType, RequiredConfig } from '@/types/grid';
-import ColumnHeaderMap from './ColumnHeaderMap';
 import CellTypes from './CellTypes';
 import { CellParams, GridConfiguration } from '@/types/config';
 import { HasuraField } from '@/types/api';
 import { capitalize } from '@/common/utils';
+import _ from 'lodash';
 
 interface ProcessedColumn {
   name: string;
@@ -16,7 +14,7 @@ interface ProcessedColumn {
   enumValues?: string[];
 }
 
-export default class ColumnDefiner {
+export default class ColumnFactory {
   private tableName: string;
 
   private config: GridConfiguration;
@@ -34,10 +32,7 @@ export default class ColumnDefiner {
    */
   public constructor(config: RequiredConfig) {
     this.tableName = config.tableName;
-    this.config = {
-      ...getDefaultColDef(config ? config.gridType : undefined),
-      ...config,
-    };
+    this.config = config;
   }
 
   private omitColumns(columnsToOmit: string[]): void {
@@ -142,9 +137,7 @@ export default class ColumnDefiner {
           cellType: column.cellType,
           enumValues: column.enumValues,
           // Attempt the map the name, if not capitalize the name field
-          headerName: ColumnHeaderMap.get(column.name)
-            ? ColumnHeaderMap.get(column.name)
-            : capitalize(column.name),
+          headerName: _.startCase(_.lowerCase(column.name)),
           field: column.name,
           editable: column.name !== 'id',
           sort: column.name === 'id' ? 'asc' : undefined,
@@ -172,7 +165,7 @@ export default class ColumnDefiner {
      * This parses and assigns the column type
      * and sorts it to match the configuration
      */
-    this.processColumns(this.config.sortingOrder);
+    this.processColumns(this.config.columnOrder);
 
     /**
      * This assigns column definitions to the columns which is then processed
