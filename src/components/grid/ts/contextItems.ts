@@ -1,8 +1,5 @@
 import { MenuItemDef, GetContextMenuItemsParams } from 'ag-grid-community';
-import GridInstance from './GridInstance';
-import Store from '@/store/store';
 import { MergeContext } from '@/types/grid';
-import { storeInstance } from '@/store';
 
 export type ContextMenuParams = MergeContext<GetContextMenuItemsParams>;
 
