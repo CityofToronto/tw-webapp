@@ -28,7 +28,7 @@ export const orphanBranch: ExtendedMenuItem = {
           rowsToUpdate: [
             {
               id: params.node.data.id,
-              parent: 2,
+              parent: '2',
             },
           ],
         })
