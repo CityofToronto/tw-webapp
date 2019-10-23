@@ -141,7 +141,6 @@ export default class ColumnFactory {
           field: column.name,
           resizable: true,
           editable: false,
-          sort: column.name === 'id' ? 'asc' : undefined,
           ...overrideColDef,
         };
 
