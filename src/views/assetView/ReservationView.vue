@@ -28,6 +28,7 @@ export default class ReservationView extends Vue {
     tableName: 'reservation_view',
     title: 'Reservation',
     toolbarItems: [
+      toolbarItems.expandAll,
       toolbarItems.collapseAll,
       toolbarItems.fitColumns,
       toolbarItems.sizeColumns,
