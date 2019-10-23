@@ -39,7 +39,6 @@ export class DirectProvider extends BaseGridProvider {
   }
 
   public async getData(): Promise<RowData[]> {
-    console.count('Get');
     return apolloClient
       .query({
         query: gql` {
@@ -54,7 +53,6 @@ export class DirectProvider extends BaseGridProvider {
   }
 
   public async addData(rowData: RowData): Promise<RowData> {
-    console.count('Add');
     return apolloClient
       .mutate({
         mutation: gql`
@@ -78,7 +76,6 @@ export class DirectProvider extends BaseGridProvider {
   }
 
   public async removeData(idToDelete: string): Promise<RowData> {
-    console.count('Delete');
     return apolloClient
       .mutate({
         mutation: gql`
@@ -101,7 +98,6 @@ export class DirectProvider extends BaseGridProvider {
   }
 
   public async updateData(rowToUpdate: RowData): Promise<RowData> {
-    console.count('Update');
     return apolloClient
       .mutate({
         mutation: gql`
@@ -121,13 +117,9 @@ export class DirectProvider extends BaseGridProvider {
         }`,
       })
       .then(
-        (response): RowData => {
-          console.log(response);
-          return (
-            response.data[`update_${this.tableName}`].returning[0] ||
-            response.data[`update_${this.tableName}`].returning
-          );
-        },
+        (response): RowData =>
+          response.data[`update_${this.tableName}`].returning[0] ||
+          response.data[`update_${this.tableName}`].returning,
       )
       .catch((error): never => dispatchError(error));
   }
