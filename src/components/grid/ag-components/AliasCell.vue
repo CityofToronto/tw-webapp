@@ -21,7 +21,10 @@ export default class AliasCell extends Vue {
   params!: AliasCellParams;
 
   get cellValue(): string {
-    return this.params.data[this.params.aliasColumn] || 'unknown';
+    if (this.params.data && this.params.data[this.params.aliasColumn]) {
+      return this.params.data[this.params.aliasColumn];
+    }
+    return 'unknown';
   }
 }
 </script>

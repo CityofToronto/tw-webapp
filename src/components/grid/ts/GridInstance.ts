@@ -6,6 +6,7 @@ import { DirectProvider, OTMProvider } from './GridProviders';
 import BaseGridProvider from './GridProviders/BaseGridProvider';
 import ComponentApi from './componentApi';
 import _ from 'lodash';
+import { CellParams } from '@/types/config';
 
 export default class GridInstance {
   public gridApi: GridApi;
@@ -68,10 +69,10 @@ export default class GridInstance {
     return this.gridProvider.subscribeToData(this);
   }
 
-  public get columnDefs(): ExtendedColDef[] {
+  public get columnDefs(): CellParams[] {
     return this.columnApi
       .getAllColumns()
-      .map((column): ExtendedColDef => column.getColDef() as ExtendedColDef);
+      .map((column) => column.getColDef() as CellParams);
   }
 
   public sizeColumnsToFit(): void {
@@ -113,26 +114,37 @@ export default class GridInstance {
     });
   }
 
-  public async updateRows({ rowsToUpdate }: UpdateQuery): Promise<void> {
+  public async updateRows({
+    rowsToUpdate,
+    optimistic = true,
+  }: UpdateQuery): Promise<void> {
     rowsToUpdate.map((rowData): void => {
+      // TODO Bugfix this
+      if (!optimistic || optimistic) {
+        this.gridProvider.updateData(rowData).then((response) =>
+          this.gridApi.updateRowData({
+            update: [response],
+          }),
+        );
+        return;
+      }
+      // Attempt to update the row optimistically
       const node = this.gridApi.getRowNode(rowData.id);
       // Clone the old data so it doesn't get mutated by the api
       const oldData = { ...node.data };
       const combinedData = { ...oldData, ...rowData };
 
-      node.setData(combinedData);
-      this.gridProvider
-        .updateData(rowData)
-        .then((response) =>
-          this.gridApi.updateRowData({
-            update: [response],
-          }),
-        )
-        .catch(() =>
-          this.gridApi.updateRowData({
-            update: [oldData],
-          }),
-        );
+      const dataPromise = new Promise((resolve) => setTimeout(resolve, 300));
+      Promise.race([dataPromise, this.gridProvider.updateData(rowData)])
+        .then(() => {
+          node.setData(combinedData);
+        })
+        .finally(() => {
+          this.gridApi.refreshCells({
+            rowNodes: [node],
+            force: true,
+          });
+        });
     });
   }
 }

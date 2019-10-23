@@ -126,13 +126,12 @@ export interface RowStyleParams {
   node: RowNode;
   rowIndex: number;
   api: GridApi;
-  context: any;
+  context: GridContext;
 }
 
 export interface RowData {
   id: string;
-  parent?: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  parent?: string;
   [key: string]: any;
 }
 

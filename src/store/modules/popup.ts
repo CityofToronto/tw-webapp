@@ -6,8 +6,8 @@ import { BaseColumnParams } from '@/types/config';
 
 interface PopupData {
   popupTitle: string;
-  confirmButtonText?: string;
-  cancelButtonText?: string;
+  confirmButtonText?: string | false;
+  cancelButtonText?: string | false;
   confirmCallback: () => void;
   cancelCallback?: () => void;
 }
@@ -55,11 +55,15 @@ export default class PopupModule {
 
   @Mutation()
   public setPopup(data: PopupDataTypes) {
+    const defaultData = {
+      confirmButtonText: 'Confirm',
+      cancelButtonText: 'Cancel',
+      cancelCallback: this.closePopup,
+    };
+
     this.popupData = {
+      ...defaultData,
       ...data,
-      cancelCallback: data.cancelCallback || this.closePopup,
-      confirmButtonText: data.confirmButtonText || 'Confirm',
-      cancelButtonText: data.confirmButtonText || 'Cancel',
     };
     this.visible = true;
   }

@@ -1,6 +1,8 @@
 import { Mutation, State, Action, Getter } from 'vuex-simple';
 import GridInstance from '@/components/grid/ts/GridInstance';
 import { RowNode, GridApi } from 'ag-grid-community';
+import apolloClient from '@/apollo';
+import gql from 'graphql-tag';
 
 export default class GridModule {
   // This is the state of the 'main' table pulled from the URL
@@ -94,5 +96,40 @@ export default class GridModule {
   @Action()
   public forceUpdateAllGrids(): void {
     this.gridInstances.forEach((grid) => grid.forceUpdateData());
+  }
+
+  @State()
+  private orphanID: string = '';
+
+  @Getter()
+  public get orphan() {
+    return this.orphanID;
+  }
+
+  @Getter()
+  public get orphanStatus() {
+    return !!this.orphanID;
+  }
+
+  @Mutation()
+  public setOrphanID(orphanID: string) {
+    this.orphanID = orphanID;
+  }
+
+  @Action()
+  public async fetchOrphanID() {
+    apolloClient
+      .query({
+        query: gql`
+          {
+            orphan_view {
+              id
+            }
+          }
+        `,
+      })
+      .then((response) => {
+        this.orphanID = response.data.orphan_view[0].id;
+      });
   }
 }

@@ -134,12 +134,16 @@ export type CellParams =
  */
 type ColDefRequiredField = MarkRequired<ColDef, 'field'>;
 
-export interface BaseColumnParams extends ColDefRequiredField {
+interface CommonParams {
   showInForm?: boolean;
+  showInView?: boolean;
   readonly?: boolean;
+}
+
+export interface BaseColumnParams extends ColDefRequiredField, CommonParams {
   cellType?: Exclude<CellType, CellType.treeCell | CellType.selectCell>;
 }
-interface SelectColumnParams extends ColDefRequiredField {
+interface SelectColumnParams extends ColDefRequiredField, CommonParams {
   cellType: CellType.selectCell;
   enumValues: {
     name: string;
@@ -150,7 +154,7 @@ interface SelectColumnParams extends ColDefRequiredField {
  * The two types of Cells: select and tree require additional
  * data for processing
  */
-interface ExternalDataParams extends ColDefRequiredField {
+interface ExternalDataParams extends ColDefRequiredField, CommonParams {
   cellType: CellType.treeCell;
   /**
    * Name of the source table to get values from.

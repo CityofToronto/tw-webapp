@@ -139,7 +139,8 @@ export default class ColumnFactory {
           // Attempt the map the name, if not capitalize the name field
           headerName: _.startCase(_.lowerCase(column.name)),
           field: column.name,
-          editable: column.name !== 'id',
+          resizable: true,
+          editable: false,
           sort: column.name === 'id' ? 'asc' : undefined,
           ...overrideColDef,
         };

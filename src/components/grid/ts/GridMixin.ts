@@ -166,6 +166,7 @@ export default class GridMixin extends Vue {
         }
         return {
           ...item,
+          name: typeof item.name === 'string' ? item.name : item.name(params),
           action: () => item.action(params),
         };
       });

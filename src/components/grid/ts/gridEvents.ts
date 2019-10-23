@@ -4,6 +4,7 @@ import {
   RowDragMoveEvent,
   CellValueChangedEvent,
   RowDragEndEvent,
+  RowDoubleClickedEvent,
 } from 'ag-grid-community';
 
 type Event<T> = FunctionProps & { event: T };
@@ -43,12 +44,23 @@ export const dragOver: VueEvent<DragEvent> = {
   },
 };
 
+export const dragEndOrphanage: VueEvent<DragEvent> = {
+  type: 'drop',
+  callback: ({ event }) => {
+    alert('hi');
+  },
+};
+
 export const rowDragEnd: VueEvent<RowDragEndEvent> = {
   type: 'rowDragEnd',
-  callback: ({ event, gridInstance }) => {
+  callback: ({ event, gridInstance, vueStore }) => {
     const rowToMove = event.node.data;
     // Graphene doesn't support null data type, therefore we map it to 0
     const newParentId = event.overNode ? event.overNode.data.id : 0;
+    vueStore.grid.setPotentialParent({
+      parentNode: null,
+      gridApi: event.api,
+    });
     if (newParentId === rowToMove.id) {
       return;
     }
@@ -60,6 +72,7 @@ export const rowDragEnd: VueEvent<RowDragEndEvent> = {
 
     gridInstance.updateRows({
       rowsToUpdate: [newData],
+      optimistic: false,
     });
     gridInstance.gridApi.getRowNode(newParentId).setExpanded(true);
   },
@@ -70,6 +83,7 @@ export const onDropAsset: VueEvent<DragEvent> = {
   callback: ({ event, gridInstance, vueStore }) => {
     if (event.dataTransfer) {
       const eventData = JSON.parse(event.dataTransfer.getData('text/plain'));
+      if (!eventData.asset_id) return;
       const rowData = {
         id: eventData.asset_id,
         role_id: 0,
@@ -78,8 +92,15 @@ export const onDropAsset: VueEvent<DragEvent> = {
       gridInstance
         .updateRows({
           rowsToUpdate: [rowData],
+          optimistic: false,
         })
         .then(() => vueStore.grid.forceUpdateAllGrids());
     }
   },
+};
+
+export const doubleClickView: VueEvent<RowDoubleClickedEvent> = {
+  type: 'row-double-clicked',
+  callback: ({ event, gridInstance }) =>
+    gridInstance.componentApi.viewRow(event.node),
 };

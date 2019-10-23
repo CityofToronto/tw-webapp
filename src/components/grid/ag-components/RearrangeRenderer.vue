@@ -86,6 +86,7 @@ export default class RearrangeRenderer extends Vue {
 
       this.params.context.gridInstance.updateRows({
         rowsToUpdate: [eventData],
+        optimistic: false,
       });
     }
   }
