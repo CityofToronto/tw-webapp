@@ -5,6 +5,9 @@ import { GridApi, ColumnApi, RowNode } from 'ag-grid-community';
 import { FormData } from '@/types/grid';
 import { BaseColumnParams } from '@/types/config';
 
+/**
+ * This function
+ */
 const twoConditionReturn = (
   cond1: boolean | undefined,
   cond2: boolean | undefined,
@@ -138,7 +141,7 @@ export default class ComponentApi {
     const columnDefs = this.gridInstance.columnDefs.map((colDef) => ({
       ...colDef,
       readonly: true,
-      showInForm: twoConditionReturn(colDef.showInForm, colDef.showInView),
+      showInForm: colDef.showInForm || colDef.showInView,
     })) as BaseColumnParams[];
 
     this.store.popup.setPopup({

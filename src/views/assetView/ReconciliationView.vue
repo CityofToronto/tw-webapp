@@ -231,13 +231,16 @@ export default class ReconciliationView extends Vue {
   private orphanConfig: GridConfiguration = {
     title: 'Orphaned Roles',
     gridType: 'normal',
-    toolbarItems: [],
     tableName: 'orphan_view',
     gridEvents: [gridEvents.dragEndOrphanage, gridEvents.dragOver],
     treeData: true,
     getDataPath: (data) => data.full_path.split('.'),
     columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
+    toolbarItems: [toolbarItems.fitColumns, toolbarItems.sizeColumns],
     omittedColumns: [
+      'id',
+      'asset_id',
+      'role_name',
       'role_exists',
       'role_missing_from_registry',
       'project_id',
@@ -246,16 +249,16 @@ export default class ReconciliationView extends Vue {
       'full_path',
       'parent_changed',
       'role_changed',
+      'parent',
     ],
     autoGroupColumnDef: {
       resizable: true,
       width: 400,
-      rowDrag: true,
       headerName: 'Role Number',
       cellRendererParams: {
         aliasColumn: 'role_number',
-        checkbox: true,
         innerRendererFramework: agComponents.AliasCell,
+        childCount: false,
       },
     },
   };
