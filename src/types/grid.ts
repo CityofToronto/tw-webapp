@@ -131,7 +131,7 @@ export interface RowStyleParams {
 
 export interface RowData {
   id: string;
-  parent?: string;
+  parent?: string | number;
   [key: string]: any;
 }
 
