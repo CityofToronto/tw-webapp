@@ -119,7 +119,7 @@ export default class GridInstance {
     optimistic = true,
   }: UpdateQuery): Promise<void> {
     rowsToUpdate.map((rowData): void => {
-      // TODO Bugfix this
+      // TODO Bug fix this
       if (!optimistic || optimistic) {
         this.gridProvider
           .updateData(rowData)
@@ -129,7 +129,7 @@ export default class GridInstance {
             }),
           )
           .finally(() => {
-            // Refresh the row
+            // Refresh the row (including the data in grid buttons)
             this.gridApi.refreshCells({
               force: true,
               rowNodes: [this.gridApi.getRowNode(rowData.id)],
