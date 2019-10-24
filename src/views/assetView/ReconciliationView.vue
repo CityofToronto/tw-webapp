@@ -240,10 +240,10 @@ export default class ReconciliationView extends Vue {
     omittedColumns: [
       'id',
       'asset_id',
+      'project_id',
       'role_name',
       'role_exists',
       'role_missing_from_registry',
-      'project_id',
       'asset_exists',
       'asset_missing_from_registry',
       'full_path',
