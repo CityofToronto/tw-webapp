@@ -21,7 +21,9 @@ import { createGridButton } from '@/components/grid/ts/ColumnFactory/gridButtons
 
 const approveButton = createGridButton({
   icon: (params) =>
-    params.data.reserved && !params.data.approved ? 'check' : '',
+    params.data.reserved && !params.data.approved && params.data.reservable
+      ? 'check'
+      : '',
   clickFunction: (params) => {
     const rowData = params.data;
     params.context.gridInstance.updateRows({
@@ -36,7 +38,10 @@ const approveButton = createGridButton({
 });
 
 const rejectButton = createGridButton({
-  icon: (params) => (params.data.reserved ? 'close' : ''),
+  icon: (params) =>
+    params.data.reserved && params.data.reservable && !params.data.approved
+      ? 'close'
+      : '',
   clickFunction: (params) => {
     params.context.gridInstance.updateRows({
       rowsToUpdate: [
@@ -45,10 +50,6 @@ const rejectButton = createGridButton({
           reserved: false,
         },
       ],
-    });
-    params.api.refreshCells({
-      rowNodes: [params.node],
-      force: true,
     });
   },
 });
@@ -77,6 +78,7 @@ export default class ApprovalView extends Vue {
       'dummy',
       'reserved',
       'approved',
+      'reservable',
     ],
     columnOrder: ['role_name', 'project_id', 'approval_status'],
     gridButtons: [rejectButton, approveButton],
