@@ -66,6 +66,7 @@ export default class ReservationView extends Vue {
       if (params.data) {
         if (
           params.context.vueStore.auth.activeProjectData.id !==
+            params.data.project_id &&
           params.data.project_id
         )
           return { background: '#eceff1' };
