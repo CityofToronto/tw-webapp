@@ -3,6 +3,7 @@ import GridInstance from '@/components/grid/ts/GridInstance';
 import { RowNode, GridApi } from 'ag-grid-community';
 import apolloClient from '@/apollo';
 import gql from 'graphql-tag';
+import { storeInstance } from '@/store';
 
 export default class GridModule {
   // This is the state of the 'main' table pulled from the URL
@@ -99,21 +100,21 @@ export default class GridModule {
   }
 
   @State()
-  private orphanID: string = '';
+  private orphanIDs: string[] = [];
 
   @Getter()
   public get orphan() {
-    return this.orphanID;
+    return this.orphanIDs;
   }
 
   @Getter()
   public get orphanStatus() {
-    return !!this.orphanID;
+    return !!this.orphanIDs.length;
   }
 
   @Mutation()
-  public setOrphanID(orphanID: string) {
-    this.orphanID = orphanID;
+  public setOrphanID(orphanID: string[]) {
+    this.orphanIDs = orphanID;
   }
 
   @Action()
@@ -122,14 +123,21 @@ export default class GridModule {
       .query({
         query: gql`
           {
-            orphan_view {
+            orphan_view(where: { parent: { _eq: 2 } }) {
               id
+              project_id
             }
           }
         `,
       })
       .then((response) => {
-        this.orphanID = response.data.orphan_view[0].id;
+        console.log(response);
+        this.orphanIDs = response.data.orphan_view
+          .filter(
+            (item: { id: string; project_id: number }) =>
+              item.project_id === storeInstance.auth.activeProjectData.id,
+          )
+          .map((item: { id: string }) => item.id);
       });
   }
 }
