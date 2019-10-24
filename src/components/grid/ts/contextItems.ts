@@ -19,7 +19,7 @@ export const orphanBranch: ExtendedMenuItem = {
     context.vueStore.grid.orphanStatus ? 'Adopt Orphan' : 'Orphan Branch',
   action: async (params) => {
     const { vueStore, gridInstance } = params.context;
-    if (!vueStore.grid.orphan) {
+    if (!vueStore.grid.orphanStatus) {
       // Orphan a branch
       gridInstance
         .updateRows({
