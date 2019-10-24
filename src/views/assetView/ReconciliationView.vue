@@ -44,7 +44,7 @@ type ClassRules = {
 
 const markDoesNotExist = gridButtons.createGridButton({
   icon: ({ data }) =>
-    data.role_missing_from_registry ? 'delete' : 'remove_red_eye',
+    data && data.role_missing_from_registry ? 'delete' : 'remove_red_eye',
   clickFunction: (params) => {
     if (params.data.role_missing_from_registry) {
       const removeData = {
@@ -232,7 +232,6 @@ export default class ReconciliationView extends Vue {
     title: 'Orphaned Roles',
     gridType: 'normal',
     tableName: 'orphan_view',
-    gridEvents: [gridEvents.dragEndOrphanage, gridEvents.dragOver],
     treeData: true,
     getDataPath: (data) => data.full_path.split('.'),
     columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
@@ -240,7 +239,6 @@ export default class ReconciliationView extends Vue {
     omittedColumns: [
       'id',
       'asset_id',
-      'project_id',
       'role_name',
       'role_exists',
       'role_missing_from_registry',
@@ -261,6 +259,12 @@ export default class ReconciliationView extends Vue {
         childCount: false,
       },
     },
+    overrideColumnDefinitions: [
+      {
+        field: 'project_id',
+        hide: true,
+      },
+    ],
   };
 }
 </script>
