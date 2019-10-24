@@ -116,44 +116,21 @@ export default class GridInstance {
 
   public async updateRows({
     rowsToUpdate,
-    optimistic = true,
+    refresh = true,
   }: UpdateQuery): Promise<void> {
     rowsToUpdate.map((rowData): void => {
       // TODO Bug fix this
-      if (!optimistic || optimistic) {
-        this.gridProvider
-          .updateData(rowData)
-          .then((response) =>
-            this.gridApi.updateRowData({
-              update: [response],
-            }),
-          )
-          .finally(() => {
-            // Refresh the row (including the data in grid buttons)
-            this.gridApi.refreshCells({
-              force: true,
-              rowNodes: [this.gridApi.getRowNode(rowData.id)],
-            });
+      this.gridProvider.updateData(rowData).then((response) => {
+        if (refresh) {
+          this.gridApi.updateRowData({
+            update: [response],
           });
-        return;
-      }
-      // Attempt to update the row optimistically
-      const node = this.gridApi.getRowNode(rowData.id);
-      // Clone the old data so it doesn't get mutated by the api
-      const oldData = { ...node.data };
-      const combinedData = { ...oldData, ...rowData };
-
-      const dataPromise = new Promise((resolve) => setTimeout(resolve, 300));
-      Promise.race([dataPromise, this.gridProvider.updateData(rowData)])
-        .then(() => {
-          node.setData(combinedData);
-        })
-        .finally(() => {
           this.gridApi.refreshCells({
-            rowNodes: [node],
             force: true,
+            rowNodes: [this.gridApi.getRowNode(rowData.id)],
           });
-        });
+        }
+      });
     });
   }
 }
