@@ -1,7 +1,8 @@
 name: CI
 
-on: [push]
-
+on: 
+  issues:
+    types: [opened, edited, labeled]
 jobs:
   build:
 
