@@ -111,8 +111,8 @@ export default class ReservationView extends Vue {
         cellRendererParams: {
           icon: (params: MergeContext<ICellRendererParams>) => {
             // Show no icon if not reservable
-            if (params.data.reservable) return '';
-            if (params.data.reserved === true) {
+            if (!params.data.reservable) return '';
+            if (params.data.reserved) {
               return 'check_box';
             }
             return 'check_box_outline_blank';
