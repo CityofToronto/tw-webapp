@@ -131,7 +131,6 @@ export default class GridModule {
         `,
       })
       .then((response) => {
-        console.log(response);
         this.orphanIDs = response.data.orphan_view
           .filter(
             (item: { id: string; project_id: number }) =>
