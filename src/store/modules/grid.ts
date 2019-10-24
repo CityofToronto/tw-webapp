@@ -129,6 +129,7 @@ export default class GridModule {
             }
           }
         `,
+        fetchPolicy: 'network-only',
       })
       .then((response) => {
         this.orphanIDs = response.data.orphan_view
