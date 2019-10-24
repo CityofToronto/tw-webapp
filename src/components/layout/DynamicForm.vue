@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title>{{ popupData.popupTitle }}</v-card-title>
-    <v-divider />
+    <!-- <v-divider /> -->
     <v-card-text style="height: 600px">
       <component
         :is="getColumnType(column.cellType)"
@@ -12,6 +12,7 @@
         :outlined="true"
         :label="column.headerName"
         :hide-details="true"
+        :readonly="!!column.readonly"
         :items="column.cellEditorParams ? column.cellEditorParams.values : []"
         :params="column.cellEditorParams ? column.cellEditorParams : []"
       />
@@ -19,15 +20,20 @@
     <v-divider />
     <v-card-actions>
       <v-spacer />
-      <v-btn color="blue darken-1" text @click="popupData.cancelCallback()">
-        Cancel
+      <v-btn
+        v-if="!!popupData.cancelButtonText"
+        color="blue darken-1"
+        text
+        @click="popupData.cancelCallback()"
+      >
+        {{ popupData.cancelButtonText }}
       </v-btn>
       <v-btn
         color="blue darken-1"
         text
         @click="popupData.confirmCallback(data)"
       >
-        Save
+        {{ popupData.confirmButtonText }}
       </v-btn>
     </v-card-actions>
   </v-card>

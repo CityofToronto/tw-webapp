@@ -118,7 +118,8 @@ export class DirectProvider extends BaseGridProvider {
       })
       .then(
         (response): RowData =>
-          response.data[`update_${this.tableName}`].returning[0],
+          response.data[`update_${this.tableName}`].returning[0] ||
+          response.data[`update_${this.tableName}`].returning,
       )
       .catch((error): never => dispatchError(error));
   }

@@ -5,6 +5,25 @@ import { GridApi, ColumnApi, RowNode } from 'ag-grid-community';
 import { FormData } from '@/types/grid';
 import { BaseColumnParams } from '@/types/config';
 
+/**
+ * This function
+ */
+const twoConditionReturn = (
+  cond1: boolean | undefined,
+  cond2: boolean | undefined,
+): boolean => {
+  if (!!cond1 && !!cond2) {
+    return cond1 || cond2;
+  } else if (!!cond1 || !!cond2) {
+    if (cond1) {
+      return cond1;
+    } else if (cond2) {
+      return cond2;
+    }
+  }
+  return false;
+};
+
 export default class ComponentApi {
   private gridInstance: GridInstance;
 
@@ -33,6 +52,7 @@ export default class ComponentApi {
     confirmCallback: (...args: any[]) => void;
     data: FormData;
     popupTitle: string;
+    columnDefs?: BaseColumnParams[];
   }) {
     this.store.popup.setPopup({
       popupTitle,
@@ -110,5 +130,27 @@ export default class ComponentApi {
         rowsToAdd: removedIds,
       });
     }
+  }
+
+  /**
+   * View the row with none of the fields editable
+   */
+  viewRow(rowNode: RowNode) {
+    // const data
+
+    const columnDefs = this.gridInstance.columnDefs.map((colDef) => ({
+      ...colDef,
+      readonly: true,
+      showInForm: twoConditionReturn(colDef.showInForm, colDef.showInView),
+    })) as BaseColumnParams[];
+
+    this.store.popup.setPopup({
+      componentType: 'form',
+      columnDefs,
+      formData: rowNode.data,
+      confirmCallback: () => this.store.popup.closePopup(),
+      popupTitle: 'Viewing Entry',
+      cancelButtonText: false,
+    });
   }
 }

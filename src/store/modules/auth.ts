@@ -15,16 +15,12 @@ interface UserData {
 export default class AuthModule {
   @State() private loggedIn!: boolean;
   @State() private userData: UserData = {
-    name: 'Amber Brasher',
-    username: 'amber.brasher',
+    name: 'Tony Huang',
+    username: 'tony.huang',
     projects: [
       {
-        id: 1,
-        name: 'Floor Redesign',
-      },
-      {
-        id: 3,
-        name: 'Heater Outfitting',
+        id: 2,
+        name: 'Pump Retrofit',
       },
     ],
   };

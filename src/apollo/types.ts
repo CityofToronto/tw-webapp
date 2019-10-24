@@ -36,7 +36,7 @@ export interface AddQuery {
 
 export interface UpdateQuery {
   rowsToUpdate: RowData[];
-  optimistic?: boolean;
+  refresh?: boolean;
 }
 
 export interface RemoveQuery {

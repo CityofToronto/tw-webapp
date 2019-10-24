@@ -6,6 +6,7 @@ import { DirectProvider, OTMProvider } from './GridProviders';
 import BaseGridProvider from './GridProviders/BaseGridProvider';
 import ComponentApi from './componentApi';
 import _ from 'lodash';
+import { CellParams } from '@/types/config';
 
 export default class GridInstance {
   public gridApi: GridApi;
@@ -68,10 +69,10 @@ export default class GridInstance {
     return this.gridProvider.subscribeToData(this);
   }
 
-  public get columnDefs(): ExtendedColDef[] {
+  public get columnDefs(): CellParams[] {
     return this.columnApi
       .getAllColumns()
-      .map((column): ExtendedColDef => column.getColDef() as ExtendedColDef);
+      .map((column) => column.getColDef() as CellParams);
   }
 
   public sizeColumnsToFit(): void {
@@ -113,26 +114,23 @@ export default class GridInstance {
     });
   }
 
-  public async updateRows({ rowsToUpdate }: UpdateQuery): Promise<void> {
+  public async updateRows({
+    rowsToUpdate,
+    refresh = true,
+  }: UpdateQuery): Promise<void> {
     rowsToUpdate.map((rowData): void => {
-      const node = this.gridApi.getRowNode(rowData.id);
-      // Clone the old data so it doesn't get mutated by the api
-      const oldData = { ...node.data };
-      const combinedData = { ...oldData, ...rowData };
-
-      node.setData(combinedData);
-      this.gridProvider
-        .updateData(rowData)
-        .then((response) =>
+      // TODO Bug fix this
+      this.gridProvider.updateData(rowData).then((response) => {
+        if (refresh) {
           this.gridApi.updateRowData({
             update: [response],
-          }),
-        )
-        .catch(() =>
-          this.gridApi.updateRowData({
-            update: [oldData],
-          }),
-        );
+          });
+          this.gridApi.refreshCells({
+            force: true,
+            rowNodes: [this.gridApi.getRowNode(rowData.id)],
+          });
+        }
+      });
     });
   }
 }

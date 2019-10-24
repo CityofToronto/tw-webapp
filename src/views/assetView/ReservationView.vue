@@ -11,7 +11,7 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import { GridConfiguration } from '@/types/config';
-import { MergeContext } from '@/types/grid';
+import { MergeContext, RowStyleParams } from '@/types/grid';
 import * as toolbarItems from '@/components/grid/ts/toolbarItems';
 import { ICellRendererParams } from 'ag-grid-community';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
@@ -28,18 +28,25 @@ export default class ReservationView extends Vue {
     tableName: 'reservation_view',
     title: 'Reservation',
     toolbarItems: [
+      toolbarItems.expandAll,
       toolbarItems.collapseAll,
       toolbarItems.fitColumns,
       toolbarItems.sizeColumns,
     ],
-    columnOrder: ['role_name', 'reserved', 'project_id', 'approval_status'],
-    omittedColumns: [
+    columnOrder: [
       'id',
+      'role_name',
+      'reserved',
+      'project_id',
+      'approval_status',
+    ],
+    omittedColumns: [
       'role_number',
       'full_path',
       'parent',
       'dummy',
       'approved',
+      'reservable',
     ],
     treeData: true,
     getDataPath: (data) => data.full_path.split('.'),
@@ -60,6 +67,21 @@ export default class ReservationView extends Vue {
         },
       },
     ],
+    getRowStyle: (params: RowStyleParams) => {
+      if (params.data) {
+        if (
+          params.context.vueStore.auth.activeProjectData.id !==
+            params.data.project_id &&
+          params.data.project_id
+        )
+          return { background: '#eceff1' };
+        if (params.data.approval_status === 'Pending')
+          return { background: '#e0f7fa' };
+        if (params.data.approval_status === 'Approved')
+          return { background: '#e8f5e9' };
+      }
+      return false;
+    },
     autoGroupColumnDef: {
       headerName: 'Role',
       width: 400,
@@ -70,6 +92,10 @@ export default class ReservationView extends Vue {
       },
     },
     overrideColumnDefinitions: [
+      {
+        field: 'id',
+        hide: true,
+      },
       {
         field: 'approval_status',
         headerName: 'Approval Status',
@@ -93,7 +119,9 @@ export default class ReservationView extends Vue {
          */
         cellRendererParams: {
           icon: (params: MergeContext<ICellRendererParams>) => {
-            if (params.data.reserved === true) {
+            // Show no icon if not reservable
+            if (!params.data.reservable) return '';
+            if (params.data.reserved) {
               return 'check_box';
             }
             return 'check_box_outline_blank';
@@ -134,3 +162,21 @@ export default class ReservationView extends Vue {
   };
 }
 </script>
+
+<style lang="scss">
+.ag-theme-material {
+  .background-grey {
+    background: #eceff1;
+  }
+  .background-light-blue {
+    background: #e0f7fa;
+  }
+  .background-green {
+    background: #e8f5e9;
+  }
+
+  .text-grey {
+    color: #bdbdbd;
+  }
+}
+</style>
