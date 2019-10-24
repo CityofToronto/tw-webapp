@@ -33,9 +33,14 @@ export default class ReservationView extends Vue {
       toolbarItems.fitColumns,
       toolbarItems.sizeColumns,
     ],
-    columnOrder: ['role_name', 'reserved', 'project_id', 'approval_status'],
-    omittedColumns: [
+    columnOrder: [
       'id',
+      'role_name',
+      'reserved',
+      'project_id',
+      'approval_status',
+    ],
+    omittedColumns: [
       'role_number',
       'full_path',
       'parent',
@@ -87,6 +92,10 @@ export default class ReservationView extends Vue {
       },
     },
     overrideColumnDefinitions: [
+      {
+        field: 'id',
+        hide: true,
+      },
       {
         field: 'approval_status',
         headerName: 'Approval Status',

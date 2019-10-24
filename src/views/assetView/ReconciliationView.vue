@@ -237,7 +237,6 @@ export default class ReconciliationView extends Vue {
     columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
     toolbarItems: [toolbarItems.fitColumns, toolbarItems.sizeColumns],
     omittedColumns: [
-      'id',
       'asset_id',
       'role_name',
       'role_exists',
@@ -260,6 +259,10 @@ export default class ReconciliationView extends Vue {
       },
     },
     overrideColumnDefinitions: [
+      {
+        field: 'id',
+        hide: true,
+      },
       {
         field: 'project_id',
         hide: true,

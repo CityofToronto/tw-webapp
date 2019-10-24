@@ -71,7 +71,6 @@ export default class ApprovalView extends Vue {
       toolbarItems.sizeColumns,
     ],
     omittedColumns: [
-      'id',
       'role_number',
       'full_path',
       'parent',
@@ -94,6 +93,10 @@ export default class ApprovalView extends Vue {
       },
     },
     overrideColumnDefinitions: [
+      {
+        field: 'id',
+        hide: true,
+      },
       {
         field: 'approval_status',
         headerName: 'Approval Status',
