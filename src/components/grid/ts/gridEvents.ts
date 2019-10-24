@@ -44,13 +44,6 @@ export const dragOver: VueEvent<DragEvent> = {
   },
 };
 
-export const dragEndOrphanage: VueEvent<DragEvent> = {
-  type: 'drop',
-  callback: ({ event }) => {
-    alert('hi');
-  },
-};
-
 export const rowDragEnd: VueEvent<RowDragEndEvent> = {
   type: 'rowDragEnd',
   callback: ({ event, gridInstance, vueStore }) => {
@@ -72,7 +65,6 @@ export const rowDragEnd: VueEvent<RowDragEndEvent> = {
 
     gridInstance.updateRows({
       rowsToUpdate: [newData],
-      optimistic: false,
     });
     gridInstance.gridApi.getRowNode(newParentId).setExpanded(true);
   },
@@ -92,7 +84,6 @@ export const onDropAsset: VueEvent<DragEvent> = {
       gridInstance
         .updateRows({
           rowsToUpdate: [rowData],
-          optimistic: false,
         })
         .then(() => vueStore.grid.forceUpdateAllGrids());
     }
