@@ -141,7 +141,7 @@ export default class ComponentApi {
     const columnDefs = this.gridInstance.columnDefs.map((colDef) => ({
       ...colDef,
       readonly: true,
-      showInForm: colDef.showInForm || colDef.showInView,
+      showInForm: twoConditionReturn(colDef.showInForm, colDef.showInView),
     })) as BaseColumnParams[];
 
     this.store.popup.setPopup({
