@@ -26,7 +26,7 @@
             :key="item.title"
             :to="item.route"
           >
-            <v-list-item-content>
+            <v-list-item-content class="indent">
               <v-list-item-title v-text="item.title"></v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -73,3 +73,9 @@ export default class NavigationDrawer extends Vue {
   ];
 }
 </script>
+
+<style scoped>
+.indent {
+  margin-left: 10px;
+}
+</style>
