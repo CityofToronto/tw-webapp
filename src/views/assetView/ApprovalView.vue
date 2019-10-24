@@ -47,7 +47,7 @@ const rejectButton = createGridButton({
       rowsToUpdate: [
         {
           id: params.data.id,
-          reserved: false,
+          approved: false,
         },
       ],
     });
