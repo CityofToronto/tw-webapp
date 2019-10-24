@@ -1,4 +1,8 @@
-import { MenuItemDef, GetContextMenuItemsParams } from 'ag-grid-community';
+import {
+  MenuItemDef,
+  GetContextMenuItemsParams,
+  Context,
+} from 'ag-grid-community';
 import { MergeContext } from '@/types/grid';
 
 export type ContextMenuParams = MergeContext<GetContextMenuItemsParams>;
@@ -19,37 +23,35 @@ export const orphanBranch: ExtendedMenuItem = {
     context.vueStore.grid.orphanStatus ? 'Adopt Orphan' : 'Orphan Branch',
   action: async (params) => {
     const { vueStore, gridInstance } = params.context;
+    await vueStore.grid.fetchOrphanID();
+
     if (!vueStore.grid.orphanStatus) {
       // Orphan a branch
-      gridInstance
-        .updateRows({
-          rowsToUpdate: [
-            {
-              id: params.node.data.id,
-              parent: 2,
-            },
-          ],
-        })
-        .then(() => {
-          vueStore.grid.forceUpdateAllGrids();
-          vueStore.grid.fetchOrphanID();
-        });
+      await gridInstance.updateRows({
+        rowsToUpdate: [
+          {
+            id: params.node.data.id,
+            parent: 2,
+          },
+        ],
+        refresh: false,
+      });
+      gridInstance.gridApi.updateRowData({
+        remove: [{ id: params.node.data.id }],
+      });
     } else {
       // Adopt the orphans
       // Get latest version of orphans
-      await vueStore.grid.fetchOrphanID();
       const rowsToUpdate = vueStore.grid.orphan.map((id) => ({
         id,
         parent: params.node.id,
       }));
-      gridInstance
-        .updateRows({
-          rowsToUpdate,
-        })
-        .then(() => {
-          vueStore.grid.fetchOrphanID();
-          vueStore.grid.forceUpdateAllGrids();
-        });
+      await gridInstance.updateRows({
+        rowsToUpdate,
+        refresh: false,
+      });
     }
+    vueStore.grid.forceUpdateAllGrids();
+    vueStore.grid.fetchOrphanID();
   },
 };
