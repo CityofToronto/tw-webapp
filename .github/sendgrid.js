@@ -8,7 +8,7 @@ const msg = {
     from: 'sender@example.org',
     subject: 'Hello world',
     text: 'Hello plain world!',
-    html: '<p>Hello HTML world!</p>',
+    html: '<p>Hello HTML world!</p>'
 };
 
 sgMail
