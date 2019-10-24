@@ -121,11 +121,20 @@ export default class GridInstance {
     rowsToUpdate.map((rowData): void => {
       // TODO Bugfix this
       if (!optimistic || optimistic) {
-        this.gridProvider.updateData(rowData).then((response) =>
-          this.gridApi.updateRowData({
-            update: [response],
-          }),
-        );
+        this.gridProvider
+          .updateData(rowData)
+          .then((response) =>
+            this.gridApi.updateRowData({
+              update: [response],
+            }),
+          )
+          .finally(() => {
+            // Refresh the row
+            this.gridApi.refreshCells({
+              force: true,
+              rowNodes: [this.gridApi.getRowNode(rowData.id)],
+            });
+          });
         return;
       }
       // Attempt to update the row optimistically
