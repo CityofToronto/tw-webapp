@@ -23,7 +23,6 @@ export const orphanBranch: ExtendedMenuItem = {
     context.vueStore.grid.orphanStatus ? 'Adopt Orphan' : 'Orphan Branch',
   action: async (params) => {
     const { vueStore, gridInstance } = params.context;
-    await vueStore.grid.fetchOrphanID();
 
     if (!vueStore.grid.orphanStatus) {
       // Orphan a branch
@@ -36,9 +35,9 @@ export const orphanBranch: ExtendedMenuItem = {
         ],
         refresh: false,
       });
-      gridInstance.gridApi.updateRowData({
-        remove: [{ id: params.node.data.id }],
-      });
+      // gridInstance.gridApi.updateRowData({
+      //   remove: [{ id: params.node.data.id }],
+      // });
     } else {
       // Adopt the orphans
       // Get latest version of orphans
@@ -52,6 +51,5 @@ export const orphanBranch: ExtendedMenuItem = {
       });
     }
     vueStore.grid.forceUpdateAllGrids();
-    vueStore.grid.fetchOrphanID();
   },
 };
