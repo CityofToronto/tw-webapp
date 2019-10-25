@@ -96,7 +96,6 @@ export default class ReconciliationView extends Vue {
     suppressRowClickSelection: true,
     gridButtons: [markDoesNotExist, gridButtons.addChildButton],
     toolbarItems: [
-      toolbarItems.addRow,
       toolbarItems.expandAll,
       toolbarItems.collapseAll,
       toolbarItems.fitColumns,
@@ -113,6 +112,7 @@ export default class ReconciliationView extends Vue {
     ],
     columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
     omittedColumns: [
+      'project_id',
       'role_exists',
       'role_missing_from_registry',
       'asset_exists',
@@ -120,6 +120,7 @@ export default class ReconciliationView extends Vue {
       'full_path',
       'parent_changed',
       'role_changed',
+      'parent',
     ],
     autoGroupColumnDef: {
       resizable: true,
@@ -162,10 +163,6 @@ export default class ReconciliationView extends Vue {
     },
     overrideColumnDefinitions: [
       {
-        field: 'project_id',
-        hide: true,
-      },
-      {
         field: 'id',
         headerName: 'Role ID',
         hide: true,
@@ -193,11 +190,6 @@ export default class ReconciliationView extends Vue {
         headerClass: 'asset-separator',
         cellClass: 'asset-separator',
         cellClassRules: assetClassRules,
-      },
-      {
-        field: 'parent',
-        hide: true,
-        showInForm: false,
       },
     ],
   };
