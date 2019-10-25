@@ -145,11 +145,11 @@ export default class Navbar extends Vue {
         name: 'Amber Brasher',
         projects: [
           {
-            id: 1,
+            id: 2,
             name: 'Floor Redesign',
           },
           {
-            id: 3,
+            id: 2,
             name: 'Heater Outfitting',
           },
         ],
