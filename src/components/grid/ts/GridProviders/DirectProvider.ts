@@ -25,7 +25,7 @@ export class DirectProvider extends BaseGridProvider {
     this.subscription = apolloClient
       .subscribe({
         query: gql` 
-        subscription {
+        subscription (order_by: {id: asc}) {
           ${this.tableName} {
             ${await this.getColumnNames()}
           }
@@ -34,6 +34,7 @@ export class DirectProvider extends BaseGridProvider {
       })
       .subscribe({
         next: ({ data }) =>
+          //TODO change to an update?
           gridInstance.gridApi.setRowData(data[this.tableName]),
       });
   }
@@ -42,7 +43,7 @@ export class DirectProvider extends BaseGridProvider {
     return apolloClient
       .query({
         query: gql` {
-          ${this.tableName} {
+          ${this.tableName} (order_by: {id: asc}) {
             ${await this.getColumnNames()}
           }
         }`,
