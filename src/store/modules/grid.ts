@@ -118,7 +118,36 @@ export default class GridModule {
   }
 
   @Action()
-  public async fetchOrphanID() {
+  public async subscribeToOrphanView() {
+    apolloClient
+      .subscribe({
+        query: gql`
+          subscription {
+            orphan_view(where: { parent: { _eq: 2 } }) {
+              id
+              project_id
+            }
+          }
+        `,
+        fetchPolicy: 'network-only',
+      })
+      .subscribe({
+        next: ({ data }) => {
+          this.setOrphanID(
+            data.orphan_view
+              // TODO remove this when jon implements project filtering
+              .filter(
+                (item: { id: string; project_id: number }) =>
+                  item.project_id === storeInstance.auth.activeProjectData.id,
+              )
+              .map((item: { id: string }) => item.id),
+          );
+        },
+      });
+  }
+
+  @Action()
+  public forceFetchOrphanIDs() {
     apolloClient
       .query({
         query: gql`
@@ -129,10 +158,10 @@ export default class GridModule {
             }
           }
         `,
-        fetchPolicy: 'network-only',
       })
-      .then((response) => {
-        this.orphanIDs = response.data.orphan_view
+      .then(({ data }) => {
+        this.orphanIDs = data.orphan_view
+          // TODO remove this when jon implements project filtering
           .filter(
             (item: { id: string; project_id: number }) =>
               item.project_id === storeInstance.auth.activeProjectData.id,
