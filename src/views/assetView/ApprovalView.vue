@@ -18,6 +18,7 @@ import agComponents from '@/components/grid/ag-components';
 import { MergeContext } from '@/types/grid';
 import { ICellRendererParams } from 'ag-grid-community';
 import { createGridButton } from '@/components/grid/ts/ColumnFactory/gridButtons';
+import { reservationRowStyle } from './common/rowStyles';
 
 const approveButton = createGridButton({
   icon: (params) =>
@@ -92,6 +93,7 @@ export default class ApprovalView extends Vue {
         innerRendererFramework: agComponents.AliasCell,
       },
     },
+    getRowStyle: reservationRowStyle,
     overrideColumnDefinitions: [
       {
         field: 'id',
