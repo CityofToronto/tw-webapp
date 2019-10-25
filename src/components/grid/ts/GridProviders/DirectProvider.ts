@@ -25,8 +25,8 @@ export class DirectProvider extends BaseGridProvider {
     this.subscription = apolloClient
       .subscribe({
         query: gql` 
-        subscription (order_by: {id: asc}) {
-          ${this.tableName} {
+        subscription {
+          ${this.tableName} (order_by: {id: asc}) {
             ${await this.getColumnNames()}
           }
         }
