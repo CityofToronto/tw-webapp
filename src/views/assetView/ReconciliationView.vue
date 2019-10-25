@@ -125,11 +125,10 @@ export default class ReconciliationView extends Vue {
       resizable: true,
       width: 400,
       rowDrag: true,
+      valueFormatter: (params) => params.data.role_number,
       headerName: 'Role Number',
       cellRendererParams: {
-        aliasColumn: 'role_number',
         checkbox: true,
-        innerRendererFramework: agComponents.AliasCell,
         suppressCount: true,
       },
       cellClassRules: {
