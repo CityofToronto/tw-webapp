@@ -44,7 +44,7 @@ type ClassRules = {
 
 const markDoesNotExist = gridButtons.createGridButton({
   icon: ({ data }) =>
-    data && data.role_missing_from_registry ? 'delete' : 'remove_red_eye',
+    data && data.role_missing_from_registry ? 'delete' : 'fa-eraser',
   clickFunction: (params) => {
     if (params.data.role_missing_from_registry) {
       const removeData = {
@@ -115,7 +115,6 @@ export default class ReconciliationView extends Vue {
     omittedColumns: [
       'role_exists',
       'role_missing_from_registry',
-      'project_id',
       'asset_exists',
       'asset_missing_from_registry',
       'full_path',
@@ -163,6 +162,10 @@ export default class ReconciliationView extends Vue {
       },
     },
     overrideColumnDefinitions: [
+      {
+        field: 'project_id',
+        hide: true,
+      },
       {
         field: 'id',
         headerName: 'Role ID',
