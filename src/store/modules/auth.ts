@@ -13,17 +13,41 @@ interface UserData {
 }
 
 export default class AuthModule {
+  private users: UserData[] = [
+    {
+      name: 'Tony Huang (approver)',
+      username: 'tony.huang',
+      projects: [
+        {
+          id: 2,
+          name: 'Pump Retrofit',
+        },
+      ],
+    },
+    {
+      name: 'Amber Brasher (consultant)',
+      username: 'amber.brasher',
+      projects: [
+        {
+          id: 2,
+          name: 'Pump Retrofit',
+        },
+      ],
+    },
+    {
+      name: 'Jon Ma (approver)',
+      username: 'jon.ma',
+      projects: [
+        {
+          id: 3,
+          name: 'Facility Redesign',
+        },
+      ],
+    },
+  ];
+
+  @State() private currentUser: number = 0;
   @State() private loggedIn!: boolean;
-  @State() private userData: UserData = {
-    name: 'Tony Huang',
-    username: 'tony.huang',
-    projects: [
-      {
-        id: 2,
-        name: 'Pump Retrofit',
-      },
-    ],
-  };
 
   @Getter()
   public get loginStatus() {
@@ -31,32 +55,24 @@ export default class AuthModule {
   }
 
   @Getter()
-  public get username() {
-    return this.userData.username;
-  }
-
-  @Getter()
-  public get user(): UserData {
-    return this.userData;
-  }
-
-  @Mutation()
-  public setUserData(userData: UserData) {
-    this.userData = userData;
-    this.activeProject = userData.projects[0];
-    forceReconnect();
-  }
-
-  @State() private activeProject: Project = this.userData.projects[0];
-
-  @Mutation()
-  public setActiveProject(project: Project) {
-    this.activeProject = project;
-    forceReconnect();
-  }
-
-  @Getter()
   public get activeProjectData() {
-    return this.activeProject;
+    return this.users[this.currentUser].projects[0];
+  }
+
+  @Mutation()
+  public changeUser() {
+    const numberOfUsers = this.users.length - 1;
+
+    if (this.currentUser + 1 > numberOfUsers) {
+      this.currentUser = 0;
+      return;
+    }
+    this.currentUser = this.currentUser + 1;
+  }
+
+  @Getter()
+  public get currentUserData() {
+    //@ts-ignore
+    return this.users[this.currentUser];
   }
 }

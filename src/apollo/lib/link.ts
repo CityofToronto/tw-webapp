@@ -14,7 +14,7 @@ const subscriptionClient = new SubscriptionClient(GRAPHQL_ENDPOINT, {
   timeout: 1000,
   lazy: true,
   connectionParams: () => {
-    const username = storeInstance.auth.username;
+    const username = storeInstance.auth.currentUserData.username;
     return {
       headers: {
         'x-hasura-admin-secret': authToken,

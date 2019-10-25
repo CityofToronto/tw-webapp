@@ -109,19 +109,15 @@ export default class Navbar extends Vue {
   store: Store = useStore(this.$store);
 
   get userData() {
-    return this.store.auth.user;
-  }
-
-  get loginStatus() {
-    return this.store.auth.loginStatus;
+    return this.store.auth.currentUserData;
   }
 
   get currentProject() {
     return this.store.auth.activeProjectData;
   }
 
-  setActiveProject(project: { id: number; name: string }) {
-    this.store.auth.setActiveProject(project);
+  get loginStatus() {
+    return this.store.auth.loginStatus;
   }
 
   logout() {
@@ -129,37 +125,7 @@ export default class Navbar extends Vue {
   }
 
   changeUser() {
-    const userData = {
-      tony: {
-        username: 'tony.huang',
-        name: 'Tony Huang',
-        projects: [
-          {
-            id: 2,
-            name: 'Pump Retrofit',
-          },
-        ],
-      },
-      amber: {
-        username: 'amber.brasher',
-        name: 'Amber Brasher',
-        projects: [
-          {
-            id: 2,
-            name: 'Floor Redesign',
-          },
-          {
-            id: 2,
-            name: 'Heater Outfitting',
-          },
-        ],
-      },
-    };
-    this.store.auth.setUserData(
-      this.userData.username === 'amber.brasher'
-        ? userData.tony
-        : userData.amber,
-    );
+    this.store.auth.changeUser();
   }
 
   businessUnit = 'Highland Creek';

@@ -48,7 +48,9 @@ export default class NavigationDrawer extends Vue {
   store: Store = useStore(this.$store);
 
   get showAdminPanel() {
-    return this.store.auth.user.username === 'tony.huang';
+    return ['tony.huang', 'jon.ma'].includes(
+      this.store.auth.currentUserData.username,
+    );
   }
 
   modules = [
