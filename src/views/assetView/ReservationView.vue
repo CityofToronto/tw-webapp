@@ -72,7 +72,7 @@ export default class ReservationView extends Vue {
         if (
           params.context.vueStore.auth.activeProjectData.id !==
             params.data.project_id &&
-          params.data.project_id
+          !!params.data.project_id
         )
           return { background: '#eceff1' };
         if (params.data.approval_status === 'Pending')
@@ -80,7 +80,7 @@ export default class ReservationView extends Vue {
         if (params.data.approval_status === 'Approved')
           return { background: '#e8f5e9' };
       }
-      return false;
+      return { background: 'transparent' };
     },
     autoGroupColumnDef: {
       headerName: 'Role',
