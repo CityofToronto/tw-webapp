@@ -13,7 +13,7 @@ import Vue from 'vue';
  * Through a Vuetify snackbar
  */
 export const dispatchError = (error: Error): never => {
-  Vue.$toast(error.message, { type: 'error' });
+  Vue.$toast(error.message, { type: 'error', position: 'bottom-right' });
   throw new Error(error.message);
 };
 
