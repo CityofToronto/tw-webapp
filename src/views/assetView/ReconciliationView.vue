@@ -85,7 +85,7 @@ const assetClassRules: ClassRules = {
 export default class ReconciliationView extends Vue {
   store: Store = useStore(this.$store);
   async created() {
-    await this.store.grid.fetchOrphanID();
+    this.store.grid.subscribeToOrphanView();
   }
 
   private reconciliationConfig: GridConfiguration = {
