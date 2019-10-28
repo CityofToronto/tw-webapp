@@ -26,7 +26,6 @@
 import { Watch, Component, Mixins } from 'vue-property-decorator';
 import { RowEvent, RowNode } from 'ag-grid-community';
 import GridMixin from './ts/GridMixin';
-import { QueryType } from '@/apollo/types';
 import TreeviewEditor from './ag-components/TreeviewEditor.vue';
 import TreeviewRenderer from './ag-components/TreeviewRenderer.vue';
 import TreeviewFilter from './ag-components/TreeviewFilter.vue';
@@ -44,13 +43,6 @@ import SetFilter from './ag-components/SetFilter.vue';
 export default class GridComponent extends Mixins(GridMixin) {
   get getRowId() {
     return this.store.grid.rowId;
-  }
-
-  @Watch('getRowId')
-  onRowIdChanged() {
-    if (this.queryType !== QueryType.Direct) {
-      this.gridApi.purgeServerSideCache();
-    }
   }
 }
 </script>

@@ -159,3 +159,16 @@ export interface TreeFilterParams extends IFilterParams {
 export interface TreeEditorParams extends ICellEditorParams {
   treeData: TreeStructure[];
 }
+
+export interface AddQuery {
+  rowsToAdd: Record<string, any>[];
+}
+
+export interface RemoveQuery {
+  rowsToRemove: RowData[];
+}
+
+export interface UpdateQuery {
+  rowsToUpdate: RowData[];
+  refresh?: boolean;
+}

@@ -1,6 +1,11 @@
-import { AddQuery, RemoveQuery, UpdateQuery } from '@/apollo/types';
 import { QueryType } from '@/types/api';
-import { ExtendedColDef, RowData, RequiredConfig } from '@/types/grid';
+import {
+  RowData,
+  RequiredConfig,
+  AddQuery,
+  RemoveQuery,
+  UpdateQuery,
+} from '@/types/grid';
 import { ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
 import { DirectProvider, OTMProvider } from './GridProviders';
 import BaseGridProvider from './GridProviders/BaseGridProvider';

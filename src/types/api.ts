@@ -51,19 +51,10 @@ export enum QueryType {
   ManyToMany = 'ManyToMany',
 }
 
-interface CallbackQuery {
-  successCallback?: () => void;
-  failCallback?: () => void;
-}
-
-export interface AddQuery extends CallbackQuery {
-  rowsToAdd: { [key: string]: any }[];
-}
-
-export interface UpdateQuery extends CallbackQuery {
-  rowsToUpdate: RowData[];
-}
-
-export interface RemoveQuery extends CallbackQuery {
-  rowsToRemove: RowData[];
+export interface TableQueryResult {
+  data: {
+    __type: {
+      fields: HasuraField[];
+    };
+  };
 }
