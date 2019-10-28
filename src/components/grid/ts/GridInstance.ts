@@ -1,13 +1,5 @@
-import { QueryType } from '@/types/api';
-import {
-  RowData,
-  RequiredConfig,
-  AddQuery,
-  RemoveQuery,
-  UpdateQuery,
-} from '@/types/grid';
+import { RowData, AddQuery, RemoveQuery, UpdateQuery } from '@/types/grid';
 import { ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
-import { DirectProvider, OTMProvider } from './GridProviders';
 import BaseGridProvider from './GridProviders/BaseGridProvider';
 import ComponentApi from './componentApi';
 import _ from 'lodash';
@@ -42,26 +34,6 @@ export default class GridInstance {
     this.columnApi = columnApi;
     this.gridOptions = gridOptions;
     this.componentApi = new ComponentApi(this);
-  }
-
-  /**
-   * Shortcut to give back a pre-configured GridProvider. This function is
-   * to be used when creating a grid instance
-   */
-  public static getProvider(
-    queryType: QueryType,
-    config: RequiredConfig,
-    relatedData: {
-      tableName: string;
-      rowId: number;
-    },
-  ): BaseGridProvider {
-    const providers: { [key in QueryType]: BaseGridProvider } = {
-      [QueryType.Direct]: new DirectProvider(config),
-      [QueryType.OneToMany]: new OTMProvider(config, relatedData),
-      [QueryType.ManyToMany]: new OTMProvider(config, relatedData), // TODO CHANGE THIS TO MTM
-    };
-    return providers[queryType];
   }
 
   public forceUpdateData() {
