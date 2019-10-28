@@ -1,13 +1,10 @@
 import { VueEvent } from '@/types/config';
-import { FunctionProps } from '@/types/grid';
 import {
   RowDragMoveEvent,
   CellValueChangedEvent,
   RowDragEndEvent,
   RowDoubleClickedEvent,
 } from 'ag-grid-community';
-
-type Event<T> = FunctionProps & { event: T };
 
 export const cellValueChanged: VueEvent<CellValueChangedEvent> = {
   type: '',
