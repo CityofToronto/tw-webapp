@@ -87,15 +87,14 @@ export default class DynamicForm extends Vue {
 
   getColumnType = (columnType: CellType) => {
     const componentTypes: { [key in CellType]: string } = {
-      [CellType.booleanCell]: 'v-checkbox',
-      [CellType.numberCell]: 'v-text-field',
-      [CellType.textCell]: 'v-text-field',
-      [CellType.selectCell]: 'v-select',
-      [CellType.treeCell]: 'treeview-input',
-      [CellType.aliasCell]: 'v-text-field',
-      [CellType.rearrangeCell]: 'v-text-field',
+      booleanCell: 'v-checkbox',
+      numberCell: 'v-text-field',
+      textCell: 'v-text-field',
+      selectCell: 'v-select',
+      treeCell: 'treeview-input',
+      rearrangeCell: 'v-text-field',
     };
-    return componentTypes[columnType] || [CellType.textCell];
+    return componentTypes[columnType] || componentTypes.textCell;
   };
 
   saveForm() {

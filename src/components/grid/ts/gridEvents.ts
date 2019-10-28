@@ -13,7 +13,7 @@ export const cellValueChanged: VueEvent<CellValueChangedEvent> = {
 
 export const rowDragMoved: VueEvent<RowDragMoveEvent> = {
   type: 'rowDragMove',
-  callback: ({ event, vueStore }) => {
+  callback({ event, vueStore }) {
     vueStore.grid.setPotentialParent({
       parentNode: event.overNode,
       gridApi: event.api,

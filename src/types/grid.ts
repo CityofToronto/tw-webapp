@@ -63,15 +63,13 @@ export interface GridContext {
   parentComponent: any;
 }
 
-export enum CellType {
-  booleanCell,
-  textCell,
-  numberCell,
-  selectCell,
-  treeCell,
-  aliasCell,
-  rearrangeCell,
-}
+export type CellType =
+  | 'textCell'
+  | 'booleanCell'
+  | 'numberCell'
+  | 'selectCell'
+  | 'treeCell'
+  | 'rearrangeCell';
 
 type Filters =
   | 'equals'

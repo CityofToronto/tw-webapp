@@ -5,7 +5,6 @@ import { CellType, RequiredConfig } from '@/types/grid';
 import CellTypes from './CellTypes';
 import { CellParams, GridConfiguration } from '@/types/config';
 import { HasuraField } from '@/types/api';
-import { capitalize } from '@/common/utils';
 import _ from 'lodash';
 
 interface ProcessedColumn {
@@ -61,7 +60,7 @@ export default class ColumnFactory {
 
     if (isEnum) {
       return {
-        cellType: CellType.selectCell,
+        cellType: 'selectCell',
         enumValues: column.type.ofType.enumValues,
       };
     }
@@ -69,11 +68,11 @@ export default class ColumnFactory {
       case 'Int':
       case 'numeric':
       case 'bigint':
-        return { cellType: CellType.numberCell };
+        return { cellType: 'numberCell' };
       case 'Boolean':
-        return { cellType: CellType.booleanCell };
+        return { cellType: 'numberCell' };
       default:
-        return { cellType: CellType.textCell };
+        return { cellType: 'textCell' };
     }
   }
 
@@ -99,7 +98,7 @@ export default class ColumnFactory {
   private getCustomColDef = async (column: CellParams): Promise<ColDef> => {
     switch (column.cellType) {
       // Tree Column requires external data to render
-      case CellType.treeCell: {
+      case 'treeCell': {
         const valueData = await apolloClient.getValuesFromTable<TreeData[]>({
           tableName: column.sourceTableName,
           columns: ['name'],
@@ -107,18 +106,16 @@ export default class ColumnFactory {
         return CellTypes[column.cellType](valueData);
       }
       // Select column requires values as string[]
-      case CellType.selectCell: {
-        return CellTypes[column.cellType](
+      case 'selectCell': {
+        return CellTypes.selectCell(
           column.enumValues.map((enumVal) => enumVal.name),
         );
       }
       default:
         if (column.cellType) {
-          return CellTypes[column.cellType]();
+          return CellTypes[column.cellType];
         }
-        // If cellType is not defined, fall back to text cell
-        // TODO Log this as an error
-        return CellTypes[CellType.textCell]();
+        return CellTypes.textCell;
     }
   };
 
@@ -144,11 +141,20 @@ export default class ColumnFactory {
           ...overrideColDef,
         };
 
-        return {
+        // This merges the conditional into the cellRendererParams for access in cell renderers
+        const combinedDef = {
           ...colDef,
           ...(await this.getCustomColDef(colDef as CellParams)),
           ...overrideColDef,
         };
+        const mergedConditional = {
+          cellRendererParams: {
+            conditional:
+              (overrideColDef && overrideColDef.conditional) || (() => true),
+          },
+        };
+
+        return _.merge(combinedDef, mergedConditional);
       },
     );
     this.columnDefs = await Promise.all(promiseOfColDef);

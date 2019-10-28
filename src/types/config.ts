@@ -1,5 +1,5 @@
-import { ColDef, GridOptions } from 'ag-grid-community';
-import { CellType } from './grid';
+import { ColDef, GridOptions, ICellRendererParams } from 'ag-grid-community';
+import { CellType, MergeContext } from './grid';
 import { MarkRequired } from 'ts-essentials';
 import GridInstance from '@/components/grid/ts/GridInstance';
 import { ToolbarItem } from '@/components/grid/ts/toolbarItems';
@@ -25,17 +25,16 @@ type DefaultContextItems =
   | 'chartRange'
   | 'separator';
 
+interface VueEventParams<T> {
+  event: T;
+  gridInstance: GridInstance;
+  vueStore: Store;
+}
+
 export interface VueEvent<T> {
   type: string;
-  callback: ({
-    event,
-    gridInstance,
-    vueStore,
-  }: {
-    event: T;
-    gridInstance: GridInstance;
-    vueStore: Store;
-  }) => void;
+  conditional?: boolean | ((eventParams: VueEventParams<T>) => boolean);
+  callback: (eventParams: VueEventParams<T>) => void;
 }
 
 export type CustomProperties = keyof Omit<
@@ -135,16 +134,18 @@ export type CellParams =
 type ColDefRequiredField = MarkRequired<ColDef, 'field'>;
 
 interface CommonParams {
+  cellType?: CellType;
   showInForm?: boolean;
   showInView?: boolean;
   readonly?: boolean;
+  conditional?: (params: MergeContext<ICellRendererParams>) => boolean;
 }
 
 export interface BaseColumnParams extends ColDefRequiredField, CommonParams {
-  cellType?: Exclude<CellType, CellType.treeCell | CellType.selectCell>;
+  cellType?: Exclude<CellType, 'selectCell' | 'treeCell'>;
 }
 interface SelectColumnParams extends ColDefRequiredField, CommonParams {
-  cellType: CellType.selectCell;
+  cellType: 'selectCell';
   enumValues: {
     name: string;
   }[];
@@ -155,7 +156,7 @@ interface SelectColumnParams extends ColDefRequiredField, CommonParams {
  * data for processing
  */
 interface ExternalDataParams extends ColDefRequiredField, CommonParams {
-  cellType: CellType.treeCell;
+  cellType: 'treeCell';
   /**
    * Name of the source table to get values from.
    *
@@ -164,4 +165,8 @@ interface ExternalDataParams extends ColDefRequiredField, CommonParams {
    * Source table for tree column requires 'id, name, parent' field
    */
   sourceTableName: string;
+}
+
+export interface CellRendererParams extends MergeContext<ICellRendererParams> {
+  conditional: (params: MergeContext<ICellRendererParams>) => boolean;
 }

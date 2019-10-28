@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RowData } from '@/types/grid';
 import { storeInstance } from '@/store';
-import { NotificationPosition } from '@/store/modules/notification';
 import GridInstance from '@/components/grid/ts/GridInstance';
-import { CellType } from '@/types/grid';
 
 import Vue from 'vue';
 
@@ -25,7 +23,7 @@ export const stringify = (data: RowData, tableID: string): string => {
     tableID,
   ) as GridInstance;
   const selectedCellFields = gridInstance.columnDefs
-    .filter((col) => col.cellType === CellType.selectCell)
+    .filter((col) => col.cellType === 'selectCell')
     .map((col) => col.field);
 
   return Object.entries(data)

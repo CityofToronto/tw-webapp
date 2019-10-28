@@ -1,13 +1,13 @@
 <template>
   <div
-    draggable="true"
+    :draggable="isDraggable"
     class="cell-container"
     @dragstart="onDragStart"
     @drop="onDrop"
     @dragover="onDragOver"
   >
-    <span style="flex-shrink: 1">
-      <v-icon>drag_indicator</v-icon>
+    <span style="flex-shrink: 1; width: 15px">
+      <v-icon v-if="isDraggable">drag_indicator</v-icon>
     </span>
     <span style="flex-grow: 1">
       {{ params.value }}
@@ -20,7 +20,7 @@ import { Vue, Component } from 'vue-property-decorator';
 import { ICellRendererParams } from 'ag-grid-community';
 import GridInstance from '../ts/GridInstance';
 import { storeInstance } from '@/store';
-import { MergeContext } from '@/types/grid';
+import { CellRendererParams } from '@/types/config';
 
 /**
  * RearrangeRenderer
@@ -28,7 +28,7 @@ import { MergeContext } from '@/types/grid';
  */
 @Component({})
 export default class RearrangeRenderer extends Vue {
-  params!: MergeContext<ICellRendererParams>;
+  params!: CellRendererParams;
 
   // When drag is started, assign the row's data to the dataTransfer object
   onDragStart(event: DragEventInit) {
@@ -45,12 +45,15 @@ export default class RearrangeRenderer extends Vue {
     }
   }
 
+  get isDraggable() {
+    return this.params.conditional(this.params);
+  }
+
   // This updates the DOM to have it look movable
   onDragOver = (event: DragEvent) => {
     if (event.dataTransfer) {
       event.dataTransfer.dropEffect = 'move';
     }
-
     event.preventDefault();
   };
 
@@ -79,7 +82,7 @@ export default class RearrangeRenderer extends Vue {
       // Get ID of row dropped on and combine with from the row it was dragged from
       const eventData = {
         id: this.params.data.id,
-        asset_id: draggedFromData.id, //TODO make this configurable
+        asset_id: draggedFromData.id,
       };
 
       // Update the cell that was dropped on with new value

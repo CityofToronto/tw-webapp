@@ -52,7 +52,12 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
       })
         // eslint-disable-next-line
         .then((response: TableQueryResult) => response.data.__type.fields)
-        .catch((error): never => dispatchError(error))
+        .catch((error): never =>
+          dispatchError(
+            new Error(`Can't fetch table, reload or try again later.
+            If problem persists, contact support.`),
+          ),
+        )
     );
   }
 
@@ -84,7 +89,12 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
       })
         // eslint-disable-next-line
         .then((response: TableQueryResult) => response.data.__type.fields.filter((element) => isColumn(element)))
-        .catch((error): never => dispatchError(error))
+        .catch((error): never =>
+          dispatchError(
+            new Error(`Can't fetch table, reload or try again later.
+            If problem persists, contact support.`),
+          ),
+        )
     );
   }
 
@@ -111,7 +121,12 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
       })
         // eslint-disable-next-line
         .then((response: TableQueryResult) => response.data.__type.fields.filter((element) => isRelationship(element)))
-        .catch((error): never => dispatchError(error))
+        .catch((error): never =>
+          dispatchError(
+            new Error(`Can't fetch table, reload or try again later.
+            If problem persists, contact support.`),
+          ),
+        )
     );
   }
 
@@ -130,7 +145,12 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
         }`,
     })
       .then((response): T => response.data[tableName])
-      .catch((error): never => dispatchError(error));
+      .catch((error): never =>
+        dispatchError(
+          new Error(`Can't fetch table, reload or try again later.
+            If problem persists, contact support.`),
+        ),
+      );
   }
 }
 

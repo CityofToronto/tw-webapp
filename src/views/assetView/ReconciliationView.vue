@@ -33,6 +33,7 @@ import * as toolbarItems from '@/components/grid/ts/toolbarItems';
 import * as contextItems from '@/components/grid/ts/contextItems';
 import * as gridEvents from '@/components/grid/ts/gridEvents';
 import * as gridButtons from '@/components/grid/ts/ColumnFactory/gridButtons';
+import { isCurrentProject } from './common/conditionals';
 import { ICellRendererParams, CellClassParams } from 'ag-grid-community';
 import { CellType, RowStyleParams, MergeContext } from '@/types/grid';
 import Store from '@/store/store';
@@ -42,9 +43,20 @@ type ClassRules = {
   [cssClassName: string]: (params: MergeContext<CellClassParams>) => boolean;
 };
 
+export const addChildButton = gridButtons.createGridButton({
+  icon: ({ data }) => {
+    if (!isCurrentProject(data.project_id) || !data.role_exists) return '';
+    return 'keyboard_tab';
+  },
+  clickFunction: ({ node, context }) =>
+    context.gridInstance.componentApi.addChildToRow(node),
+});
+
 const markDoesNotExist = gridButtons.createGridButton({
-  icon: ({ data }) =>
-    data && data.role_missing_from_registry ? 'delete' : 'fa-eraser',
+  icon: ({ data }) => {
+    if (!isCurrentProject(data.project_id)) return '';
+    return data && data.role_missing_from_registry ? 'delete' : 'fa-eraser';
+  },
   clickFunction: (params) => {
     if (params.data.role_missing_from_registry) {
       const removeData = {
@@ -94,7 +106,7 @@ export default class ReconciliationView extends Vue {
     gridType: 'normal',
     treeData: true,
     suppressRowClickSelection: true,
-    gridButtons: [markDoesNotExist, gridButtons.addChildButton],
+    gridButtons: [markDoesNotExist, addChildButton],
     toolbarItems: [
       toolbarItems.expandAll,
       toolbarItems.collapseAll,
@@ -125,11 +137,11 @@ export default class ReconciliationView extends Vue {
     autoGroupColumnDef: {
       resizable: true,
       width: 400,
-      rowDrag: true,
+      // Only reserved roles will be draggable
+      rowDrag: (params) => isCurrentProject(params.data.project_id),
       valueFormatter: (params) => params.data.role_number,
       headerName: 'Role Number',
       cellRendererParams: {
-        checkbox: true,
         suppressCount: true,
       },
       cellClassRules: {
@@ -140,23 +152,18 @@ export default class ReconciliationView extends Vue {
     },
     rowClassRules: {
       'background-grey': (params: RowStyleParams) => {
-        // if entity's project id isn't the active one
+        // If entity's project id isn't the active one
         if (params.data) {
-          return (
-            params.context.vueStore.auth.activeProjectData.id !==
-            params.data.project_id
-          );
+          return !isCurrentProject(params.data.project_id);
         }
         return false;
       },
 
       'text-grey': (params: RowStyleParams) => {
-        // if project id is off or role does not exist
+        // If project id is off or role does not exist
         if (params.data)
           return (
-            !params.data.role_exists ||
-            params.context.vueStore.auth.activeProjectData.id !==
-              params.data.project_id
+            !params.data.role_exists || isCurrentProject(params.data.project_id)
           );
         return false;
       },
@@ -184,9 +191,10 @@ export default class ReconciliationView extends Vue {
       },
       {
         field: 'asset_serial_number',
-        cellType: CellType.rearrangeCell,
+        cellType: 'rearrangeCell',
         showInForm: false,
         showInView: true,
+        conditional: (params) => isCurrentProject(params.data.project_id),
         headerClass: 'asset-separator',
         cellClass: 'asset-separator',
         cellClassRules: assetClassRules,
@@ -212,7 +220,7 @@ export default class ReconciliationView extends Vue {
           'background-green': ({ data }) =>
             data ? data.asset_missing_from_registry : false,
         } as ClassRules,
-        cellType: CellType.rearrangeCell,
+        cellType: 'rearrangeCell',
       },
       {
         field: 'id',

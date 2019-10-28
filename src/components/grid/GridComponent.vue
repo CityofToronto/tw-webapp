@@ -119,12 +119,23 @@ export default class GridComponent extends Vue {
     return this.store.grid.rowId;
   }
 
-  eventHandler(event: any, eventFunction: Function) {
-    eventFunction({
+  eventHandler<T>(
+    event: T,
+    eventFunction: Function,
+    conditional: boolean | ((...params: any[]) => boolean) = true,
+  ) {
+    const functionParams = {
       event,
       gridInstance: this.gridInstance,
       vueStore: this.store,
-    });
+    };
+    if (
+      typeof conditional === 'function'
+        ? !conditional(functionParams)
+        : !conditional
+    )
+      return;
+    eventFunction(functionParams);
   }
 
   async created(): Promise<void> {
@@ -134,7 +145,8 @@ export default class GridComponent extends Vue {
         (event) =>
           (this.events = {
             ...this.events,
-            [event.type]: (e) => this.eventHandler(e, event.callback),
+            [event.type]: (e) =>
+              this.eventHandler(e, event.callback, event.conditional),
           }),
       );
     }

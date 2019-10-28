@@ -60,7 +60,7 @@ export class DirectProvider extends BaseGridProvider {
         mutation {
           insert_${this.tableName} (
             objects: {
-              ${stringify(rowData, this.tableID)}
+              ${stringify(rowData, this.tableID || this.tableName)}
             }
           ) {
             returning {
@@ -108,7 +108,7 @@ export class DirectProvider extends BaseGridProvider {
               id: { _eq: ${rowToUpdate.id} }
             },
             _set: {
-              ${stringify(rowToUpdate, this.tableID)}
+              ${stringify(rowToUpdate, this.tableID || this.tableName)}
             }
             ) {
               returning {
