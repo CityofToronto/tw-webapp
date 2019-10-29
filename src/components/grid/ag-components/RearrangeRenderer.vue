@@ -87,9 +87,11 @@ export default class RearrangeRenderer extends Vue {
 
       // Update the cell that was dropped on with new value
 
-      this.params.context.gridInstance.updateRows({
-        rowsToUpdate: [eventData],
-      });
+      this.params.context.gridInstance
+        .updateRows({
+          rowsToUpdate: [eventData],
+        })
+        .then(() => this.params.context.vueStore.grid.forceUpdateAllGrids());
     }
   }
 }

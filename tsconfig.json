@@ -10,19 +10,16 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
+    "noImplicitAny": false,
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
       "webpack-env",
-      "jest"
     ],
     "paths": {
       "@/*": [
         "src/*"
       ],
-      "#/*": [
-        "*"
-      ]
     },
     "lib": [
       "esnext",
@@ -41,10 +38,4 @@
   "exclude": [
     "/node_modules/*"
   ],
-  "typedocOptions": {
-    "mode": "modules",
-    "out": "docs",
-    "ignoreCompilerErrors": true,
-    "excludeExternals": true
-  }
 }
