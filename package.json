@@ -10,7 +10,6 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@sendgrid/mail": "^6.4.0",
     "@typescript-eslint/parser": "^2.4.0",
     "ag-grid-community": "^21.1.0",
     "ag-grid-enterprise": "^21.2.2",
