@@ -16,7 +16,7 @@ import * as toolbarItems from '@/components/grid/ts/toolbarItems';
 import { ICellRendererParams } from 'ag-grid-community';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
 import agComponents from '@/components/grid/ag-components';
-import { reservationRowStyle } from './common/rowStyles';
+import { reservationRowStyle } from './common/cssStyles';
 
 @Component({
   components: {

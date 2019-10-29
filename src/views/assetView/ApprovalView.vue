@@ -18,7 +18,7 @@ import agComponents from '@/components/grid/ag-components';
 import { MergeContext } from '@/types/grid';
 import { ICellRendererParams } from 'ag-grid-community';
 import { createGridButton } from '@/components/grid/ts/ColumnFactory/gridButtons';
-import { reservationRowStyle } from './common/rowStyles';
+import { reservationRowStyle } from './common/cssStyles';
 
 const approveButton = createGridButton({
   icon: (params) =>

@@ -26,7 +26,7 @@
 import { Vue, Component } from 'vue-property-decorator';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
 import { GridType } from '@/types/grid';
-import { GridConfiguration } from '../../types/config';
+import { GridConfiguration } from '@/types/config';
 
 import agComponents from '@/components/grid/ag-components';
 import * as toolbarItems from '@/components/grid/ts/toolbarItems';
@@ -38,20 +38,42 @@ import { ICellRendererParams, CellClassParams } from 'ag-grid-community';
 import { CellType, RowStyleParams, MergeContext } from '@/types/grid';
 import Store from '@/store/store';
 import { useStore } from 'vuex-simple';
+import { ClassRules } from '@/types/agGrid';
 
-type ClassRules = {
-  [cssClassName: string]: (params: MergeContext<CellClassParams>) => boolean;
+/**
+ * This defines role styling
+ */
+export const roleClassRules: ClassRules = {
+  'background-green': ({ data }) =>
+    data ? data.role_missing_from_registry : false,
+  'background-light-blue': ({ data }) => (data ? data.parent_changed : false),
 };
 
-export const addChildButton = gridButtons.createGridButton({
-  icon: ({ data }) => {
-    if (!isCurrentProject(data.project_id) || !data.role_exists) return '';
-    return 'keyboard_tab';
-  },
+/**
+ * This defines asset styling
+ */
+export const assetClassRules: ClassRules = {
+  'background-green': ({ data }) =>
+    data ? data.asset_missing_from_registry : false,
+  'background-light-blue': ({ data }) => (data ? data.role_changed : false),
+};
+
+/**
+ * Creates a custom grid button addChildButton
+ * It performs the addChildToRow function
+ * It is disabled if role is marked as does not exist
+ */
+const addChildButton = gridButtons.createGridButton({
+  icon: ({ data }) => (!data.role_exists ? '' : 'keyboard_tab'),
   clickFunction: ({ node, context }) =>
     context.gridInstance.componentApi.addChildToRow(node),
 });
 
+/**
+ * Creates a custom grid button markDoesNotExist
+ * It deletes entities that role_missing_from_registry = true
+ * Otherwise, it marks as does not exist
+ */
 const markDoesNotExist = gridButtons.createGridButton({
   icon: ({ data }) => {
     if (!isCurrentProject(data.project_id)) return '';
@@ -77,59 +99,49 @@ const markDoesNotExist = gridButtons.createGridButton({
   },
 });
 
-const roleClassRules: ClassRules = {
-  'background-green': ({ data }) =>
-    data ? data.role_missing_from_registry : false,
-  'background-light-blue': ({ data }) => (data ? data.parent_changed : false),
-};
-
-const assetClassRules: ClassRules = {
-  'background-green': ({ data }) =>
-    data ? data.asset_missing_from_registry : false,
-  'background-light-blue': ({ data }) => (data ? data.role_changed : false),
-};
-
 @Component({
   components: {
     GridWithToolbar,
   },
 })
 export default class ReconciliationView extends Vue {
+  // Define the VueX Store
   store: Store = useStore(this.$store);
+
   async created() {
+    // Subscribe to the orphanView
     this.store.grid.subscribeToOrphanView();
   }
 
   private reconciliationConfig: GridConfiguration = {
     tableName: 'reconciliation_view',
     title: 'Reconciliation',
-    gridType: 'normal',
     treeData: true,
     suppressRowClickSelection: true,
-    gridButtons: [markDoesNotExist, addChildButton],
+    gridButtons: [markDoesNotExist, addChildButton], // register our buttons
     toolbarItems: [
       toolbarItems.expandAll,
       toolbarItems.collapseAll,
       toolbarItems.fitColumns,
       toolbarItems.sizeColumns,
     ],
-    contextMenu: [contextItems.orphanBranch],
-    getDataPath: (data) => data.full_path.split('.'),
+    contextMenu: [contextItems.orphanBranch], // register our context menu item
+    getDataPath: (data) => data.full_path.split('.'), // tell agGrid how parse tree data
     gridEvents: [
-      gridEvents.rowDragLeft,
+      gridEvents.rowDragLeft, // all these are registered for rearranging hierarchy
       gridEvents.rowDragEnd,
       gridEvents.rowDragMoved,
       gridEvents.rowDragEnd,
-      gridEvents.doubleClickView,
+      gridEvents.doubleClickView, // double click to open view (shows more details)
     ],
     columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
     omittedColumns: [
-      // 'project_id',
+      'project_id',
       'role_exists',
-      // 'role_missing_from_registry',
+      'role_missing_from_registry',
       'asset_exists',
-      // 'asset_missing_from_registry',
-      // 'full_path',
+      'asset_missing_from_registry',
+      'full_path',
       'parent_changed',
       'role_changed',
       'parent',
@@ -139,14 +151,15 @@ export default class ReconciliationView extends Vue {
       width: 400,
       // Only reserved roles will be draggable
       rowDrag: (params) =>
-        isCurrentProject(params.data ? params.data.project_id : undefined),
+        isCurrentProject(params.data ? params.data.project_id : undefined), // row drag only for reserved projects
       valueFormatter: (params) =>
-        params.data ? params.data.role_number : 'unknown',
+        params.data ? params.data.role_number : 'unknown', // show the role_number instead of id
       headerName: 'Role Number',
       cellRendererParams: {
-        suppressCount: true,
+        suppressCount: true, // the count is weird when rearranging, so disabled it
       },
       cellClassRules: {
+        // css styling that highlights the potential parent when rearranging the hierarchy
         'hover-over': (params: MergeContext<ICellRendererParams>) =>
           params.node === params.context.vueStore.grid.potentialParent,
         ...roleClassRules,
@@ -181,11 +194,11 @@ export default class ReconciliationView extends Vue {
       {
         field: 'role_number',
         hide: true,
-        cellClassRules: roleClassRules,
+        cellClassRules: roleClassRules, // apply css rules
       },
       {
         field: 'role_name',
-        cellClassRules: roleClassRules,
+        cellClassRules: roleClassRules, // apply css rules
       },
       {
         field: 'asset_id',
@@ -194,35 +207,31 @@ export default class ReconciliationView extends Vue {
       },
       {
         field: 'asset_serial_number',
-        cellType: 'rearrangeCell',
-        showInForm: false,
-        showInView: true,
-        conditional: (params) => isCurrentProject(params.data.project_id),
-        headerClass: 'asset-separator',
+        cellType: 'rearrangeCell', // define cell to a rearrange cell
+        showInForm: false, // disable this field when adding a child
+        showInView: true, // show this when double clicking
+        conditional: (params) => isCurrentProject(params.data.project_id), // this controls whether a row is draggable
+        headerClass: 'asset-separator', // apply the separator between role and asset
         cellClass: 'asset-separator',
-        cellClassRules: assetClassRules,
+        cellClassRules: assetClassRules, // apply css rules
       },
     ],
   };
 
   private unassignedConfig: GridConfiguration = {
-    gridType: 'normal',
     toolbarItems: [
-      toolbarItems.addRow,
+      toolbarItems.addRow, // register toolbar items
       toolbarItems.copyRow,
       toolbarItems.removeRow,
     ],
     title: 'Assets Without a Role',
     tableName: 'unassigned_assets',
-    gridEvents: [gridEvents.onDropAsset, gridEvents.dragOver],
+    rowClassRules: assetClassRules,
+    gridEvents: [gridEvents.onDropAsset, gridEvents.dragOver], // register the asset drop logic
     overrideColumnDefinitions: [
       {
         field: 'asset_serial_number',
         headerName: 'Asset Serial Number',
-        cellClassRules: {
-          'background-green': ({ data }) =>
-            data ? data.asset_missing_from_registry : false,
-        } as ClassRules,
         cellType: 'rearrangeCell',
       },
       {
@@ -257,9 +266,9 @@ export default class ReconciliationView extends Vue {
       resizable: true,
       width: 400,
       headerName: 'Role Number',
+      valueFormatter: (params) =>
+        params.data ? params.data.role_number : 'unknown',
       cellRendererParams: {
-        aliasColumn: 'role_number',
-        innerRendererFramework: agComponents.AliasCell,
         childCount: false,
       },
     },

@@ -6,7 +6,7 @@
     @drop="onDrop"
     @dragover="onDragOver"
   >
-    <span style="flex-shrink: 1; width: 15px">
+    <span style="flex-shrink: 1; width: 20px;">
       <v-icon v-if="isDraggable">drag_indicator</v-icon>
     </span>
     <span style="flex-grow: 1">
