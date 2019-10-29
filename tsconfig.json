@@ -41,10 +41,4 @@
   "exclude": [
     "/node_modules/*"
   ],
-  "typedocOptions": {
-    "mode": "modules",
-    "out": "docs",
-    "ignoreCompilerErrors": true,
-    "excludeExternals": true
-  }
 }

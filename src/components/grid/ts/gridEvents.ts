@@ -81,6 +81,7 @@ export const onDropAsset: VueEvent<DragEvent> = {
       gridInstance
         .updateRows({
           rowsToUpdate: [rowData],
+          refresh: false,
         })
         .then(() => vueStore.grid.forceUpdateAllGrids());
     }

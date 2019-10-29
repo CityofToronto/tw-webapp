@@ -124,12 +124,12 @@ export default class ReconciliationView extends Vue {
     ],
     columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
     omittedColumns: [
-      'project_id',
+      // 'project_id',
       'role_exists',
-      'role_missing_from_registry',
+      // 'role_missing_from_registry',
       'asset_exists',
-      'asset_missing_from_registry',
-      'full_path',
+      // 'asset_missing_from_registry',
+      // 'full_path',
       'parent_changed',
       'role_changed',
       'parent',
@@ -138,8 +138,10 @@ export default class ReconciliationView extends Vue {
       resizable: true,
       width: 400,
       // Only reserved roles will be draggable
-      rowDrag: (params) => isCurrentProject(params.data.project_id),
-      valueFormatter: (params) => params.data.role_number,
+      rowDrag: (params) =>
+        isCurrentProject(params.data ? params.data.project_id : undefined),
+      valueFormatter: (params) =>
+        params.data ? params.data.role_number : 'unknown',
       headerName: 'Role Number',
       cellRendererParams: {
         suppressCount: true,
@@ -163,7 +165,8 @@ export default class ReconciliationView extends Vue {
         // If project id is off or role does not exist
         if (params.data)
           return (
-            !params.data.role_exists || isCurrentProject(params.data.project_id)
+            !params.data.role_exists ||
+            !isCurrentProject(params.data.project_id)
           );
         return false;
       },
