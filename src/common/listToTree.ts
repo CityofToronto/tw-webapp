@@ -31,6 +31,7 @@ export const listToTree = <T extends TreeFlatList>(data: T): T => {
       // @ts-ignore
       childrenOf[parentId].push(item);
     } else {
+      // @ts-ignore
       tree.push(item);
     }
   }
