@@ -1,15 +1,13 @@
-import {
-  MenuItemDef,
-  GetContextMenuItemsParams,
-  Context,
-} from 'ag-grid-community';
+import { MenuItemDef, GetContextMenuItemsParams } from 'ag-grid-community';
 import { MergeContext } from '@/types/grid';
 
 export type ContextMenuParams = MergeContext<GetContextMenuItemsParams>;
 
-export interface ExtendedMenuItem extends Omit<MenuItemDef, 'action' | 'name'> {
+export interface ExtendedMenuItem
+  extends Omit<MenuItemDef, 'action' | 'name' | 'disabled'> {
   name: string | ((params: ContextMenuParams) => string);
   action: (params: ContextMenuParams) => void;
+  disabled?: (params: ContextMenuParams) => boolean;
 }
 
 export const selectAllChildren: ExtendedMenuItem = {
@@ -35,9 +33,6 @@ export const orphanBranch: ExtendedMenuItem = {
         ],
         refresh: false,
       });
-      // gridInstance.gridApi.updateRowData({
-      //   remove: [{ id: params.node.data.id }],
-      // });
     } else {
       // Adopt the orphans
       // Get latest version of orphans
