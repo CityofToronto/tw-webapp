@@ -1,4 +1,4 @@
-import { VueEvent } from '@/types/config';
+import { VueEvent, VueEventParams } from '@/types/config';
 import {
   RowDragMoveEvent,
   CellValueChangedEvent,
@@ -6,12 +6,27 @@ import {
   RowDoubleClickedEvent,
 } from 'ag-grid-community';
 
-export const cellValueChanged: VueEvent<CellValueChangedEvent> = {
-  type: '',
-  callback: () => {},
+interface EventParams<T> {
+  conditional?: (eventParams: VueEventParams<T>) => boolean;
+}
+
+/**
+ * Create a custom grid event where an optional conditional can be set when it
+ * is called.
+ */
+const createGridEvent = <T>(event: VueEvent<T>) => {
+  return (params: EventParams<T> = { conditional: () => true }) => ({
+    ...event,
+    conditional: params.conditional,
+  });
 };
 
-export const rowDragMoved: VueEvent<RowDragMoveEvent> = {
+export const cellValueChanged = createGridEvent<CellValueChangedEvent>({
+  type: '',
+  callback: () => {},
+});
+
+export const rowDragMoved = createGridEvent<RowDragMoveEvent>({
   type: 'rowDragMove',
   callback({ event, vueStore }) {
     vueStore.grid.setPotentialParent({
@@ -19,9 +34,9 @@ export const rowDragMoved: VueEvent<RowDragMoveEvent> = {
       gridApi: event.api,
     });
   },
-};
+});
 
-export const rowDragLeft: VueEvent<RowDragMoveEvent> = {
+export const rowDragLeft = createGridEvent<RowDragMoveEvent>({
   type: 'rowDragLeave',
   callback: ({ event, vueStore }) => {
     vueStore.grid.setPotentialParent({
@@ -29,19 +44,9 @@ export const rowDragLeft: VueEvent<RowDragMoveEvent> = {
       gridApi: event.api,
     });
   },
-};
+});
 
-export const dragOver: VueEvent<DragEvent> = {
-  type: 'dragover',
-  callback: ({ event }) => {
-    if (event.dataTransfer) {
-      event.dataTransfer.dropEffect = 'move';
-    }
-    event.preventDefault();
-  },
-};
-
-export const rowDragEnd: VueEvent<RowDragEndEvent> = {
+export const rowDragEnd = createGridEvent<RowDragEndEvent>({
   type: 'rowDragEnd',
   callback: ({ event, gridInstance, vueStore }) => {
     const rowToMove = event.node.data;
@@ -65,9 +70,9 @@ export const rowDragEnd: VueEvent<RowDragEndEvent> = {
     });
     gridInstance.gridApi.getRowNode(newParentId).setExpanded(true);
   },
-};
+});
 
-export const onDropAsset: VueEvent<DragEvent> = {
+export const onDropAsset = createGridEvent<DragEvent>({
   type: 'drop',
   callback: ({ event, gridInstance, vueStore }) => {
     if (event.dataTransfer) {
@@ -86,10 +91,25 @@ export const onDropAsset: VueEvent<DragEvent> = {
         .then(() => vueStore.grid.forceUpdateAllGrids());
     }
   },
-};
+});
 
-export const doubleClickView: VueEvent<RowDoubleClickedEvent> = {
+export const dragOver = createGridEvent<DragEvent>({
+  type: 'dragover',
+  callback: ({ event }) => {
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+    event.preventDefault();
+  },
+});
+
+export const doubleClickView = createGridEvent<RowDoubleClickedEvent>({
   type: 'row-double-clicked',
   callback: ({ event, gridInstance }) =>
     gridInstance.componentApi.viewRow(event.node),
-};
+});
+
+export const sizeColumnsOnload = createGridEvent<any>({
+  type: 'grid-initialized',
+  callback: () => console.log('grid'),
+});
