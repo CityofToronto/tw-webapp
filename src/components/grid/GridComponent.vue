@@ -56,7 +56,12 @@ import _ from 'lodash';
 
 // Config
 import { GridConfiguration, CustomProperties } from '@/types/config';
-import { RequiredConfig, GridContext, MergeContext } from '@/types/grid';
+import {
+  RequiredConfig,
+  GridContext,
+  MergeContext,
+  FunctionProps,
+} from '@/types/grid';
 import { DirectProvider } from './ts/GridProviders';
 
 // ag-Grid complains if you pass in extra keys to the grid options object, this function removes them
@@ -113,7 +118,7 @@ export default class GridComponent extends Vue {
    * This event is called after the grid is finished loading for the first time.
    * It is fired when the onGridReady function is completed
    */
-  gridInitializedEvent: () => void = (): void => {};
+  gridInitializedEvent: (params: FunctionProps) => void = (): void => {};
 
   get getRowId() {
     return this.store.grid.rowId;
@@ -122,19 +127,14 @@ export default class GridComponent extends Vue {
   eventHandler<T>(
     event: T,
     eventFunction: Function,
-    conditional: boolean | ((...params: any[]) => boolean) = true,
+    conditional: (...params: any[]) => boolean = () => false,
   ) {
     const functionParams = {
       event,
       gridInstance: this.gridInstance,
       vueStore: this.store,
     };
-    if (
-      typeof conditional === 'function'
-        ? !conditional(functionParams)
-        : !conditional
-    )
-      return;
+    if (conditional(functionParams)) return;
     eventFunction(functionParams);
   }
 
@@ -190,7 +190,7 @@ export default class GridComponent extends Vue {
     this.gridApi.setRowData(await this.gridInstance.gridProvider.getData());
 
     // Set-up the subscription
-    this.gridInstance.subscribeToMore();
+    await this.gridInstance.subscribeToMore();
 
     // Give grid instance to GridWithToolbar and the store
     this.$emit('set-grid-instance', this.gridInstance);
@@ -200,7 +200,12 @@ export default class GridComponent extends Vue {
     });
 
     // Trigger custom event
-    this.gridInitializedEvent();
+    if (this.config.gridInitializedEvent) {
+      this.config.gridInitializedEvent({
+        gridInstance: this.gridInstance,
+        vueStore: this.store,
+      });
+    }
   }
 
   // This callback is run whenever a right click happens
@@ -216,6 +221,7 @@ export default class GridComponent extends Vue {
           ...item,
           name: typeof item.name === 'string' ? item.name : item.name(params),
           action: () => item.action(params),
+          disabled: item.disabled ? item.disabled(params) : false,
         };
       });
       return ['copy', 'export', 'separator', ...mappedMenu];
