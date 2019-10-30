@@ -3,7 +3,7 @@
     <grid-toolbar
       :toolbar-items="internalConfig.toolbarItems"
       :grid-title="internalConfig.title"
-      @toolbarClick="clickHandler"
+      :grid-instance="gridInstance"
     />
     <grid-component
       ref="gridComponent"
@@ -44,7 +44,7 @@ export default class GridWithToolbar extends Vue {
 
   internalConfig!: GridConfiguration;
 
-  gridInstance!: GridInstance;
+  gridInstance: GridInstance = {} as GridInstance;
 
   store: Store = useStore(this.$store);
 
@@ -58,15 +58,6 @@ export default class GridWithToolbar extends Vue {
       ...this.config,
       tableID: this.configKey,
     };
-  }
-
-  clickHandler(clickFunction: ToolbarFunction): void {
-    if (this.store && this.gridInstance) {
-      clickFunction({
-        gridInstance: this.gridInstance,
-        vueStore: this.store,
-      });
-    }
   }
 
   togglePanel() {
