@@ -120,19 +120,19 @@ export default class ReconciliationView extends Vue {
     suppressRowClickSelection: true,
     gridButtons: [markDoesNotExist, addChildButton], // register our buttons
     toolbarItems: [
-      toolbarItems.expandAll,
-      toolbarItems.collapseAll,
-      toolbarItems.fitColumns,
-      toolbarItems.sizeColumns,
+      toolbarItems.expandAll(),
+      toolbarItems.collapseAll(),
+      toolbarItems.fitColumns(),
+      toolbarItems.sizeColumns(),
     ],
-    contextMenu: [contextItems.orphanBranch], // register our context menu item
+    contextMenu: [contextItems.orphanBranch()], // register our context menu item
     getDataPath: (data) => data.full_path.split('.'), // tell agGrid how parse tree data
     gridEvents: [
-      gridEvents.rowDragLeft, // all these are registered for rearranging hierarchy
-      gridEvents.rowDragEnd,
-      gridEvents.rowDragMoved,
-      gridEvents.rowDragEnd,
-      gridEvents.doubleClickView, // double click to open view (shows more details)
+      gridEvents.rowDragLeft(), // all these are registered for rearranging hierarchy
+      gridEvents.rowDragEnd(),
+      gridEvents.rowDragMoved(),
+      gridEvents.rowDragEnd(),
+      gridEvents.doubleClickView(), // double click to open view (shows more details)
     ],
     columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
     omittedColumns: [
@@ -146,6 +146,9 @@ export default class ReconciliationView extends Vue {
       'role_changed',
       'parent',
     ],
+    // Size the columns on initialization
+    gridInitializedEvent: ({ gridInstance }) =>
+      gridInstance.gridApi.sizeColumnsToFit(),
     autoGroupColumnDef: {
       resizable: true,
       width: 400,
@@ -220,14 +223,14 @@ export default class ReconciliationView extends Vue {
 
   private unassignedConfig: GridConfiguration = {
     toolbarItems: [
-      toolbarItems.addRow, // register toolbar items
-      toolbarItems.copyRow,
-      toolbarItems.removeRow,
+      toolbarItems.addRow(), // register toolbar items
+      toolbarItems.copyRow(),
+      toolbarItems.removeRow(),
     ],
     title: 'Assets Without a Role',
     tableName: 'unassigned_assets',
     rowClassRules: assetClassRules,
-    gridEvents: [gridEvents.onDropAsset, gridEvents.dragOver], // register the asset drop logic
+    gridEvents: [gridEvents.onDropAsset(), gridEvents.dragOver()], // register the asset drop logic
     overrideColumnDefinitions: [
       {
         field: 'asset_serial_number',
@@ -249,7 +252,7 @@ export default class ReconciliationView extends Vue {
     treeData: true,
     getDataPath: (data) => data.full_path.split('.'),
     columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
-    toolbarItems: [toolbarItems.fitColumns, toolbarItems.sizeColumns],
+    toolbarItems: [toolbarItems.fitColumns(), toolbarItems.sizeColumns()],
     omittedColumns: [
       'asset_id',
       'role_name',
@@ -262,6 +265,9 @@ export default class ReconciliationView extends Vue {
       'role_changed',
       'parent',
     ],
+    // Size the columns on initialization
+    gridInitializedEvent: ({ gridInstance }) =>
+      gridInstance.gridApi.sizeColumnsToFit(),
     autoGroupColumnDef: {
       resizable: true,
       width: 400,
@@ -269,7 +275,7 @@ export default class ReconciliationView extends Vue {
       valueFormatter: (params) =>
         params.data ? params.data.role_number : 'unknown',
       cellRendererParams: {
-        childCount: false,
+        suppressCount: true,
       },
     },
     overrideColumnDefinitions: [

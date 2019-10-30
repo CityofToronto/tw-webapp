@@ -11,15 +11,19 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
-
-import { GridConfiguration } from '../../types/config';
 import * as toolbarItems from '@/components/grid/ts/toolbarItems';
 import agComponents from '@/components/grid/ag-components';
 import { MergeContext } from '@/types/grid';
+import { GridConfiguration } from '@/types/config';
 import { ICellRendererParams } from 'ag-grid-community';
 import { createGridButton } from '@/components/grid/ts/ColumnFactory/gridButtons';
 import { reservationRowStyle } from './common/cssStyles';
 
+/**
+ * Creates a custom grid button (approveButton)
+ * This is disabled if the asset is reserved, approved or not reservable
+ * It displays a check mark that commits an approval on the entity
+ */
 const approveButton = createGridButton({
   icon: (params) =>
     params.data.reserved && !params.data.approved && params.data.reservable
@@ -38,6 +42,12 @@ const approveButton = createGridButton({
   },
 });
 
+/**
+ * Creates a custom grid button (rejectButton)
+ * This is disabled if the asset is reserved, not reservable or approved
+ * It appears when a reservation is pending on the user's current project
+ * It displays a X that commits an unapproved action
+ */
 const rejectButton = createGridButton({
   icon: (params) =>
     params.data.reserved && params.data.reservable && !params.data.approved
@@ -66,11 +76,13 @@ export default class ApprovalView extends Vue {
     tableName: 'reservation_view',
     title: 'Approval',
     toolbarItems: [
-      toolbarItems.expandAll,
-      toolbarItems.collapseAll,
-      toolbarItems.fitColumns,
-      toolbarItems.sizeColumns,
+      // register our toolbar items
+      toolbarItems.expandAll(),
+      toolbarItems.collapseAll(),
+      toolbarItems.fitColumns(),
+      toolbarItems.sizeColumns(),
     ],
+    // omitting columns still fetches their data but not handled by agGrid
     omittedColumns: [
       'role_number',
       'full_path',
@@ -80,8 +92,9 @@ export default class ApprovalView extends Vue {
       'approved',
       'reservable',
     ],
+    // array to order the columns
     columnOrder: ['role_name', 'project_id', 'approval_status'],
-    gridButtons: [rejectButton, approveButton],
+    gridButtons: [rejectButton, approveButton], // register our buttons
     treeData: true,
     getDataPath: (data) => data.full_path.split('.'),
     autoGroupColumnDef: {
@@ -93,7 +106,7 @@ export default class ApprovalView extends Vue {
         innerRendererFramework: agComponents.AliasCell,
       },
     },
-    getRowStyle: reservationRowStyle,
+    getRowStyle: reservationRowStyle, // apply same style as reservation page
     overrideColumnDefinitions: [
       {
         field: 'id',
