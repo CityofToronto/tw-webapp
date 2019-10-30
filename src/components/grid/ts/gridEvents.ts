@@ -108,8 +108,3 @@ export const doubleClickView = createGridEvent<RowDoubleClickedEvent>({
   callback: ({ event, gridInstance }) =>
     gridInstance.componentApi.viewRow(event.node),
 });
-
-export const sizeColumnsOnload = createGridEvent<any>({
-  type: 'grid-initialized',
-  callback: () => console.log('grid'),
-});
