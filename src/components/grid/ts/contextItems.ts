@@ -3,20 +3,48 @@ import { MergeContext } from '@/types/grid';
 
 export type ContextMenuParams = MergeContext<GetContextMenuItemsParams>;
 
-export interface ExtendedMenuItem
+export interface MenuItemObject
   extends Omit<MenuItemDef, 'action' | 'name' | 'disabled'> {
+  /**
+   * Provide either a string or callback to string
+   */
   name: string | ((params: ContextMenuParams) => string);
+  /**
+   * Provide the action to execute on click
+   */
   action: (params: ContextMenuParams) => void;
-  disabled?: (params: ContextMenuParams) => boolean;
 }
 
-export const selectAllChildren: ExtendedMenuItem = {
+export interface MenuItem extends MenuItemObject {
+  disabled: (params: ContextMenuParams) => boolean;
+}
+
+type MenuItemDefFunction = (
+  disabled?: (params: ContextMenuParams) => boolean,
+) => MenuItem;
+
+/**
+ * Create a context menu item that a conditional can be passed through
+ */
+export const createContextItem = (
+  menuItem: MenuItemObject,
+): MenuItemDefFunction => {
+  return (disabled: (params: ContextMenuParams) => boolean = () => false) => ({
+    ...menuItem,
+    disabled,
+  });
+};
+
+/**
+ * Context menu that selects all children
+ */
+export const selectAllChildren = createContextItem({
   name: 'Select All Children',
   action: (params) =>
     params.node.allLeafChildren.forEach((rowNode) => rowNode.setSelected(true)),
-};
+});
 
-export const orphanBranch: ExtendedMenuItem = {
+export const orphanBranch = createContextItem({
   name: ({ context }) =>
     context.vueStore.grid.orphanStatus ? 'Adopt Orphan' : 'Orphan Branch',
   action: async (params) => {
@@ -47,4 +75,4 @@ export const orphanBranch: ExtendedMenuItem = {
     }
     vueStore.grid.forceUpdateAllGrids();
   },
-};
+});
