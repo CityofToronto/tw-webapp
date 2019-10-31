@@ -1,4 +1,5 @@
 import { RowStyleParams } from '@/types/grid';
+import { ClassRules } from '@/types/agGrid';
 
 export const reservationRowStyle = (params: RowStyleParams) => {
   if (params.data) {

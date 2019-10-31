@@ -16,7 +16,24 @@ import * as toolbarItems from '@/components/grid/ts/toolbarItems';
 import { ICellRendererParams } from 'ag-grid-community';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
 import agComponents from '@/components/grid/ag-components';
-import { reservationRowStyle } from './common/rowStyles';
+import { reservationRowStyle } from './common/cssStyles';
+import { ContextMenuFunc } from '@/components/grid/ts/contextItems';
+
+const reserveBranchItem: ContextMenuFunc = (params) => ({
+  icon: '<i class="material-icons">playlist_add_check</i>',
+  name: 'Reserve Branch',
+  action: () => {
+    const rowsToUpdate = params.node.allLeafChildren
+      .filter(({ data }) => !data.reserved)
+      .map(({ data }) => ({
+        id: data.id,
+        reserved: true,
+      }));
+    params.context.gridInstance.updateRows({
+      rowsToUpdate,
+    });
+  },
+});
 
 @Component({
   components: {
@@ -29,10 +46,10 @@ export default class ReservationView extends Vue {
     tableName: 'reservation_view',
     title: 'Reservation',
     toolbarItems: [
-      toolbarItems.expandAll,
-      toolbarItems.collapseAll,
-      toolbarItems.fitColumns,
-      toolbarItems.sizeColumns,
+      toolbarItems.expandAll(),
+      toolbarItems.collapseAll(),
+      toolbarItems.fitColumns(),
+      toolbarItems.sizeColumns(),
     ],
     columnOrder: [
       'id',
@@ -51,23 +68,7 @@ export default class ReservationView extends Vue {
     ],
     treeData: true,
     getDataPath: (data) => data.full_path.split('.'),
-    contextMenu: [
-      {
-        icon: '<i class="material-icons">playlist_add_check</i>',
-        name: 'Reserve Branch',
-        action: (params) => {
-          const rowsToUpdate = params.node.allLeafChildren
-            .filter(({ data }) => !data.reserved)
-            .map(({ data }) => ({
-              id: data.id,
-              reserved: true,
-            }));
-          params.context.gridInstance.updateRows({
-            rowsToUpdate,
-          });
-        },
-      },
-    ],
+    contextMenu: [reserveBranchItem],
     getRowStyle: reservationRowStyle,
     autoGroupColumnDef: {
       headerName: 'Role',

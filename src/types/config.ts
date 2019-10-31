@@ -1,10 +1,15 @@
-import { ColDef, GridOptions, ICellRendererParams } from 'ag-grid-community';
-import { CellType, MergeContext } from './grid';
+import {
+  ColDef,
+  GridOptions,
+  ICellRendererParams,
+  GetContextMenuItemsParams,
+} from 'ag-grid-community';
+import { CellType, MergeContext, FunctionProps } from './grid';
 import { MarkRequired } from 'ts-essentials';
 import GridInstance from '@/components/grid/ts/GridInstance';
 import { ToolbarItem } from '@/components/grid/ts/toolbarItems';
 import Store from '@/store/store';
-import { ExtendedMenuItem } from '@/components/grid/ts/contextItems';
+import { ContextMenuFunc } from '@/components/grid/ts/contextItems';
 import { GridButton } from '@/components/grid/ts/ColumnFactory/gridButtons';
 
 export enum GridType {
@@ -25,7 +30,7 @@ type DefaultContextItems =
   | 'chartRange'
   | 'separator';
 
-interface VueEventParams<T> {
+export interface VueEventParams<T> {
   event: T;
   gridInstance: GridInstance;
   vueStore: Store;
@@ -33,7 +38,7 @@ interface VueEventParams<T> {
 
 export interface VueEvent<T> {
   type: string;
-  conditional?: boolean | ((eventParams: VueEventParams<T>) => boolean);
+  conditional?: (eventParams: VueEventParams<T>) => boolean;
   callback: (eventParams: VueEventParams<T>) => void;
 }
 
@@ -96,7 +101,11 @@ interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
    * By default, it has copy, paste and export.
    * separator draws a line between items
    */
-  contextMenu?: (ExtendedMenuItem | DefaultContextItems)[];
+  contextMenu?: (ContextMenuFunc | DefaultContextItems)[];
+  /**
+   * This event is called when the grid finishes loading
+   */
+  gridInitializedEvent?: (params: FunctionProps) => void;
 }
 
 export interface SimpleGridConfig extends BaseGridConfig {

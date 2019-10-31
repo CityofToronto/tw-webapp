@@ -2,7 +2,7 @@ import { ColDef } from 'ag-grid-community';
 import apolloClient from '@/apollo';
 import { TreeData } from '@/types/api';
 import { CellType, RequiredConfig } from '@/types/grid';
-import CellTypes from './CellTypes';
+import CellTypes from './cellTypes';
 import { CellParams, GridConfiguration } from '@/types/config';
 import { HasuraField } from '@/types/api';
 import _ from 'lodash';

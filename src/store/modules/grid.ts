@@ -6,36 +6,13 @@ import gql from 'graphql-tag';
 import { storeInstance } from '@/store';
 
 export default class GridModule {
-  // This is the state of the 'main' table pulled from the URL
-  @State() private table: { tableName: string; rowId: number };
-
   @State() private potentialParentState!: RowNode | null;
 
-  public constructor() {
-    this.table = {
-      tableName: 'activity',
-      rowId: 45,
-    };
-  }
+  public constructor() {}
 
   @Getter()
   public get potentialParent() {
     return this.potentialParentState;
-  }
-
-  @Getter()
-  public get tableName(): string {
-    return this.table.tableName;
-  }
-
-  @Getter()
-  public get rowId(): number {
-    return this.table.rowId;
-  }
-
-  @Mutation()
-  private setTableData(table: { tableName: string; rowId: number }): void {
-    this.table = table;
   }
 
   @Mutation()
@@ -69,19 +46,7 @@ export default class GridModule {
     });
   }
 
-  @Action()
-  public async pushTableData(table: {
-    tableName: string;
-    rowId: number;
-  }): Promise<void> {
-    this.setTableData(table);
-  }
-
   @State() private gridInstances: Map<string, GridInstance> = new Map();
-
-  public getGridInstance(tableID: string): GridInstance | undefined {
-    return this.gridInstances.get(tableID);
-  }
 
   @Mutation()
   public setGridInstance({
@@ -92,6 +57,16 @@ export default class GridModule {
     gridInstance: GridInstance;
   }): void {
     this.gridInstances.set(tableID, gridInstance);
+  }
+
+  @Mutation()
+  public removeGridInstance(tableID: string) {
+    this.gridInstances.delete(tableID);
+  }
+
+  @Getter()
+  public get getGridInstance(): (tableID: string) => GridInstance | undefined {
+    return (tableID: string) => this.gridInstances.get(tableID);
   }
 
   @Action()

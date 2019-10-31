@@ -18,8 +18,9 @@
         <v-btn
           text
           color="primary"
+          :disabled="item.disabled"
           v-on="on"
-          @click="clickEmitter(item.clickFunction)"
+          @click="clickHandler(item.clickFunction)"
         >
           <v-icon v-if="item.icon" left class="tool-icon">
             {{ item.icon }}
@@ -35,25 +36,40 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import Store from '@/store/store';
-import { ToolbarItem } from './ts/toolbarItems';
+import { ToolbarObject } from './ts/toolbarItems';
 import { storeInstance } from '@/store';
+import GridInstance from './ts/GridInstance';
+import { useStore } from 'vuex-simple';
 
 @Component
 export default class GridToolbar extends Vue {
   @Prop({ default: '' }) readonly gridTitle!: string;
 
-  @Prop({ default: () => [] }) readonly toolbarItems!: ToolbarItem[];
+  @Prop({ default: () => [] }) readonly toolbarItems!: ToolbarObject[];
+
+  @Prop({ required: true, default: () => {} })
+  readonly gridInstance!: GridInstance;
+
+  store: Store = useStore(this.$store);
 
   get toolbarComputed() {
     return this.toolbarItems.map((item) => ({
       ...item,
       text:
         typeof item.text === 'string' ? item.text : item.text(storeInstance),
+      disabled: item.disabled({
+        gridInstance: this.gridInstance,
+        vueStore: this.store,
+      }),
     }));
   }
 
-  clickEmitter(clickFunction: () => {}) {
-    this.$emit('toolbarClick', clickFunction);
+  // Click handler just passes the parameters into the function
+  clickHandler(clickFunction) {
+    clickFunction({
+      gridInstance: this.gridInstance,
+      vueStore: this.store,
+    });
   }
 }
 </script>

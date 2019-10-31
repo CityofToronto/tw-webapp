@@ -56,7 +56,12 @@ import _ from 'lodash';
 
 // Config
 import { GridConfiguration, CustomProperties } from '@/types/config';
-import { RequiredConfig, GridContext, MergeContext } from '@/types/grid';
+import {
+  RequiredConfig,
+  GridContext,
+  MergeContext,
+  FunctionProps,
+} from '@/types/grid';
 import { DirectProvider } from './ts/GridProviders';
 
 // ag-Grid complains if you pass in extra keys to the grid options object, this function removes them
@@ -73,6 +78,7 @@ const removeInvalidProperties = (config: GridConfiguration): GridOptions => {
     'gridEvents',
     'tableName',
     'tableID',
+    'gridInitializedEvent',
   ];
 
   return _.omit(config, invalidProperties);
@@ -105,6 +111,8 @@ export default class GridComponent extends Vue {
 
   context: GridContext = {} as GridContext;
 
+  sharedData: any = {};
+
   gridOptions!: GridOptions;
 
   events: { [p: string]: (e: any) => void } = {};
@@ -113,28 +121,19 @@ export default class GridComponent extends Vue {
    * This event is called after the grid is finished loading for the first time.
    * It is fired when the onGridReady function is completed
    */
-  gridInitializedEvent: () => void = (): void => {};
-
-  get getRowId() {
-    return this.store.grid.rowId;
-  }
+  gridInitializedEvent: (params: FunctionProps) => void = (): void => {};
 
   eventHandler<T>(
     event: T,
     eventFunction: Function,
-    conditional: boolean | ((...params: any[]) => boolean) = true,
+    conditional: (...params: any[]) => boolean = () => false,
   ) {
     const functionParams = {
       event,
       gridInstance: this.gridInstance,
       vueStore: this.store,
     };
-    if (
-      typeof conditional === 'function'
-        ? !conditional(functionParams)
-        : !conditional
-    )
-      return;
+    if (!conditional(functionParams)) return;
     eventFunction(functionParams);
   }
 
@@ -190,17 +189,26 @@ export default class GridComponent extends Vue {
     this.gridApi.setRowData(await this.gridInstance.gridProvider.getData());
 
     // Set-up the subscription
-    this.gridInstance.subscribeToMore();
+    await this.gridInstance.subscribeToMore();
 
     // Give grid instance to GridWithToolbar and the store
     this.$emit('set-grid-instance', this.gridInstance);
     this.store.grid.setGridInstance({
-      tableID: this.config.tableID || this.config.tableName,
+      tableID: this.config.tableID,
       gridInstance: this.gridInstance,
     });
 
     // Trigger custom event
-    this.gridInitializedEvent();
+    if (this.config.gridInitializedEvent) {
+      this.config.gridInitializedEvent({
+        gridInstance: this.gridInstance,
+        vueStore: this.store,
+      });
+    }
+  }
+
+  beforeDestroy() {
+    this.store.grid.removeGridInstance(this.config.tableID);
   }
 
   // This callback is run whenever a right click happens
@@ -212,11 +220,7 @@ export default class GridComponent extends Vue {
         if (typeof item === 'string') {
           return item;
         }
-        return {
-          ...item,
-          name: typeof item.name === 'string' ? item.name : item.name(params),
-          action: () => item.action(params),
-        };
+        return item(params);
       });
       return ['copy', 'export', 'separator', ...mappedMenu];
     } else {

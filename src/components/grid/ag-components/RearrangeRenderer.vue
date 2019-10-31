@@ -6,7 +6,7 @@
     @drop="onDrop"
     @dragover="onDragOver"
   >
-    <span style="flex-shrink: 1; width: 15px">
+    <span style="flex-shrink: 1; width: 20px;">
       <v-icon v-if="isDraggable">drag_indicator</v-icon>
     </span>
     <span style="flex-grow: 1">
@@ -82,11 +82,10 @@ export default class RearrangeRenderer extends Vue {
       // Get ID of row dropped on and combine with from the row it was dragged from
       const eventData = {
         id: this.params.data.id,
-        asset_id: draggedFromData.id,
+        asset_id: draggedFromData.asset_id || draggedFromData.id,
       };
 
       // Update the cell that was dropped on with new value
-
       this.params.context.gridInstance
         .updateRows({
           rowsToUpdate: [eventData],
