@@ -27,6 +27,10 @@ export const orphanBranch = createContextItem((params) => {
   };
 });
 
+/**
+ * This function adopts the selected children in the orphanage
+ * This function works, I think, its a bit complex
+ */
 export const adoptBranch = createContextItem((params) => {
   const name = 'Adopt Selected Orphans';
 
@@ -35,26 +39,68 @@ export const adoptBranch = createContextItem((params) => {
       'orphan_view',
     ) as GridInstance;
 
-    const selectedOrphans = orphanGrid.getSelectedRows();
+    // Get all rowNodes that are selected
+    const selectedRows = orphanGrid.getSelectedNodes();
+    // Get selected rowNodes' ids
+    const selectedIds = selectedRows.map((x) => x.id);
+
+    // Get all the children of the selected nodes
+    const allNodes = [
+      ...new Set(
+        selectedRows.map((node) => node.allLeafChildren).flat(Infinity),
+      ),
+    ];
+
+    // Get all nodes that have a parent
+    const childrenIds = orphanGrid
+      .getSelectedNodes()
+      .map((node) =>
+        node.childrenMapped ? Object.values(node.childrenMapped) : undefined,
+      )
+      .flat(Infinity)
+      .map((x) => x.id);
+
+    // Parents are selected ids - children ids
+    const parentIds = selectedIds.filter((x) => !childrenIds.includes(x));
+
+    // Next we need to remove the parents and refigure out the hierarchy
+    // Then do the same and get the parents as they bring their children along
+    const orphanNodes = allNodes.filter((x) => !selectedRows.includes(x));
+
+    const orphanChildren = orphanNodes
+      .map((node) =>
+        node.childrenMapped ? Object.values(node.childrenMapped) : undefined,
+      )
+      .flat(Infinity);
+
+    // Again, parents to orphan is all leftover from adoption - children
+    const orphanParents = orphanNodes
+      .filter((x) => !orphanChildren.includes(x))
+      .map((x) => x.id);
 
     return {
       name,
       action: () => {
-        const gridInstance = params.context.gridInstance;
-        const orphanTransaction = selectedOrphans.map((row) => ({
-          id: row.id,
-          parent: params.node.data.id,
-        }));
-
-        gridInstance
+        // First we set orphans to top level then adopt the parents (their children come with)
+        orphanGrid
           .updateRows({
-            rowsToUpdate: orphanTransaction,
+            rowsToUpdate: orphanParents.map((id) => ({ id, parent: 2 })),
+            refresh: false,
           })
-          .then(() => storeInstance.grid.forceUpdateAllGrids());
+          .then(() =>
+            orphanGrid.updateRows({
+              rowsToUpdate: parentIds.map((id) => ({
+                id,
+                parent: params.node.id,
+              })),
+              refresh: false,
+            }),
+          )
+          .then(() => params.context.vueStore.grid.forceUpdateAllGrids());
       },
-      disabled: !selectedOrphans.length,
+      disabled: !selectedRows.length,
     };
-  } catch (error) {
+  } catch {
     // If we error, return the item as disabled.
     return {
       name,

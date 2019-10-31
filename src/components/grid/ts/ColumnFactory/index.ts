@@ -120,7 +120,7 @@ export default class ColumnFactory {
   };
 
   private async defineColumns(columns: ProcessedColumn[]): Promise<void> {
-    const overriddenColDefs = this.config.overrideColumnDefinitions || [];
+    const overriddenColDefs = this.config.overrideColumnDefinitions ?? [];
 
     const promiseOfColDef = columns.map(
       async (column): Promise<ColDef> => {
@@ -150,7 +150,7 @@ export default class ColumnFactory {
         const mergedConditional = {
           cellRendererParams: {
             conditional:
-              (overrideColDef && overrideColDef.conditional) || (() => true),
+              (overrideColDef && overrideColDef.conditional) ?? (() => true),
           },
         };
 

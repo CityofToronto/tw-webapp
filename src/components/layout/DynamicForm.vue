@@ -94,7 +94,7 @@ export default class DynamicForm extends Vue {
       treeCell: 'treeview-input',
       rearrangeCell: 'v-text-field',
     };
-    return componentTypes[columnType] || componentTypes.textCell;
+    return componentTypes[columnType] ?? componentTypes.textCell;
   };
 
   saveForm() {

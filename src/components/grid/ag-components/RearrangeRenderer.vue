@@ -59,7 +59,7 @@ export default class RearrangeRenderer extends Vue {
 
   // This will update
   onDrop(event: DragEvent) {
-    const fieldName = this.params.colDef.field || 'unknown';
+    const fieldName = this.params.colDef.field ?? 'unknown';
 
     // If the field is not defined, end the event
     if (fieldName === 'unknown') {
@@ -82,7 +82,7 @@ export default class RearrangeRenderer extends Vue {
       // Get ID of row dropped on and combine with from the row it was dragged from
       const eventData = {
         id: this.params.data.id,
-        asset_id: draggedFromData.asset_id || draggedFromData.id,
+        asset_id: draggedFromData.asset_id ?? draggedFromData.id,
       };
 
       // Update the cell that was dropped on with new value
