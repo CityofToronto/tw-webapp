@@ -5,7 +5,6 @@ import apolloClient from '@/apollo';
 import { dispatchError, stringify } from '@/apollo/lib/utils';
 import { RowData, RequiredConfig } from '@/types/grid';
 import GridInstance from '../GridInstance';
-import { storeInstance } from '@/store';
 
 /**
  * Methods to add, remove and update data.
@@ -60,7 +59,7 @@ export class DirectProvider extends BaseGridProvider {
         mutation {
           insert_${this.tableName} (
             objects: {
-              ${stringify(rowData, this.tableID || this.tableName)}
+              ${stringify(rowData, this.tableID)}
             }
           ) {
             returning {
@@ -108,7 +107,7 @@ export class DirectProvider extends BaseGridProvider {
               id: { _eq: ${rowToUpdate.id} }
             },
             _set: {
-              ${stringify(rowToUpdate, this.tableID || this.tableName)}
+              ${stringify(rowToUpdate, this.tableID)}
             }
             ) {
               returning {

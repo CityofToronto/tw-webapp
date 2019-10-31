@@ -78,6 +78,7 @@ const removeInvalidProperties = (config: GridConfiguration): GridOptions => {
     'gridEvents',
     'tableName',
     'tableID',
+    'gridInitializedEvent',
   ];
 
   return _.omit(config, invalidProperties);
@@ -110,6 +111,8 @@ export default class GridComponent extends Vue {
 
   context: GridContext = {} as GridContext;
 
+  sharedData: any = {};
+
   gridOptions!: GridOptions;
 
   events: { [p: string]: (e: any) => void } = {};
@@ -119,10 +122,6 @@ export default class GridComponent extends Vue {
    * It is fired when the onGridReady function is completed
    */
   gridInitializedEvent: (params: FunctionProps) => void = (): void => {};
-
-  get getRowId() {
-    return this.store.grid.rowId;
-  }
 
   eventHandler<T>(
     event: T,
@@ -134,7 +133,7 @@ export default class GridComponent extends Vue {
       gridInstance: this.gridInstance,
       vueStore: this.store,
     };
-    if (conditional(functionParams)) return;
+    if (!conditional(functionParams)) return;
     eventFunction(functionParams);
   }
 
@@ -195,7 +194,7 @@ export default class GridComponent extends Vue {
     // Give grid instance to GridWithToolbar and the store
     this.$emit('set-grid-instance', this.gridInstance);
     this.store.grid.setGridInstance({
-      tableID: this.config.tableID || this.config.tableName,
+      tableID: this.config.tableID,
       gridInstance: this.gridInstance,
     });
 
@@ -208,6 +207,10 @@ export default class GridComponent extends Vue {
     }
   }
 
+  beforeDestroy() {
+    this.store.grid.removeGridInstance(this.config.tableID);
+  }
+
   // This callback is run whenever a right click happens
   getContextMenuItems(
     params: MergeContext<GetContextMenuItemsParams>,
@@ -217,12 +220,7 @@ export default class GridComponent extends Vue {
         if (typeof item === 'string') {
           return item;
         }
-        return {
-          ...item,
-          name: typeof item.name === 'string' ? item.name : item.name(params),
-          action: () => item.action(params),
-          disabled: item.disabled ? item.disabled(params) : false,
-        };
+        return item(params);
       });
       return ['copy', 'export', 'separator', ...mappedMenu];
     } else {

@@ -1,10 +1,15 @@
-import { ColDef, GridOptions, ICellRendererParams } from 'ag-grid-community';
+import {
+  ColDef,
+  GridOptions,
+  ICellRendererParams,
+  GetContextMenuItemsParams,
+} from 'ag-grid-community';
 import { CellType, MergeContext, FunctionProps } from './grid';
 import { MarkRequired } from 'ts-essentials';
 import GridInstance from '@/components/grid/ts/GridInstance';
 import { ToolbarItem } from '@/components/grid/ts/toolbarItems';
 import Store from '@/store/store';
-import { MenuItem } from '@/components/grid/ts/contextItems';
+import { ContextMenuFunc } from '@/components/grid/ts/contextItems';
 import { GridButton } from '@/components/grid/ts/ColumnFactory/gridButtons';
 
 export enum GridType {
@@ -96,7 +101,7 @@ interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
    * By default, it has copy, paste and export.
    * separator draws a line between items
    */
-  contextMenu?: (MenuItem | DefaultContextItems)[];
+  contextMenu?: (ContextMenuFunc | DefaultContextItems)[];
   /**
    * This event is called when the grid finishes loading
    */

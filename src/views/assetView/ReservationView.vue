@@ -17,12 +17,12 @@ import { ICellRendererParams } from 'ag-grid-community';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
 import agComponents from '@/components/grid/ag-components';
 import { reservationRowStyle } from './common/cssStyles';
-import { createContextItem } from '../../components/grid/ts/contextItems';
+import { ContextMenuFunc } from '@/components/grid/ts/contextItems';
 
-const reserveBranchItem = createContextItem({
+const reserveBranchItem: ContextMenuFunc = (params) => ({
   icon: '<i class="material-icons">playlist_add_check</i>',
   name: 'Reserve Branch',
-  action: (params) => {
+  action: () => {
     const rowsToUpdate = params.node.allLeafChildren
       .filter(({ data }) => !data.reserved)
       .map(({ data }) => ({
@@ -68,7 +68,7 @@ export default class ReservationView extends Vue {
     ],
     treeData: true,
     getDataPath: (data) => data.full_path.split('.'),
-    contextMenu: [reserveBranchItem()],
+    contextMenu: [reserveBranchItem],
     getRowStyle: reservationRowStyle,
     autoGroupColumnDef: {
       headerName: 'Role',

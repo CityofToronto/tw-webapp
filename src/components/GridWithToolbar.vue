@@ -50,14 +50,14 @@ export default class GridWithToolbar extends Vue {
 
   created() {
     // Configuration passed down by props
-
     this.internalConfig = {
       tableName: this.configKey,
       title: this.configKey,
-      ...GRID_CONFIG.get(this.configKey),
       ...this.config,
-      tableID: this.configKey,
     };
+    this.internalConfig.tableID = this.config.tableID
+      ? this.config.tableID
+      : this.config.tableName;
   }
 
   togglePanel() {

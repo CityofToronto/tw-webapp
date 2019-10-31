@@ -31,9 +31,10 @@ import { GridConfiguration } from '@/types/config';
 import agComponents from '@/components/grid/ag-components';
 import * as toolbarItems from '@/components/grid/ts/toolbarItems';
 import * as contextItems from '@/components/grid/ts/contextItems';
-import * as gridEvents from '@/components/grid/ts/gridEvents';
+import * as gridEvents from '@/components/grid/ts/gridEvents/';
 import * as gridButtons from '@/components/grid/ts/ColumnFactory/gridButtons';
 import { isCurrentProject } from './common/conditionals';
+import { orphanBranch, adoptBranch } from './common/orphanage';
 import { ICellRendererParams, CellClassParams } from 'ag-grid-community';
 import { CellType, RowStyleParams, MergeContext } from '@/types/grid';
 import Store from '@/store/store';
@@ -99,6 +100,27 @@ const markDoesNotExist = gridButtons.createGridButton({
   },
 });
 
+export const onDropAsset = gridEvents.createGridEvent<DragEvent>({
+  type: 'drop',
+  callback: ({ event, gridInstance, vueStore }) => {
+    if (event.dataTransfer) {
+      const eventData = JSON.parse(event.dataTransfer.getData('text/plain'));
+      if (!eventData.asset_id) return;
+      const rowData = {
+        id: eventData.asset_id,
+        role_id: 0,
+      };
+
+      gridInstance
+        .updateRows({
+          rowsToUpdate: [rowData],
+          refresh: false,
+        })
+        .then(() => vueStore.grid.forceUpdateAllGrids());
+    }
+  },
+});
+
 @Component({
   components: {
     GridWithToolbar,
@@ -125,7 +147,7 @@ export default class ReconciliationView extends Vue {
       toolbarItems.fitColumns(),
       toolbarItems.sizeColumns(),
     ],
-    contextMenu: [contextItems.orphanBranch()], // register our context menu item
+    contextMenu: [adoptBranch(), orphanBranch()], // register our context menu item
     getDataPath: (data) => data.full_path.split('.'), // tell agGrid how parse tree data
     gridEvents: [
       gridEvents.rowDragLeft(), // all these are registered for rearranging hierarchy
@@ -145,6 +167,7 @@ export default class ReconciliationView extends Vue {
       'parent_changed',
       'role_changed',
       'parent',
+      'asset_id',
     ],
     // Size the columns on initialization
     gridInitializedEvent: ({ gridInstance }) =>
@@ -204,11 +227,6 @@ export default class ReconciliationView extends Vue {
         cellClassRules: roleClassRules, // apply css rules
       },
       {
-        field: 'asset_id',
-        hide: true,
-        showInForm: false,
-      },
-      {
         field: 'asset_serial_number',
         cellType: 'rearrangeCell', // define cell to a rearrange cell
         showInForm: false, // disable this field when adding a child
@@ -230,7 +248,7 @@ export default class ReconciliationView extends Vue {
     title: 'Assets Without a Role',
     tableName: 'unassigned_assets',
     rowClassRules: assetClassRules,
-    gridEvents: [gridEvents.onDropAsset(), gridEvents.dragOver()], // register the asset drop logic
+    gridEvents: [onDropAsset(), gridEvents.dragOver()], // register the asset drop logic
     overrideColumnDefinitions: [
       {
         field: 'asset_serial_number',
@@ -265,6 +283,15 @@ export default class ReconciliationView extends Vue {
       'role_changed',
       'parent',
     ],
+    rowClassRules: {
+      'background-grey': (params: RowStyleParams) => {
+        // If entity's project id isn't the active one
+        if (params.data) {
+          return !isCurrentProject(params.data.project_id);
+        }
+        return false;
+      },
+    },
     // Size the columns on initialization
     gridInitializedEvent: ({ gridInstance }) =>
       gridInstance.gridApi.sizeColumnsToFit(),
@@ -276,6 +303,7 @@ export default class ReconciliationView extends Vue {
         params.data ? params.data.role_number : 'unknown',
       cellRendererParams: {
         suppressCount: true,
+        checkbox: true,
       },
     },
     overrideColumnDefinitions: [
