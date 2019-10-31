@@ -1,5 +1,5 @@
 import { RowData, AddQuery, RemoveQuery, UpdateQuery } from '@/types/grid';
-import { ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
+import { ColumnApi, GridApi, GridOptions, RowNode } from 'ag-grid-community';
 import BaseGridProvider from './GridProviders/BaseGridProvider';
 import ComponentApi from './componentApi';
 import _ from 'lodash';
@@ -65,6 +65,10 @@ export default class GridInstance {
 
   public getSelectedRows(): RowData[] {
     return this.gridApi.getSelectedRows();
+  }
+
+  public getSelectedNodes(): RowNode[] {
+    return this.gridApi.getSelectedNodes();
   }
 
   /**
