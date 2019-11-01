@@ -13,7 +13,6 @@
       :row-height="7 * 6"
       :header-height="7 * 7"
       :context="context"
-      :animate-rows="true"
       pagination-auto-page-size="true"
       @grid-ready="onGridReady"
       @cell-value-changed="cellValueChanged"
