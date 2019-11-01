@@ -63,7 +63,10 @@ export const assetClassRules: ClassRules = {
  * It is disabled if role is marked as does not exist
  */
 const addChildButton = gridButtons.createGridButton({
-  icon: ({ data }) => (!data?.role_exists ? '' : 'keyboard_tab'),
+  icon: ({ data }) =>
+    !data?.role_exists || !data?.approved || !isCurrentProject(data?.project_id)
+      ? ''
+      : 'keyboard_tab',
   clickFunction: ({ node, context }) =>
     context.gridInstance.componentApi.addChildToRow(node),
 });
@@ -75,7 +78,7 @@ const addChildButton = gridButtons.createGridButton({
  */
 const markDoesNotExist = gridButtons.createGridButton({
   icon: ({ data }) => {
-    if (!isCurrentProject(data.project_id)) return '';
+    if (!isCurrentProject(data.project_id) || !data.approved) return '';
     return data?.role_missing_from_registry ? 'delete' : 'fa-eraser';
   },
   clickFunction: (params) => {
@@ -168,6 +171,7 @@ export default class ReconciliationView extends Vue {
       'role_changed',
       'parent',
       'asset_id',
+      'approved',
     ],
     // Size the columns on initialization
     gridInitializedEvent: ({ gridInstance }) =>
@@ -192,10 +196,12 @@ export default class ReconciliationView extends Vue {
     rowClassRules: {
       'background-grey': (params: RowStyleParams) =>
         // if entity not reserved by current project, show grey
-        !isCurrentProject(params?.data.project_id),
+        !isCurrentProject(params?.data.project_id) || !params?.data.approved,
       'text-grey': (params: RowStyleParams) =>
         // if the role doesn't exist or not reserved by current project
-        !params?.data.role_exists || !isCurrentProject(params?.data.project_id),
+        !params?.data.role_exists ||
+        !isCurrentProject(params?.data.project_id) ||
+        !params?.data.approved,
     },
     overrideColumnDefinitions: [
       {
@@ -218,7 +224,10 @@ export default class ReconciliationView extends Vue {
         cellType: 'rearrangeCell', // define cell to a rearrange cell
         showInForm: false, // disable this field when adding a child
         showInView: true, // show this when double clicking
-        conditional: (params) => isCurrentProject(params?.data.project_id), // this controls whether a row is draggable
+        conditional: (params) =>
+          (isCurrentProject(params?.data.project_id) &&
+            params?.data.role_exists) ||
+          (params?.data.approved && params?.data.role_exists), // this controls whether a row is draggable
         headerClass: 'asset-separator', // apply the separator between role and asset
         cellClass: 'asset-separator',
         cellClassRules: assetClassRules, // apply css rules
