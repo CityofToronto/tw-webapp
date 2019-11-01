@@ -18,6 +18,7 @@ import { GridConfiguration } from '@/types/config';
 import { ICellRendererParams } from 'ag-grid-community';
 import { createGridButton } from '@/components/grid/ts/ColumnFactory/gridButtons';
 import { reservationRowStyle } from './common/cssStyles';
+import { isCurrentProject } from './common/conditionals';
 
 /**
  * Creates a custom grid button (approveButton)
@@ -26,7 +27,10 @@ import { reservationRowStyle } from './common/cssStyles';
  */
 const approveButton = createGridButton({
   icon: (params) =>
-    params.data.reserved && !params.data.approved && params.data.reservable
+    params.data.reserved &&
+    !params.data.approved &&
+    params.data.reservable &&
+    isCurrentProject(params.data.project_id)
       ? 'check'
       : '',
   clickFunction: (params) => {
@@ -50,7 +54,10 @@ const approveButton = createGridButton({
  */
 const rejectButton = createGridButton({
   icon: (params) =>
-    params.data.reserved && params.data.reservable && !params.data.approved
+    params.data.reserved &&
+    params.data.reservable &&
+    !params.data.approved &&
+    isCurrentProject(params.data.project_id)
       ? 'close'
       : '',
   clickFunction: (params) => {
