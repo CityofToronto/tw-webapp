@@ -142,7 +142,7 @@ export default class ReconciliationView extends Vue {
     tableName: 'reconciliation_view',
     title: 'Reconciliation',
     treeData: true,
-    // suppressRowClickSelection: true,
+    suppressRowClickSelection: true,
     gridButtons: [markDoesNotExist, addChildButton], // register our buttons
     toolbarItems: [
       toolbarItems.expandAll(),
