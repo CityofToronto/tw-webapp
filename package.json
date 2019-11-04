@@ -8,14 +8,17 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@sentry/browser": "^5.7.1",
     "ag-grid-community": "^21.2.2",
     "ag-grid-enterprise": "^21.2.2",
     "ag-grid-vue": "^21.2.2",
     "apollo-cache-inmemory": "^1.6.3",
     "apollo-client": "^2.6.4",
+    "apollo-link-ws": "^1.0.19",
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
     "lodash": "^4.17.15",
+    "splitpanes": "^2.0.0",
     "subscriptions-transport-ws": "^0.9.16",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",

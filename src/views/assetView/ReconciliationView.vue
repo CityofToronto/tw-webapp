@@ -1,24 +1,26 @@
 <template>
   <v-layout row wrap fill-height px-4 py-2>
-    <v-flex md6 lg8>
-      <v-sheet height="100%" elevation="2">
-        <grid-with-toolbar :config="reconciliationConfig" />
-      </v-sheet>
-    </v-flex>
-    <v-flex md6 lg4>
-      <v-layout column fill-height>
-        <v-flex xs6 px-2 pb-1>
-          <v-sheet height="100%" elevation="2">
-            <grid-with-toolbar :config="unassignedConfig" />
-          </v-sheet>
-        </v-flex>
-        <v-flex xs6 px-2 pt-1>
-          <v-sheet height="100%" elevation="2">
-            <grid-with-toolbar :config="orphanConfig" />
-          </v-sheet>
-        </v-flex>
-      </v-layout>
-    </v-flex>
+    <splitpanes>
+      <pane min-size="33" size="67">
+        <v-sheet height="100%" elevation="2">
+          <grid-with-toolbar :config="reconciliationConfig" />
+        </v-sheet>
+      </pane>
+      <pane min-size="20" size="33">
+        <splitpanes horizontal>
+          <pane>
+            <v-sheet height="100%" elevation="2">
+              <grid-with-toolbar :config="unassignedConfig" />
+            </v-sheet>
+          </pane>
+          <pane>
+            <v-sheet height="100%" elevation="2">
+              <grid-with-toolbar :config="orphanConfig" />
+            </v-sheet>
+          </pane>
+        </splitpanes>
+      </pane>
+    </splitpanes>
   </v-layout>
 </template>
 
@@ -40,6 +42,8 @@ import { CellType, RowStyleParams, MergeContext } from '@/types/grid';
 import Store from '@/store/store';
 import { useStore } from 'vuex-simple';
 import { ClassRules } from '@/types/agGrid';
+import { Splitpanes, Pane } from 'splitpanes';
+import 'splitpanes/dist/splitpanes.css';
 
 /**
  * This defines role styling
@@ -127,6 +131,8 @@ export const onDropAsset = gridEvents.createGridEvent<DragEvent>({
 @Component({
   components: {
     GridWithToolbar,
+    Splitpanes,
+    Pane,
   },
 })
 export default class ReconciliationView extends Vue {
@@ -328,6 +334,17 @@ export default class ReconciliationView extends Vue {
 
   .text-grey {
     color: #bdbdbd;
+  }
+}
+.splitpanes {
+  .splitpanes__pane {
+    padding: 3px;
+  }
+  &--horizontal > &__splitter {
+    min-height: 12px;
+  }
+  &--vertical > &__splitter {
+    min-width: 8px;
   }
 }
 </style>

@@ -1,11 +1,7 @@
 <template>
   <div style="height: calc(100% - 48px);" v-on="events">
     <ag-grid-vue
-      :style="
-        config.autoHeight
-          ? 'width: 100%;'
-          : 'width: 100%; height: calc(100% - 48px);'
-      "
+      :style="config.autoHeight ? 'width: 100%;' : 'width: 100%; height: 100%;'"
       class="ag-theme-material"
       :dom-layout="config.autoHeight ? 'autoHeight' : 'normal'"
       :grid-options="gridOptions"
@@ -13,7 +9,6 @@
       :row-height="7 * 6"
       :header-height="7 * 7"
       :context="context"
-      pagination-auto-page-size="true"
       @grid-ready="onGridReady"
       @cell-value-changed="cellValueChanged"
       v-on="events"
