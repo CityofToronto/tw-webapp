@@ -11,8 +11,10 @@ export default abstract class BaseGridProvider {
   protected tableID: string;
   public columnNames!: string[];
   protected subscription!: ZenObservable.Subscription;
+  protected config: RequiredConfig;
 
   constructor(config: RequiredConfig) {
+    this.config = config;
     this.tableName = config.tableName;
     this.tableID = config.tableID;
   }

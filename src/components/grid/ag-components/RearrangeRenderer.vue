@@ -68,7 +68,6 @@ export default class RearrangeRenderer extends Vue {
 
     // If the spot it is dragged onto is full, end the event
     if (this.params.node.data[fieldName]) {
-      //TODO test what ag-grid gives me here
       return;
     }
 

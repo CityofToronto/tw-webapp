@@ -16,9 +16,9 @@ Vue.config.productionTip = false;
 Vue.use(Vuetify);
 Vue.use(Toast);
 
-Sentry.init({
-  dsn: 'https://e8cac8108cf943409b386d1ce70f0d15@sentry.io/1542138',
-});
+// Sentry.init({
+//   dsn: 'https://e8cac8108cf943409b386d1ce70f0d15@sentry.io/1542138',
+// });
 
 const vuetify = new Vuetify({
   icons: {

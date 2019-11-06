@@ -117,29 +117,29 @@ export default class GridComponent extends Vue {
    */
   gridInitializedEvent: (params: FunctionProps) => void = (): void => {};
 
-  eventHandler<T>(
-    event: T,
-    eventFunction: Function,
-    conditional: (...params: any[]) => boolean = () => false,
-  ) {
+  eventHandler<T>(event: T, eventFunction: Function) {
     const functionParams = {
       event,
       gridInstance: this.gridInstance,
       vueStore: this.store,
     };
-    if (!conditional(functionParams)) return;
-    eventFunction(functionParams);
+    eventFunction(functionParams).callback();
   }
 
   async created(): Promise<void> {
     // Mount events to the grid
+    const functionParams = {
+      event,
+      gridInstance: this.gridInstance,
+      vueStore: this.store,
+    };
+
     if (this.config.gridEvents) {
       this.config.gridEvents.forEach(
         (event) =>
           (this.events = {
             ...this.events,
-            [event.type]: (e) =>
-              this.eventHandler(e, event.callback, event.conditional),
+            [event(functionParams).type]: (e) => this.eventHandler(e, event),
           }),
       );
     }

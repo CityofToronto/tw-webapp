@@ -134,6 +134,7 @@ export default class ColumnFactory {
           cellType: column.cellType,
           enumValues: column.enumValues,
           // Attempt the map the name, if not capitalize the name field
+          sort: column.name === 'id' ? 'asc' : undefined,
           headerName: _.startCase(_.lowerCase(column.name)),
           field: column.name,
           resizable: true,

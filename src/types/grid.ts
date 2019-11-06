@@ -120,7 +120,7 @@ export interface GridSortModel {
 }
 
 export interface RowStyleParams {
-  data: RowData;
+  data: any;
   node: RowNode;
   rowIndex: number;
   api: GridApi;

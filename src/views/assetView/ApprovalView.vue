@@ -81,6 +81,7 @@ export default class ApprovalView extends Vue {
   private approvalConfig: GridConfiguration = {
     gridType: 'normal',
     tableName: 'reservation_view',
+    tableID: 'approval_view',
     title: 'Approval',
     toolbarItems: [
       // register our toolbar items
@@ -131,6 +132,10 @@ export default class ApprovalView extends Vue {
       {
         field: 'role_name',
         headerName: 'Role Name',
+      },
+      {
+        field: 'role_name',
+        headerName: 'Role Name2',
       },
     ],
   };
