@@ -52,7 +52,7 @@ import * as contextItems from '@/components/grid/ts/contextItems';
 import * as gridEvents from '@/components/grid/ts/gridEvents/';
 import * as gridButtons from '@/components/grid/ts/ColumnFactory/gridButtons';
 import { isCurrentProject } from './common/conditionals';
-import { orphanBranch, adoptBranch, testContext } from './common/orphanage';
+import { orphanBranch, adoptBranch } from './common/orphanage';
 import { ICellRendererParams, CellClassParams } from 'ag-grid-community';
 import { CellType, RowStyleParams, MergeContext } from '@/types/grid';
 import Store from '@/store/store';
@@ -344,7 +344,7 @@ export default class ReconciliationView extends Vue {
     title: 'Deleted Assets',
     tableName: 'garbage_can_unassigned_assets',
     toolbarItems: [toolbarItems.fitColumns(), toolbarItems.sizeColumns()],
-    gridEvents: [onDropAsset(), gridEvents.dragOver()],
+    gridEvents: [],
   };
 
   private trashRoleConfig: GridConfiguration = {

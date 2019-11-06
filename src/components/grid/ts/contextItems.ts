@@ -33,10 +33,3 @@ export const selectAllChildren = createContextItem(function(test: string) {
       this.node.allLeafChildren.forEach((rowNode) => rowNode.setSelected(true)),
   };
 });
-
-export const testContext = createContextItem(function(test: string) {
-  return {
-    name: 'Test',
-    action: () => console.log(test),
-  };
-});

@@ -108,13 +108,3 @@ export const adoptBranch = createContextItem(function(data: {
     };
   }
 });
-
-export const testContext = createContextItem(function(parameter: {
-  msg: string;
-}) {
-  console.log(1, parameter.msg);
-  return {
-    name: 'Test',
-    action: () => console.log(2, parameter.msg),
-  };
-});
