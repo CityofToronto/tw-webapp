@@ -4,7 +4,6 @@ on:
   push:
     branches: 
       - '*'
-      - '!master'
 
 jobs:
   build:
@@ -26,12 +25,17 @@ jobs:
         npm install
         npm run build --if-present
         npm test
-    - name: executing remote ssh commands using ssh key
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.KEY }}
-        script: sudo docker 
+        zip -r release.zip ./dist
       env:
         CI: true
+    
+    - name: set environment
+      run: |
+        echo ::set-env name=RELEASE_TAG::$(date '+%Y.%m.%d-%H.%M.%S')
+        echo $RELEASE_TAG
+      
+    - name: Create & Upload Release
+      uses: meeDamian/github-release@1.0
+      with:
+        token: ${{secrets.GITHUB_TOKEN}}
+        files: ./release.zip
