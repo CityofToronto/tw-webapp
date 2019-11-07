@@ -23,7 +23,6 @@ jobs:
         touch .env
         printf "VUE_APP_API=${{secrets.VUE_APP_API}}\n" >> .env
         printf "VUE_APP_URL=${{secrets.VUE_APP_URL}}\n" >> .env
-        cat .env
     - name: npm install, build, and test
       run: |
         npm install
@@ -43,3 +42,7 @@ jobs:
       with:
         token: ${{secrets.GITHUB_TOKEN}}
         files: ./release.zip
+    - name: Update Server
+      uses: wei/curl@v1
+      with:
+        args: https://django.tw-webapp-next.duckdns.org/djangoAPI/update-app
