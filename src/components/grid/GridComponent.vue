@@ -1,11 +1,7 @@
 <template>
   <div style="height: calc(100% - 48px);" v-on="events">
     <ag-grid-vue
-      :style="
-        config.autoHeight
-          ? 'width: 100%;'
-          : 'width: 100%; height: calc(100% - 48px);'
-      "
+      :style="config.autoHeight ? 'width: 100%;' : 'width: 100%; height: 100%;'"
       class="ag-theme-material"
       :dom-layout="config.autoHeight ? 'autoHeight' : 'normal'"
       :grid-options="gridOptions"
@@ -13,8 +9,6 @@
       :row-height="7 * 6"
       :header-height="7 * 7"
       :context="context"
-      :animate-rows="true"
-      pagination-auto-page-size="true"
       @grid-ready="onGridReady"
       @cell-value-changed="cellValueChanged"
       v-on="events"
@@ -123,29 +117,29 @@ export default class GridComponent extends Vue {
    */
   gridInitializedEvent: (params: FunctionProps) => void = (): void => {};
 
-  eventHandler<T>(
-    event: T,
-    eventFunction: Function,
-    conditional: (...params: any[]) => boolean = () => false,
-  ) {
+  eventHandler<T>(event: T, eventFunction: Function) {
     const functionParams = {
       event,
       gridInstance: this.gridInstance,
       vueStore: this.store,
     };
-    if (!conditional(functionParams)) return;
-    eventFunction(functionParams);
+    eventFunction(functionParams).callback();
   }
 
   async created(): Promise<void> {
     // Mount events to the grid
+    const functionParams = {
+      event,
+      gridInstance: this.gridInstance,
+      vueStore: this.store,
+    };
+
     if (this.config.gridEvents) {
       this.config.gridEvents.forEach(
         (event) =>
           (this.events = {
             ...this.events,
-            [event.type]: (e) =>
-              this.eventHandler(e, event.callback, event.conditional),
+            [event(functionParams).type]: (e) => this.eventHandler(e, event),
           }),
       );
     }

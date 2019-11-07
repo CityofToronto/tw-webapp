@@ -5,7 +5,9 @@
       <PopupLoader />
       <NotificationBar />
       <v-content>
-        <router-view />
+        <keep-alive>
+          <router-view />
+        </keep-alive>
       </v-content>
     </v-app>
   </div>
@@ -16,6 +18,8 @@ import { Vue, Component } from 'vue-property-decorator';
 import NotificationBar from './components/layout/NotificationBar.vue';
 import TheNavbar from './components/layout/TheNavbar.vue';
 import PopupLoader from './components/layout/PopupLoader.vue';
+import Store from '@/store/store';
+import { useStore } from 'vuex-simple';
 
 @Component({
   components: {
@@ -24,7 +28,12 @@ import PopupLoader from './components/layout/PopupLoader.vue';
     PopupLoader,
   },
 })
-export default class App extends Vue {}
+export default class App extends Vue {
+  store: Store = useStore(this.$store);
+  created() {
+    this.store.settings.getSettings();
+  }
+}
 </script>
 
 <style>

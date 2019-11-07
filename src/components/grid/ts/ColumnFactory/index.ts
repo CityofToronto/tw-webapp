@@ -1,4 +1,4 @@
-import { ColDef } from 'ag-grid-community';
+import { ColDef, ColGroupDef } from 'ag-grid-community';
 import apolloClient from '@/apollo';
 import { TreeData } from '@/types/api';
 import { CellType, RequiredConfig } from '@/types/grid';
@@ -6,12 +6,16 @@ import CellTypes from './cellTypes';
 import { CellParams, GridConfiguration } from '@/types/config';
 import { HasuraField } from '@/types/api';
 import _ from 'lodash';
+import { inDebug } from '@/common/utils';
 
 interface ProcessedColumn {
   name: string;
   cellType: CellType;
   enumValues?: string[];
 }
+
+const isGroupColumn = (column: ColDef | ColGroupDef) =>
+  !!(column as ColGroupDef).children ?? false;
 
 export default class ColumnFactory {
   private tableName: string;
@@ -119,21 +123,37 @@ export default class ColumnFactory {
     }
   };
 
+  private async buildColumnDef(cellDef: CellParams & ProcessedColumn) {
+    const colDef = {
+      showInForm: true,
+    };
+  }
+
   private async defineColumns(columns: ProcessedColumn[]): Promise<void> {
     const overriddenColDefs = this.config.overrideColumnDefinitions ?? [];
 
     const promiseOfColDef = columns.map(
       async (column): Promise<ColDef> => {
+        // Find the column
         const overrideColDef = overriddenColDefs.find(
           (colDef: ColDef): boolean => colDef.field === column.name,
         ) as CellParams;
 
+        const cellDef = {
+          ...overriddenColDefs,
+          ...column,
+        };
+
+        if (isGroupColumn(overrideColDef)) {
+          //do stuff
+        }
+
         const colDef = {
           showInForm: true,
-          ...this.config.defaultColDef,
           cellType: column.cellType,
           enumValues: column.enumValues,
           // Attempt the map the name, if not capitalize the name field
+          sort: column.name === 'id' ? 'asc' : undefined,
           headerName: _.startCase(_.lowerCase(column.name)),
           field: column.name,
           resizable: true,
@@ -164,7 +184,7 @@ export default class ColumnFactory {
     this.columns = await apolloClient.getColumns(this.tableName);
 
     // Omit columns defined in config
-    if (this.config.omittedColumns) {
+    if (this.config.omittedColumns && !inDebug()) {
       this.omitColumns(this.config.omittedColumns);
     }
     /**

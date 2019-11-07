@@ -4,12 +4,13 @@
     <v-app-bar color="primary" dark dense fixed clipped-left clipped-right app>
       <!-- Left Hamburger Menu -->
       <v-app-bar-nav-icon @click="leftSideDrawer = !leftSideDrawer" />
-      <!-- Define Toolbar Title -->
-      <v-toolbar-title class="title">
-        Management Engine
-      </v-toolbar-title>
 
       <v-toolbar-items>
+        <!-- Define Toolbar Title -->
+
+        <v-btn text class="title" @click="$router.replace('/')">
+          Management Engine
+        </v-btn>
         <v-btn text class="project-title" @click="() => {}">
           {{ businessUnit }}
           <v-icon right>
@@ -40,50 +41,18 @@
 
       <!-- Push Items to The Right -->
       <v-spacer />
-
       <v-toolbar-items>
-        <v-btn text class="project-title" @click="changeUser">
-          {{ userData.name }}
-        </v-btn>
-      </v-toolbar-items>
-
-      <!-- Items on the Toolbar -->
-      <template v-if="!!loginStatus">
-        <v-menu v-model="menu" :close-on-click="true" offset-y>
+        <v-menu v-model="menu" :close-on-content-click="false" offset-y>
           <template v-slot:activator="{ on }">
-            <v-btn text v-on="on">
-              {{ userData.username }}
+            <v-btn text dark class="username" v-on="on">
+              Amber Brasher
             </v-btn>
           </template>
-          <v-card>
-            <v-list>
-              <v-list-item>
-                <v-list-item-avatar>
-                  <img
-                    :src="
-                      `https://ui-avatars.com/api/?name=${userData.username}`
-                    "
-                  />
-                </v-list-item-avatar>
-
-                <v-list-item-content>
-                  <v-list-item-title>Amber Brasher</v-list-item-title>
-                  <v-list-item-subtitle>
-                    Technical Assistant
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="logout">Logout</v-btn>
-            </v-card-actions>
-          </v-card>
+          <user-panel></user-panel>
         </v-menu>
-      </template>
+      </v-toolbar-items>
+      <!-- Left and Right Drawers -->
     </v-app-bar>
-
-    <!-- Left and Right Drawers -->
     <navigation-drawer :left-side-drawer="leftSideDrawer" />
   </div>
 </template>
@@ -91,12 +60,14 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import NavigationDrawer from './NavigationDrawer.vue';
+import UserPanel from '@/components/UserPanel.vue';
 import Store from '@/store/store';
 import { useStore } from 'vuex-simple';
 
 @Component({
   components: {
     NavigationDrawer,
+    UserPanel,
   },
 })
 export default class Navbar extends Vue {
@@ -139,8 +110,10 @@ export default class Navbar extends Vue {
   position: relative;
   overflow: visible;
   padding-right: 20px;
+  text-transform: none;
 }
-.project-title {
+.project-title,
+.username {
   font-weight: 300;
   font-size: 16px;
   position: relative;

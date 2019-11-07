@@ -3,22 +3,33 @@ import { MergeContext } from '@/types/grid';
 
 export type ContextMenuParams = MergeContext<GetContextMenuItemsParams>;
 
-export type ContextMenuFunc = (params: ContextMenuParams) => MenuItemDef;
+export type ContextMenuFunc = (
+  this: ContextMenuParams,
+  ...args: any[]
+) => MenuItemDef;
 
-export const createContextItem = (func: ContextMenuFunc) => {
+export type ContextMenuCall = (params: ContextMenuParams) => MenuItemDef;
+
+export function createContextItem<T extends ContextMenuFunc>(func: T) {
   return (
-    disabled: (params: ContextMenuParams) => boolean = () => false,
-  ): ContextMenuFunc => (params: ContextMenuParams): MenuItemDef => ({
-    disabled: disabled(params),
-    ...func(params),
-  });
-};
+    disabled?: (this: ContextMenuParams) => boolean,
+    ...args: Parameters<T>
+  ) => {
+    const createItem: ContextMenuCall = (params) => ({
+      disabled: typeof disabled === 'function' ? disabled.apply(params) : false,
+      ...func.apply(params, args),
+    });
+    return createItem;
+  };
+}
 
 /**
  * Context menu that selects all children
  */
-export const selectAllChildren = createContextItem((params) => ({
-  name: 'Select All Children',
-  action: () =>
-    params.node.allLeafChildren.forEach((rowNode) => rowNode.setSelected(true)),
-}));
+export const selectAllChildren = createContextItem(function(test: string) {
+  return {
+    name: 'Select All Children',
+    action: () =>
+      this.node.allLeafChildren.forEach((rowNode) => rowNode.setSelected(true)),
+  };
+});

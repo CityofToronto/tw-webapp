@@ -27,7 +27,6 @@ import { GridComponentOptions, GridType, RowData } from '@/types/grid';
 import { GRID_CONFIG } from '@/config';
 import { GridConfiguration } from '@/types/config';
 import TreeGrid from './grid/TreeGrid.vue';
-import { ToolbarFunction } from './grid/ts/toolbarItems';
 import GridComponent from './grid/GridComponent.vue';
 
 @Component({
@@ -91,9 +90,14 @@ $virtual-item-height: 5px;
 }
 
 // Adds a border left of the ag-grid sidebar
-.ag-theme-material .ag-side-bar {
-  border-left-width: 0.5px;
-  border-left-color: #e2e2e2;
+.ag-theme-material {
+  .ag-status-bar {
+    display: none;
+  }
+  .ag-side-bar {
+    border-left-width: 0.5px;
+    border-left-color: #e2e2e2;
+  }
 }
 
 // Styling for grid dropdown list

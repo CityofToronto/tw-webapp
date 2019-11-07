@@ -1,21 +1,18 @@
-import {
-  ContextMenuFunc,
-  createContextItem,
-} from '@/components/grid/ts/contextItems';
+import { createContextItem } from '@/components/grid/ts/contextItems';
 import GridInstance from '@/components/grid/ts/GridInstance';
 import { storeInstance } from '@/store';
 
-export const orphanBranch = createContextItem((params) => {
+export const orphanBranch = createContextItem(function() {
   return {
     name: 'Orphan Branch',
     action: async () => {
-      const { vueStore, gridInstance } = params.context;
+      const { vueStore, gridInstance } = this.context;
 
       // Orphan a branch
       await gridInstance.updateRows({
         rowsToUpdate: [
           {
-            id: params.node.data.id,
+            id: this.node.data.id,
             parent: 2,
           },
         ],
@@ -29,14 +26,16 @@ export const orphanBranch = createContextItem((params) => {
 
 /**
  * This function adopts the selected children in the orphanage
- * This function works, I think, its a bit complex
+ * This function works, its a bit complex
  */
-export const adoptBranch = createContextItem((params) => {
+export const adoptBranch = createContextItem(function(data: {
+  tableName: string;
+}) {
   const name = 'Adopt Selected Orphans';
 
   try {
     const orphanGrid = storeInstance.grid.getGridInstance(
-      'orphan_view',
+      data.tableName,
     ) as GridInstance;
 
     // Get all rowNodes that are selected
@@ -91,12 +90,12 @@ export const adoptBranch = createContextItem((params) => {
             orphanGrid.updateRows({
               rowsToUpdate: parentIds.map((id) => ({
                 id,
-                parent: params.node.id,
+                parent: this.node.id,
               })),
               refresh: false,
             }),
           )
-          .then(() => params.context.vueStore.grid.forceUpdateAllGrids());
+          .then(() => this.context.vueStore.grid.forceUpdateAllGrids());
       },
       disabled: !selectedRows.length,
     };

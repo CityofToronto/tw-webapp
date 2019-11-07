@@ -1,24 +1,42 @@
 <template>
   <v-layout row wrap fill-height px-4 py-2>
-    <v-flex md6 lg8>
-      <v-sheet height="100%" elevation="2">
-        <grid-with-toolbar :config="reconciliationConfig" />
-      </v-sheet>
-    </v-flex>
-    <v-flex md6 lg4>
-      <v-layout column fill-height>
-        <v-flex xs6 px-2 pb-1>
-          <v-sheet height="100%" elevation="2">
-            <grid-with-toolbar :config="unassignedConfig" />
-          </v-sheet>
-        </v-flex>
-        <v-flex xs6 px-2 pt-1>
-          <v-sheet height="100%" elevation="2">
-            <grid-with-toolbar :config="orphanConfig" />
-          </v-sheet>
-        </v-flex>
-      </v-layout>
-    </v-flex>
+    <splitpanes>
+      <pane min-size="33" size="67" style="padding: 2px;">
+        <v-sheet height="100%" elevation="2">
+          <grid-with-toolbar :config="reconciliationConfig" />
+        </v-sheet>
+      </pane>
+      <pane min-size="20" size="33" style="padding: 2px;">
+        <v-sheet height="100%" elevation="2">
+          <v-tabs v-model="tabState" right="" height="48">
+            <v-tab @click="changeView">Inactive</v-tab>
+            <v-tab @click="changeView">Trash</v-tab>
+          </v-tabs>
+          <v-tabs-items v-model="tabState" style="height: 100%">
+            <v-tab-item style="height: calc(100% - 48px)">
+              <splitpanes horizontal>
+                <pane>
+                  <grid-with-toolbar :config="unassignedConfig" />
+                </pane>
+                <pane>
+                  <grid-with-toolbar :config="orphanConfig" />
+                </pane>
+              </splitpanes>
+            </v-tab-item>
+            <v-tab-item style="height: calc(100% - 48px)">
+              <splitpanes horizontal>
+                <pane>
+                  <grid-with-toolbar :config="trashAssetConfig" />
+                </pane>
+                <pane>
+                  <grid-with-toolbar :config="trashRoleConfig" />
+                </pane>
+              </splitpanes>
+            </v-tab-item>
+          </v-tabs-items>
+        </v-sheet>
+      </pane>
+    </splitpanes>
   </v-layout>
 </template>
 
@@ -40,6 +58,8 @@ import { CellType, RowStyleParams, MergeContext } from '@/types/grid';
 import Store from '@/store/store';
 import { useStore } from 'vuex-simple';
 import { ClassRules } from '@/types/agGrid';
+import { Splitpanes, Pane } from 'splitpanes';
+import 'splitpanes/dist/splitpanes.css';
 
 /**
  * This defines role styling
@@ -63,7 +83,7 @@ export const assetClassRules: ClassRules = {
  * It is disabled if role is marked as does not exist
  */
 const addChildButton = gridButtons.createGridButton({
-  icon: ({ data }) => (!data?.role_exists ? '' : 'keyboard_tab'),
+  icon: ({ data }) => (isApproved(data) ? 'keyboard_tab' : ''),
   clickFunction: ({ node, context }) =>
     context.gridInstance.componentApi.addChildToRow(node),
 });
@@ -75,7 +95,7 @@ const addChildButton = gridButtons.createGridButton({
  */
 const markDoesNotExist = gridButtons.createGridButton({
   icon: ({ data }) => {
-    if (!isCurrentProject(data.project_id)) return '';
+    if (!isApproved(data)) return '';
     return data?.role_missing_from_registry ? 'delete' : 'fa-eraser';
   },
   clickFunction: (params) => {
@@ -89,7 +109,7 @@ const markDoesNotExist = gridButtons.createGridButton({
     } else {
       const updateData = {
         id: params.data.id,
-        role_exists: !params.data.role_exists,
+        role_exists: !params?.data?.role_exists,
       };
       params.context.gridInstance
         .updateRows({
@@ -100,54 +120,75 @@ const markDoesNotExist = gridButtons.createGridButton({
   },
 });
 
-export const onDropAsset = gridEvents.createGridEvent<DragEvent>({
-  type: 'drop',
-  callback: ({ event, gridInstance, vueStore }) => {
-    if (event.dataTransfer) {
-      const eventData = JSON.parse(event.dataTransfer.getData('text/plain'));
-      if (!eventData.asset_id) return;
-      const rowData = {
-        id: eventData.asset_id,
-        role_id: 0,
-      };
+export const onDropAsset = gridEvents.createGridEvent<DragEvent>(function() {
+  return {
+    type: 'drop',
+    callback: () => {
+      if (this.event.dataTransfer) {
+        const eventData = JSON.parse(
+          this.event.dataTransfer.getData('text/plain'),
+        );
+        if (!eventData.asset_id) return;
+        const rowData = {
+          id: eventData.asset_id,
+          role_id: 0,
+        };
 
-      gridInstance
-        .updateRows({
-          rowsToUpdate: [rowData],
-          refresh: false,
-        })
-        .then(() => vueStore.grid.forceUpdateAllGrids());
-    }
-  },
+        this.gridInstance
+          .updateRows({
+            rowsToUpdate: [rowData],
+            refresh: false,
+          })
+          .then(() => this.vueStore.grid.forceUpdateAllGrids());
+      }
+    },
+  };
 });
+
+const isApproved = (data: {
+  project_id: number;
+  approved: boolean;
+  role_missing_from_registry: boolean;
+}) => isCurrentProject(data?.project_id) && data.approved;
 
 @Component({
   components: {
     GridWithToolbar,
+    Splitpanes,
+    Pane,
   },
 })
 export default class ReconciliationView extends Vue {
   // Define the VueX Store
   store: Store = useStore(this.$store);
 
-  async created() {
-    // Subscribe to the orphanView
-    this.store.grid.subscribeToOrphanView();
+  tabState: number | null = null;
+
+  currentView: {
+    tableName: string;
+  } = { tableName: 'orphan_view' };
+
+  changeView() {
+    this.currentView.tableName =
+      this.currentView.tableName === 'orphan_view'
+        ? 'garbage_can_reconciliation_view'
+        : 'orphan_view';
   }
 
   private reconciliationConfig: GridConfiguration = {
     tableName: 'reconciliation_view',
     title: 'Reconciliation',
     treeData: true,
-    // suppressRowClickSelection: true,
+    suppressRowClickSelection: true,
     gridButtons: [markDoesNotExist, addChildButton], // register our buttons
     toolbarItems: [
       toolbarItems.expandAll(),
       toolbarItems.collapseAll(),
       toolbarItems.fitColumns(),
       toolbarItems.sizeColumns(),
+      toolbarItems.togglePanel(),
     ],
-    contextMenu: [adoptBranch(), orphanBranch()], // register our context menu item
+    contextMenu: [adoptBranch(undefined, this.currentView), orphanBranch()], // register our context menu item
     getDataPath: (data) => data?.full_path.split('.'), // tell agGrid how parse tree data
     gridEvents: [
       gridEvents.rowDragLeft(), // all these are registered for rearranging hierarchy
@@ -168,6 +209,7 @@ export default class ReconciliationView extends Vue {
       'role_changed',
       'parent',
       'asset_id',
+      'approved',
     ],
     // Size the columns on initialization
     gridInitializedEvent: ({ gridInstance }) =>
@@ -176,8 +218,8 @@ export default class ReconciliationView extends Vue {
       resizable: true,
       width: 400,
       // Only reserved roles will be draggable
-      rowDrag: (params) => isCurrentProject(params?.data.project_id), // row drag only for reserved projects
-      valueFormatter: (params) => params?.data.role_number ?? 'unknown',
+      rowDrag: ({ data }) => isApproved(data),
+      valueFormatter: (params) => params?.data?.role_number ?? 'unknown',
       headerName: 'Role Number',
       cellRendererParams: {
         suppressCount: true, // the count is weird when rearranging, so disabled it
@@ -190,12 +232,8 @@ export default class ReconciliationView extends Vue {
       },
     },
     rowClassRules: {
-      'background-grey': (params: RowStyleParams) =>
-        // if entity not reserved by current project, show grey
-        !isCurrentProject(params?.data.project_id),
-      'text-grey': (params: RowStyleParams) =>
-        // if the role doesn't exist or not reserved by current project
-        !params?.data.role_exists || !isCurrentProject(params?.data.project_id),
+      'background-grey': ({ data }: RowStyleParams) => !isApproved(data),
+      'text-grey': ({ data }: RowStyleParams) => !isApproved(data),
     },
     overrideColumnDefinitions: [
       {
@@ -218,7 +256,7 @@ export default class ReconciliationView extends Vue {
         cellType: 'rearrangeCell', // define cell to a rearrange cell
         showInForm: false, // disable this field when adding a child
         showInView: true, // show this when double clicking
-        conditional: (params) => isCurrentProject(params?.data.project_id), // this controls whether a row is draggable
+        conditional: ({ data, value }) => isApproved(data), // this controls whether a row is draggable
         headerClass: 'asset-separator', // apply the separator between role and asset
         cellClass: 'asset-separator',
         cellClassRules: assetClassRules, // apply css rules
@@ -267,13 +305,14 @@ export default class ReconciliationView extends Vue {
       'asset_exists',
       'asset_missing_from_registry',
       'full_path',
+      'approved',
       'parent_changed',
       'role_changed',
       'parent',
     ],
     rowClassRules: {
       'background-grey': (params: RowStyleParams) =>
-        !isCurrentProject(params?.data.project_id),
+        !isCurrentProject(params?.data?.project_id),
     },
     // Size the columns on initialization
     gridInitializedEvent: ({ gridInstance }) =>
@@ -282,7 +321,7 @@ export default class ReconciliationView extends Vue {
       resizable: true,
       width: 400,
       headerName: 'Role Number',
-      valueFormatter: (params) => params?.data.role_number ?? 'unknown',
+      valueFormatter: (params) => params?.data?.role_number ?? 'unknown',
       cellRendererParams: {
         suppressCount: true,
         checkbox: true,
@@ -298,6 +337,20 @@ export default class ReconciliationView extends Vue {
         hide: true,
       },
     ],
+  };
+
+  private trashAssetConfig: GridConfiguration = {
+    ...this.unassignedConfig,
+    title: 'Deleted Assets',
+    tableName: 'garbage_can_unassigned_assets',
+    toolbarItems: [toolbarItems.fitColumns(), toolbarItems.sizeColumns()],
+    gridEvents: [],
+  };
+
+  private trashRoleConfig: GridConfiguration = {
+    ...this.orphanConfig,
+    title: 'Deleted Roles',
+    tableName: 'garbage_can_reconciliation_view',
   };
 }
 </script>
@@ -319,6 +372,14 @@ export default class ReconciliationView extends Vue {
 
   .text-grey {
     color: #bdbdbd;
+  }
+}
+.splitpanes {
+  &--horizontal > &__splitter {
+    min-height: 12px;
+  }
+  &--vertical > &__splitter {
+    min-width: 8px;
   }
 }
 </style>

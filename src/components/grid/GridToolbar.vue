@@ -36,7 +36,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import Store from '@/store/store';
-import { ToolbarObject } from './ts/toolbarItems';
+import { ToolbarCall } from './ts/toolbarItems';
 import { storeInstance } from '@/store';
 import GridInstance from './ts/GridInstance';
 import { useStore } from 'vuex-simple';
@@ -45,7 +45,7 @@ import { useStore } from 'vuex-simple';
 export default class GridToolbar extends Vue {
   @Prop({ default: '' }) readonly gridTitle!: string;
 
-  @Prop({ default: () => [] }) readonly toolbarItems!: ToolbarObject[];
+  @Prop({ default: () => [] }) readonly toolbarItems!: ToolbarCall[];
 
   @Prop({ required: true, default: () => {} })
   readonly gridInstance!: GridInstance;
@@ -53,15 +53,12 @@ export default class GridToolbar extends Vue {
   store: Store = useStore(this.$store);
 
   get toolbarComputed() {
-    return this.toolbarItems.map((item) => ({
-      ...item,
-      text:
-        typeof item.text === 'string' ? item.text : item.text(storeInstance),
-      disabled: item.disabled({
+    return this.toolbarItems.map((item) =>
+      item({
         gridInstance: this.gridInstance,
         vueStore: this.store,
       }),
-    }));
+    );
   }
 
   // Click handler just passes the parameters into the function
@@ -81,6 +78,7 @@ export default class GridToolbar extends Vue {
 }
 .v-toolbar {
   border-bottom: 0.5px solid #e2e2e2;
+  border-top: 0.5px solid #e2e2e2;
 }
 .sub-menu {
   font-size: 12px;

@@ -1,16 +1,12 @@
-import {
-  ColDef,
-  GridOptions,
-  ICellRendererParams,
-  GetContextMenuItemsParams,
-} from 'ag-grid-community';
+import { ColDef, GridOptions, ICellRendererParams } from 'ag-grid-community';
 import { CellType, MergeContext, FunctionProps } from './grid';
 import { MarkRequired } from 'ts-essentials';
 import GridInstance from '@/components/grid/ts/GridInstance';
-import { ToolbarItem } from '@/components/grid/ts/toolbarItems';
+import { ToolbarCall } from '@/components/grid/ts/toolbarItems';
 import Store from '@/store/store';
-import { ContextMenuFunc } from '@/components/grid/ts/contextItems';
+import { ContextMenuCall } from '@/components/grid/ts/contextItems';
 import { GridButton } from '@/components/grid/ts/ColumnFactory/gridButtons';
+import { VueEventCall } from '@/components/grid/ts/gridEvents';
 
 export enum GridType {
   Tree = 'tree',
@@ -38,8 +34,8 @@ export interface VueEventParams<T> {
 
 export interface VueEvent<T> {
   type: string;
-  conditional?: (eventParams: VueEventParams<T>) => boolean;
-  callback: (eventParams: VueEventParams<T>) => void;
+  conditional?: boolean;
+  callback: () => void;
 }
 
 export type CustomProperties = keyof Omit<
@@ -91,17 +87,17 @@ interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
   /**
    * Items displayed in the toolbar
    */
-  toolbarItems: ToolbarItem[];
+  toolbarItems: ToolbarCall[];
   /**
    * Events to bind to the ag-Grid instance
    */
-  gridEvents?: VueEvent<any>[];
+  gridEvents?: VueEventCall<any>[];
   /**
    * Custom items to add to the context menu (right click)
    * By default, it has copy, paste and export.
    * separator draws a line between items
    */
-  contextMenu?: (ContextMenuFunc | DefaultContextItems)[];
+  contextMenu?: (ContextMenuCall | DefaultContextItems)[];
   /**
    * This event is called when the grid finishes loading
    */

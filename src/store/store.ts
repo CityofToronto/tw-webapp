@@ -4,6 +4,7 @@ import NotificationModule from './modules/notification';
 import GridModule from './modules/grid';
 import PopupModule from './modules/popup';
 import AuthModule from './modules/auth';
+import SettingsModule from './modules/settings';
 
 export default class Store {
   @Module()
@@ -20,4 +21,7 @@ export default class Store {
 
   @Module()
   public auth = new AuthModule();
+
+  @Module()
+  public settings = new SettingsModule();
 }
