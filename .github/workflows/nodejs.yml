@@ -22,7 +22,7 @@ jobs:
       run: |
         touch .env
         printf "VUE_APP_API=${{secrets.VUE_APP_API}}\n" >> .env
-        printf "VUE_APP_URL= ${{secrets.VUE_APP_URL}}\n" >> .env
+        printf "VUE_APP_URL=${{secrets.VUE_APP_URL}}\n" >> .env
         cat .env
     - name: npm install, build, and test
       run: |
