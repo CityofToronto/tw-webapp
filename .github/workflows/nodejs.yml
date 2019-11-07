@@ -28,6 +28,8 @@ jobs:
         zip -r release.zip ./dist
       env:
         CI: true
+        VUE_APP_API: ${{secrets.VUE_APP_API}}
+        VUE_APP_URL: ${{secrets.VUE_APP_URL}}
     
     - name: set environment
       run: |
