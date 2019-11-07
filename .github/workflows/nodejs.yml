@@ -42,6 +42,10 @@ jobs:
       with:
         token: ${{secrets.GITHUB_TOKEN}}
         files: ./release.zip
+    - name: Timeout for release to process
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '20s'
     - name: Update Server
       uses: wei/curl@v1
       with:
