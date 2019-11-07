@@ -1,5 +1,4 @@
 import { Mutation, State, Action, Getter } from 'vuex-simple';
-import { forceReconnect } from '@/apollo/lib/link';
 
 interface Project {
   name: string;
@@ -8,6 +7,7 @@ interface Project {
 
 interface UserData {
   username: string;
+  userTitle?: string;
   name: string;
   projects: Project[];
 }

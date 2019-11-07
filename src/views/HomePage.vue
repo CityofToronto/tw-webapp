@@ -1,37 +1,59 @@
 <template>
-  <v-container></v-container>
+  <v-container>
+    <module-panel
+      v-for="module in modules"
+      :key="module.title"
+      :title="module.title"
+      :description="module.description"
+      :sub-modules="module.subModules"
+    />
+  </v-container>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import Store from '@/store/store';
+import ModulePanel from '@/components/ModulePanel.vue';
 import { useStore } from 'vuex-simple';
 
-@Component({})
+@Component({
+  components: {
+    ModulePanel,
+  },
+})
 export default class HomeView extends Vue {
   store: Store = useStore(this.$store);
 
   modules = [
     {
-      name: 'Define Module',
-      description:
-        'Define activities and their respective properties and relations',
-      route: '/review/activity',
-    },
-    {
-      name: 'Hierarchical Module',
-      description:
-        'Define maintenance and their respective properties and relations',
-      route: '/',
-    },
-    {
-      name: 'Another Module',
-      description:
-        'Define something and their respective properties and relations',
-      route: '/',
+      title: 'Project Asset Module',
+      description: 'Reserve, reconciliation and update assets',
+      subModules: [
+        {
+          title: 'Reservation',
+          subtitle:
+            'Reserve entities for a project to be approved for reconciliation and update. that if goes over the number of lines support what happnes?',
+          route: '/asset/reservation',
+        },
+        {
+          title: 'Reconciliation',
+          subtitle: 'Rearrange role hierarchy and assign new assets',
+          route: '/asset/reconciliation',
+        },
+        {
+          title: 'Update',
+          subtitle: 'Update the role and asset information',
+          route: '/asset/update',
+        },
+      ],
     },
   ];
 }
 </script>
 
-<style></style>
+<style>
+.description {
+  padding-left: 10px;
+  font-size: 15px;
+}
+</style>

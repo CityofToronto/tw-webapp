@@ -1,20 +1,10 @@
-import {
-  ColDef,
-  GridOptions,
-  ICellRendererParams,
-  GetContextMenuItemsParams,
-  MenuItemDef,
-} from 'ag-grid-community';
+import { ColDef, GridOptions, ICellRendererParams } from 'ag-grid-community';
 import { CellType, MergeContext, FunctionProps } from './grid';
 import { MarkRequired } from 'ts-essentials';
 import GridInstance from '@/components/grid/ts/GridInstance';
-import { ToolbarItem, ToolbarCall } from '@/components/grid/ts/toolbarItems';
+import { ToolbarCall } from '@/components/grid/ts/toolbarItems';
 import Store from '@/store/store';
-import {
-  ContextMenuFunc,
-  ContextMenuParams,
-  ContextMenuCall,
-} from '@/components/grid/ts/contextItems';
+import { ContextMenuCall } from '@/components/grid/ts/contextItems';
 import { GridButton } from '@/components/grid/ts/ColumnFactory/gridButtons';
 import { VueEventCall } from '@/components/grid/ts/gridEvents';
 
