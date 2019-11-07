@@ -15,7 +15,7 @@ interface ProcessedColumn {
 }
 
 const isGroupColumn = (column: ColDef | ColGroupDef) =>
-  !!(column as ColGroupDef).children ?? false;
+  !!(column as ColGroupDef)?.children ?? false;
 
 export default class ColumnFactory {
   private tableName: string;
