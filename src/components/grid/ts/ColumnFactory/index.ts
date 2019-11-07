@@ -145,6 +145,7 @@ export default class ColumnFactory {
         };
 
         if (isGroupColumn(overrideColDef)) {
+          //do stuff
         }
 
         const colDef = {
