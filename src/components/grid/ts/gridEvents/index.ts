@@ -1,5 +1,8 @@
 import { VueEventParams, VueEvent } from '@/types/config';
-import { RowDoubleClickedEvent } from 'ag-grid-community';
+import {
+  RowDoubleClickedEvent,
+  CellDoubleClickedEvent,
+} from 'ag-grid-community';
 import { RowDragMoveEvent, RowDragEndEvent } from 'ag-grid-community';
 
 // export * from './hierarchyRearrange';
@@ -29,11 +32,13 @@ export function createGridEvent<T>(func: VueEventFunc<T>) {
   };
 }
 
-export const doubleClickView = createGridEvent<RowDoubleClickedEvent>(
+export const doubleClickView = createGridEvent<CellDoubleClickedEvent>(
   function() {
     return {
-      type: 'row-double-clicked',
-      callback: () => this.gridInstance.componentApi.viewRow(this.event.node),
+      type: 'cell-double-clicked',
+      callback: () => {
+        this.gridInstance.componentApi.viewRow(this.event.node);
+      },
     };
   },
 );
