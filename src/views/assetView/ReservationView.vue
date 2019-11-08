@@ -58,14 +58,6 @@ export default class ReservationView extends Vue {
       'project_id',
       'approval_status',
     ],
-    omittedColumns: [
-      'role_number',
-      'full_path',
-      'parent',
-      'dummy',
-      'approved',
-      'reservable',
-    ],
     treeData: true,
     getDataPath: (data) => data.full_path.split('.'),
     contextMenu: [reserveBranchItem],
@@ -83,14 +75,6 @@ export default class ReservationView extends Vue {
       {
         field: 'id',
         hide: true,
-      },
-      {
-        field: 'approval_status',
-        headerName: 'Approval Status',
-      },
-      {
-        field: 'project_id',
-        headerName: 'Reserved By (Project ID)',
       },
       {
         field: 'role_name',
@@ -145,6 +129,14 @@ export default class ReservationView extends Vue {
             }
           },
         },
+      },
+      {
+        field: 'project_id',
+        headerName: 'Reserved By (Project ID)',
+      },
+      {
+        field: 'approval_status',
+        headerName: 'Approval Status',
       },
     ],
   };

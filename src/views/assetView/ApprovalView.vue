@@ -90,16 +90,6 @@ export default class ApprovalView extends Vue {
       toolbarItems.fitColumns(),
       toolbarItems.sizeColumns(),
     ],
-    // omitting columns still fetches their data but not handled by agGrid
-    omittedColumns: [
-      'role_number',
-      'full_path',
-      'parent',
-      'dummy',
-      'reserved',
-      'approved',
-      'reservable',
-    ],
     // array to order the columns
     columnOrder: ['role_name', 'project_id', 'approval_status'],
     gridButtons: [rejectButton, approveButton], // register our buttons

@@ -85,7 +85,6 @@ $virtual-item-height: 5px;
   margin: auto !important;
   overflow: visible !important;
   padding: 0px 0px !important;
-  // border-right: 0.5px solid #e2e2e2 !important;
   text-align: center;
 }
 
@@ -97,6 +96,14 @@ $virtual-item-height: 5px;
   .ag-side-bar {
     border-left-width: 0.5px;
     border-left-color: #e2e2e2;
+  }
+  .ag-cell {
+    .ag-icon {
+      display: flex;
+    }
+  }
+  .ag-header-group-cell-label {
+    justify-content: center;
   }
 }
 
