@@ -47,8 +47,10 @@ export default class LoginPage extends Vue {
   store: Store = useStore(this.$store);
 
   login() {
-    this.store.auth;
-    this.$router.push('/');
+    this.store.auth
+      .logUserIn(this.username)
+      .then(() => this.$router.push('/'))
+      .catch(() => alert('User not found'));
   }
 }
 </script>

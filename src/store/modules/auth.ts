@@ -1,4 +1,5 @@
 import { Mutation, State, Action, Getter } from 'vuex-simple';
+import USERS from '@/assets/users.json';
 
 interface Project {
   name: string;
@@ -6,73 +7,37 @@ interface Project {
 }
 
 interface UserData {
-  username: string;
-  userTitle?: string;
+  userName: string;
+  title?: string;
   name: string;
   projects: Project[];
 }
 
 export default class AuthModule {
-  private users: UserData[] = [
-    {
-      name: 'Tony Huang (approver)',
-      username: 'tony.huang',
-      projects: [
-        {
-          id: 2,
-          name: 'Pump Retrofit',
-        },
-      ],
-    },
-    {
-      name: 'Amber Brasher (consultant)',
-      username: 'amber.brasher',
-      projects: [
-        {
-          id: 2,
-          name: 'Pump Retrofit',
-        },
-      ],
-    },
-    {
-      name: 'Jon Ma (approver)',
-      username: 'jon.ma',
-      projects: [
-        {
-          id: 3,
-          name: 'Facility Redesign',
-        },
-      ],
-    },
-  ];
+  @State() private userName: string = '';
+  @State() private userData!: UserData;
 
-  @State() private currentUser: number = 0;
   @State() private loggedIn!: boolean;
+
+  isValidUser = (userName: string) => {
+    const userData = USERS[userName];
+
+    return !!userData ?? undefined;
+  };
 
   @Getter()
   public get loginStatus() {
-    return this.loggedIn;
+    return !!this.userName;
   }
 
-  @Getter()
-  public get activeProjectData() {
-    return this.users[this.currentUser].projects[0];
-  }
-
-  @Mutation()
-  public changeUser() {
-    const numberOfUsers = this.users.length - 1;
-
-    if (this.currentUser + 1 > numberOfUsers) {
-      this.currentUser = 0;
-      return;
-    }
-    this.currentUser = this.currentUser + 1;
-  }
-
-  @Getter()
-  public get currentUserData() {
-    //@ts-ignore
-    return this.users[this.currentUser];
+  @Action() logUserIn(userName: string) {
+    return new Promise((resolve, reject) => {
+      if (this.isValidUser(userName)) {
+        this.userName = userName;
+        this.userData = USERS[userName];
+        resolve();
+      }
+      reject();
+    });
   }
 }
