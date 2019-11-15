@@ -1,11 +1,7 @@
 <template>
   <v-card height="100%" class="flexcard">
-    <v-card-title>
-      {{ title }}
-    </v-card-title>
-    <v-card-text class="grow">
-      {{ subtitle }}
-    </v-card-text>
+    <v-card-title>{{ title }}</v-card-title>
+    <v-card-text class="grow">{{ subtitle }}</v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn text color="blue lighten-1" :to="route">
@@ -31,9 +27,9 @@ export default class ModuleCard extends Vue {
 }
 </script>
 
-<style>
+<style lang="scss">
 .flexcard {
-  display: flex;
-  flex-direction: column;
+  display: flex !important;
+  flex-direction: column !important;
 }
 </style>

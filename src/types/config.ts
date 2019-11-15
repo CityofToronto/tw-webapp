@@ -1,4 +1,9 @@
-import { ColDef, GridOptions, ICellRendererParams } from 'ag-grid-community';
+import {
+  ColDef,
+  GridOptions,
+  ICellRendererParams,
+  ColGroupDef,
+} from 'ag-grid-community';
 import { CellType, MergeContext, FunctionProps } from './grid';
 import { MarkRequired } from 'ts-essentials';
 import GridInstance from '@/components/grid/ts/GridInstance';
@@ -67,11 +72,6 @@ interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
    */
   title?: string;
   /**
-   * Columns that are omitted from editing and display but are still queried.
-   * Example use case is for alias fields.
-   */
-  omittedColumns?: string[];
-  /**
    * Array of custom grid buttons.
    * Examples are edit, delete
    */
@@ -79,7 +79,7 @@ interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
   /**
    * Array of extended column definitions (based on their CellType)
    */
-  overrideColumnDefinitions?: CellParams[];
+  overrideColumnDefinitions?: (CellParams | CustomColGroupDef)[];
   /**
    * Order of the columns from left to right
    */
@@ -125,50 +125,40 @@ export interface DropGridConfig extends BaseGridConfig {
   gridType: 'drop';
 }
 
+export interface CustomColGroupDef extends ColGroupDef {
+  children: CellParams[];
+}
+
 /**
  * Typings for internal type safety, should not be used
  */
-export type CellParams =
-  | BaseColumnParams
-  | SelectColumnParams
-  | ExternalDataParams;
+export type CellParams = BaseColumn | SelectColumn | ExternalColumn;
 
 /**
  * Typings for internal type safety, should not be used
  */
 type ColDefRequiredField = MarkRequired<ColDef, 'field'>;
 
-interface CommonParams {
-  cellType?: CellType;
+export interface CommonCell extends ColDefRequiredField {
+  // cellType: CellType;
   showInForm?: boolean;
   showInView?: boolean;
   readonly?: boolean;
   conditional?: (params: MergeContext<ICellRendererParams>) => boolean;
 }
 
-export interface BaseColumnParams extends ColDefRequiredField, CommonParams {
-  cellType?: Exclude<CellType, 'selectCell' | 'treeCell'>;
+export interface BaseColumn extends CommonCell {
+  cellType?: Exclude<CellType, 'selectCell' | 'treeCell'> | undefined;
 }
-interface SelectColumnParams extends ColDefRequiredField, CommonParams {
+interface SelectColumn extends CommonCell {
   cellType: 'selectCell';
   enumValues: {
     name: string;
   }[];
 }
 
-/**
- * The two types of Cells: select and tree require additional
- * data for processing
- */
-interface ExternalDataParams extends ColDefRequiredField, CommonParams {
+interface ExternalColumn extends CommonCell {
   cellType: 'treeCell';
-  /**
-   * Name of the source table to get values from.
-   *
-   * Source table for select required 'name' field.
-   *
-   * Source table for tree column requires 'id, name, parent' field
-   */
   sourceTableName: string;
 }
 

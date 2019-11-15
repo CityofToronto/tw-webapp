@@ -1,78 +1,68 @@
 import { Mutation, State, Action, Getter } from 'vuex-simple';
+import USERS from '@/assets/users.json';
+import { forceReconnect } from '@/apollo/lib/link';
+import { router } from '@/router';
 
-interface Project {
-  name: string;
-  id: number;
-}
-
-interface UserData {
-  username: string;
-  userTitle?: string;
-  name: string;
-  projects: Project[];
+export enum USER_TYPE {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
 }
 
 export default class AuthModule {
-  private users: UserData[] = [
-    {
-      name: 'Tony Huang (approver)',
-      username: 'tony.huang',
-      projects: [
-        {
-          id: 2,
-          name: 'Pump Retrofit',
-        },
-      ],
-    },
-    {
-      name: 'Amber Brasher (consultant)',
-      username: 'amber.brasher',
-      projects: [
-        {
-          id: 2,
-          name: 'Pump Retrofit',
-        },
-      ],
-    },
-    {
-      name: 'Jon Ma (approver)',
-      username: 'jon.ma',
-      projects: [
-        {
-          id: 3,
-          name: 'Facility Redesign',
-        },
-      ],
-    },
-  ];
+  @State() userName: string = sessionStorage.getItem('userName') ?? '';
 
-  @State() private currentUser: number = 0;
-  @State() private loggedIn!: boolean;
+  @State() firstName: string = sessionStorage.getItem('firstName') ?? '';
+
+  @State() lastName: string = sessionStorage.getItem('lastName') ?? '';
+
+  isValidUser = (userName: string) => {
+    const userData = USERS[userName];
+
+    return !!userData ?? undefined;
+  };
 
   @Getter()
   public get loginStatus() {
-    return this.loggedIn;
+    return !!this.userName;
   }
 
   @Getter()
-  public get activeProjectData() {
-    return this.users[this.currentUser].projects[0];
+  public get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+
+  @Getter()
+  public get userType(): USER_TYPE {
+    return USERS[this.userName].userType ?? USER_TYPE.USER;
   }
 
   @Mutation()
-  public changeUser() {
-    const numberOfUsers = this.users.length - 1;
-
-    if (this.currentUser + 1 > numberOfUsers) {
-      this.currentUser = 0;
-      return;
-    }
-    this.currentUser = this.currentUser + 1;
+  public setUser(userName: string) {
+    this.userName = userName;
+    this.firstName = USERS[userName].firstName;
+    this.lastName = USERS[userName].lastName;
+    sessionStorage.setItem('userName', this.userName);
+    sessionStorage.setItem('firstName', this.firstName);
+    sessionStorage.setItem('lastName', this.lastName);
   }
 
-  @Getter()
-  public get currentUserData() {
-    //@ts-ignore
-    return this.users[this.currentUser];
+  @Action() logUserIn(email: string) {
+    return new Promise((resolve, reject) => {
+      const [userName] = email.split('@');
+      if (this.isValidUser(userName)) {
+        this.setUser(userName);
+        forceReconnect();
+        resolve();
+      }
+      reject('Email Not Found');
+    });
+  }
+
+  @Action() logUserOut() {
+    this.userName = '';
+    this.firstName = '';
+    this.lastName = '';
+    sessionStorage.clear();
+    router.push('login');
   }
 }

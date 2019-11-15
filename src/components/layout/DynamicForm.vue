@@ -45,7 +45,7 @@ import { ColDef } from 'ag-grid-community';
 import TreeviewInput from '@/components/form/TreeviewInput.vue';
 import { CellType } from '@/types/grid';
 import { QueryType } from '@/types/api';
-import { BaseColumnParams } from '@/types/config';
+import { CellParams } from '@/types/config';
 import { MarkRequired } from 'ts-essentials';
 import Store from '@/store/store';
 import { useStore } from 'vuex-simple';
@@ -65,7 +65,7 @@ export default class DynamicForm extends Vue {
     return this.store.popup.popupProperties as FormEditorData;
   }
 
-  get properties(): BaseColumnParams[] {
+  get properties(): CellParams[] {
     return this.popupData.columnDefs
       .filter((column): boolean =>
         typeof column.showInForm !== 'undefined' ? column.showInForm : true,

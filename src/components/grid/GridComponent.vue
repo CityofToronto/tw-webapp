@@ -49,7 +49,11 @@ import SetFilter from './ag-components/SetFilter.vue';
 import _ from 'lodash';
 
 // Config
-import { GridConfiguration, CustomProperties } from '@/types/config';
+import {
+  GridConfiguration,
+  CustomProperties,
+  CustomColGroupDef,
+} from '@/types/config';
 import {
   RequiredConfig,
   GridContext,
@@ -62,7 +66,6 @@ import { DirectProvider } from './ts/GridProviders';
 const removeInvalidProperties = (config: GridConfiguration): GridOptions => {
   const invalidProperties: CustomProperties[] = [
     'title',
-    'omittedColumns',
     'contextMenu',
     'gridButtons',
     'overrideColumnDefinitions',
@@ -99,7 +102,7 @@ export default class GridComponent extends Vue {
 
   gridApi!: GridApi;
 
-  columnDefs: ColDef[] = [];
+  columnDefs: (ColDef | CustomColGroupDef)[] = [];
 
   gridInstance!: GridInstance;
 

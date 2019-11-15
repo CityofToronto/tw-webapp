@@ -179,6 +179,7 @@ export default class ReconciliationView extends Vue {
     tableName: 'reconciliation_view',
     title: 'Reconciliation',
     treeData: true,
+    groupSuppressAutoColumn: true,
     suppressRowClickSelection: true,
     gridButtons: [markDoesNotExist, addChildButton], // register our buttons
     toolbarItems: [
@@ -198,68 +199,63 @@ export default class ReconciliationView extends Vue {
       gridEvents.doubleClickView(), // double click to open view (shows more details)
     ],
     columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
-    omittedColumns: [
-      'project_id',
-      'role_exists',
-      'role_missing_from_registry',
-      'asset_exists',
-      'asset_missing_from_registry',
-      'full_path',
-      'parent_changed',
-      'role_changed',
-      'parent',
-      'asset_id',
-      'approved',
-    ],
     // Size the columns on initialization
     gridInitializedEvent: ({ gridInstance }) =>
       gridInstance.gridApi.sizeColumnsToFit(),
-    autoGroupColumnDef: {
-      resizable: true,
-      width: 400,
-      // Only reserved roles will be draggable
-      rowDrag: ({ data }) => isApproved(data),
-      valueFormatter: (params) => params?.data?.role_number ?? 'unknown',
-      headerName: 'Role Number',
-      cellRendererParams: {
-        suppressCount: true, // the count is weird when rearranging, so disabled it
-      },
-      cellClassRules: {
-        // css styling that highlights the potential parent when rearranging the hierarchy
-        'hover-over': (params: MergeContext<ICellRendererParams>) =>
-          params.node === params.context.vueStore.grid.potentialParent,
-        ...roleClassRules,
-      },
-    },
     rowClassRules: {
       'background-grey': ({ data }: RowStyleParams) => !isApproved(data),
       'text-grey': ({ data }: RowStyleParams) => !isApproved(data),
     },
     overrideColumnDefinitions: [
       {
-        field: 'id',
-        headerName: 'Role ID',
-        hide: true,
-        showInForm: false,
+        headerName: 'Role',
+        children: [
+          {
+            field: 'id',
+            showRowGroup: true,
+            resizable: true,
+            width: 400,
+            // Only reserved roles will be draggable
+            rowDrag: ({ data }) => isApproved(data),
+            valueFormatter: (params) => params?.data?.role_number ?? 'unknown',
+            headerName: 'Role Number',
+            cellRenderer: 'agGroupCellRenderer',
+            cellRendererParams: {
+              suppressCount: true, // the count is weird when rearranging, so disabled it
+            },
+            cellClassRules: {
+              // css styling that highlights the potential parent when rearranging the hierarchy
+              'hover-over': (params: MergeContext<ICellRendererParams>) =>
+                params.node === params.context.vueStore.grid.potentialParent,
+              ...roleClassRules,
+            },
+          },
+          {
+            field: 'role_number',
+            hide: true,
+            cellClassRules: roleClassRules, // apply css rules
+          },
+          {
+            field: 'role_name',
+            cellClassRules: roleClassRules, // apply css rules
+          },
+        ],
       },
       {
-        field: 'role_number',
-        hide: true,
-        cellClassRules: roleClassRules, // apply css rules
-      },
-      {
-        field: 'role_name',
-        cellClassRules: roleClassRules, // apply css rules
-      },
-      {
-        field: 'asset_serial_number',
-        cellType: 'rearrangeCell', // define cell to a rearrange cell
-        showInForm: false, // disable this field when adding a child
-        showInView: true, // show this when double clicking
-        conditional: ({ data, value }) => isApproved(data), // this controls whether a row is draggable
+        headerName: 'Asset',
         headerClass: 'asset-separator', // apply the separator between role and asset
-        cellClass: 'asset-separator',
-        cellClassRules: assetClassRules, // apply css rules
+        children: [
+          {
+            field: 'asset_serial_number',
+            cellType: 'rearrangeCell', // define cell to a rearrange cell
+            showInForm: false, // disable this field when adding a child
+            showInView: true, // show this when double clicking
+            conditional: ({ data, value }) => isApproved(data), // this controls whether a row is draggable
+            headerClass: 'asset-separator', // apply the separator between role and asset
+            cellClass: 'asset-separator',
+            cellClassRules: assetClassRules, // apply css rules
+          },
+        ],
       },
     ],
   };
@@ -272,7 +268,6 @@ export default class ReconciliationView extends Vue {
     ],
     title: 'Assets Without a Role',
     tableName: 'unassigned_assets',
-    omittedColumns: ['asset_missing_from_registry'],
     rowClassRules: assetClassRules,
     gridEvents: [onDropAsset(), gridEvents.dragOver()], // register the asset drop logic
     overrideColumnDefinitions: [
@@ -297,19 +292,6 @@ export default class ReconciliationView extends Vue {
     getDataPath: (data) => data?.full_path.split('.'),
     columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
     toolbarItems: [toolbarItems.fitColumns(), toolbarItems.sizeColumns()],
-    omittedColumns: [
-      'asset_id',
-      'role_name',
-      'role_exists',
-      'role_missing_from_registry',
-      'asset_exists',
-      'asset_missing_from_registry',
-      'full_path',
-      'approved',
-      'parent_changed',
-      'role_changed',
-      'parent',
-    ],
     rowClassRules: {
       'background-grey': (params: RowStyleParams) =>
         !isCurrentProject(params?.data?.project_id),

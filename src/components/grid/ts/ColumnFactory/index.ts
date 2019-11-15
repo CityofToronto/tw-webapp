@@ -2,20 +2,30 @@ import { ColDef, ColGroupDef } from 'ag-grid-community';
 import apolloClient from '@/apollo';
 import { TreeData } from '@/types/api';
 import { CellType, RequiredConfig } from '@/types/grid';
-import CellTypes from './cellTypes';
-import { CellParams, GridConfiguration } from '@/types/config';
+import {
+  CellParams,
+  GridConfiguration,
+  CustomColGroupDef,
+  CommonCell,
+} from '@/types/config';
 import { HasuraField } from '@/types/api';
 import _ from 'lodash';
 import { inDebug } from '@/common/utils';
+import cellTypes from './cellTypes';
 
-interface ProcessedColumn {
+interface NormalColumn {
   name: string;
-  cellType: CellType;
+  cellType: Exclude<CellType, 'selectCell'>;
+}
+
+interface EnumColumn {
+  name: string;
+  cellType: 'selectCell';
   enumValues?: string[];
 }
 
-const isGroupColumn = (column: ColDef | ColGroupDef) =>
-  !!(column as ColGroupDef)?.children ?? false;
+const isGroupColumn = (column: ColDef | ColGroupDef): column is ColGroupDef =>
+  (column as ColGroupDef)?.children !== undefined;
 
 export default class ColumnFactory {
   private tableName: string;
@@ -24,9 +34,9 @@ export default class ColumnFactory {
 
   private columns: HasuraField[] = [];
 
-  private processedColumns: ProcessedColumn[] = [];
+  private processedColumns: (NormalColumn | EnumColumn)[] = [];
 
-  private columnDefs: ColDef[] = [];
+  private columnDefs: (ColDef | CustomColGroupDef)[] = [];
 
   /**
    * Provides the column definitions for the grid.
@@ -50,9 +60,9 @@ export default class ColumnFactory {
     });
   }
 
-  private parseType(
-    column: HasuraField,
-  ): { cellType: CellType; enumValues?: string[] } {
+  private parseType(column: HasuraField): NormalColumn | EnumColumn {
+    const name = column.name;
+
     // Type is defined in two places depending if nullable
     const type = column.type.ofType
       ? column.type.ofType.name
@@ -64,6 +74,7 @@ export default class ColumnFactory {
 
     if (isEnum) {
       return {
+        name,
         cellType: 'selectCell',
         enumValues: column.type.ofType.enumValues,
       };
@@ -72,31 +83,19 @@ export default class ColumnFactory {
       case 'Int':
       case 'numeric':
       case 'bigint':
-        return { cellType: 'numberCell' };
+        return { name, cellType: 'numberCell' };
       case 'Boolean':
-        return { cellType: 'numberCell' };
+        return { name, cellType: 'numberCell' };
       default:
-        return { cellType: 'textCell' };
+        return { name, cellType: 'textCell' };
     }
   }
 
   private processColumns(sortingOrder?: string[]): void {
-    // Parse Types
-    this.processedColumns = this.columns.map(
-      (column): ProcessedColumn => {
-        const additionalProperties = this.parseType(column);
-        return {
-          name: column.name,
-          ...additionalProperties,
-        };
-      },
-    );
-    // Rearrange Columns if sorting array is defined
-    if (sortingOrder) {
-      this.processedColumns.sort(
-        (a, b) => sortingOrder.indexOf(a.name) - sortingOrder.indexOf(b.name),
-      );
-    }
+    // Assign a normal either as a normal column or enum column
+    this.processedColumns = this.columns.map((column):
+      | NormalColumn
+      | EnumColumn => this.parseType(column));
   }
 
   private getCustomColDef = async (column: CellParams): Promise<ColDef> => {
@@ -107,86 +106,86 @@ export default class ColumnFactory {
           tableName: column.sourceTableName,
           columns: ['name'],
         });
-        return CellTypes[column.cellType](valueData);
+        return cellTypes[column.cellType](valueData);
       }
       // Select column requires values as string[]
       case 'selectCell': {
-        return CellTypes.selectCell(
+        return cellTypes.selectCell(
           column.enumValues.map((enumVal) => enumVal.name),
         );
       }
       default:
         if (column.cellType) {
-          return CellTypes[column.cellType];
+          return cellTypes[column.cellType];
         }
-        return CellTypes.textCell;
+        return cellTypes.textCell;
     }
   };
 
-  private async buildColumnDef(cellDef: CellParams & ProcessedColumn) {
-    const colDef = {
+  private async buildColumnDef(column: CellParams): Promise<ColDef> {
+    // First get the column information from hasura
+    const hasuraColumn = this.processedColumns.find(
+      (pColumn) => column.field === pColumn.name,
+    );
+
+    // If the column doesn't exist in hasura, then it will be undefined and removed later
+    if (hasuraColumn === undefined) {
+      return new Promise(() => {});
+    }
+
+    const defaultColumnDef: CommonCell & { cellType: CellType } = {
+      ...column,
+      ...hasuraColumn,
       showInForm: true,
+      cellType: hasuraColumn.cellType,
+      sort: hasuraColumn.name === 'id' ? 'asc' : undefined,
+      headerName:
+        column.headerName ?? _.startCase(_.lowerCase(hasuraColumn.name)),
+      resizable: true,
+      editable: false,
+      field: column.field,
     };
+
+    const rendererColDef = this.getCustomColDef(defaultColumnDef);
+
+    const mergedConditional = {
+      cellRendererParams: {
+        conditional: column?.conditional ?? (() => true),
+      },
+    };
+
+    return _.merge(defaultColumnDef, mergedConditional, rendererColDef);
   }
 
-  private async defineColumns(columns: ProcessedColumn[]): Promise<void> {
+  private async defineColumns(
+    columns: (CellParams | CustomColGroupDef)[],
+  ): Promise<void> {
+    // Map over the columns
+
+    const columnPromises = columns.map(async (column) => {
+      if (isGroupColumn(column)) {
+        // If the column definition is a group, define it's children
+        const children = await Promise.all(
+          column.children.map((childColumn) =>
+            this.buildColumnDef(childColumn),
+          ),
+        );
+        return {
+          ...column,
+          children,
+        } as CustomColGroupDef;
+      }
+      return this.buildColumnDef(column);
+    });
+
+    this.columnDefs = await Promise.all(columnPromises);
+  }
+
+  public async getColumnDefs() {
     const overriddenColDefs = this.config.overrideColumnDefinitions ?? [];
 
-    const promiseOfColDef = columns.map(
-      async (column): Promise<ColDef> => {
-        // Find the column
-        const overrideColDef = overriddenColDefs.find(
-          (colDef: ColDef): boolean => colDef.field === column.name,
-        ) as CellParams;
-
-        const cellDef = {
-          ...overriddenColDefs,
-          ...column,
-        };
-
-        if (isGroupColumn(overrideColDef)) {
-          //do stuff
-        }
-
-        const colDef = {
-          showInForm: true,
-          cellType: column.cellType,
-          enumValues: column.enumValues,
-          // Attempt the map the name, if not capitalize the name field
-          sort: column.name === 'id' ? 'asc' : undefined,
-          headerName: _.startCase(_.lowerCase(column.name)),
-          field: column.name,
-          resizable: true,
-          editable: false,
-          ...overrideColDef,
-        };
-
-        // This merges the conditional into the cellRendererParams for access in cell renderers
-        const combinedDef = {
-          ...colDef,
-          ...(await this.getCustomColDef(colDef as CellParams)),
-          ...overrideColDef,
-        };
-        const mergedConditional = {
-          cellRendererParams: {
-            conditional:
-              (overrideColDef && overrideColDef.conditional) ?? (() => true),
-          },
-        };
-
-        return _.merge(combinedDef, mergedConditional);
-      },
-    );
-    this.columnDefs = await Promise.all(promiseOfColDef);
-  }
-
-  public async getColumnDefs(): Promise<ColDef[]> {
     this.columns = await apolloClient.getColumns(this.tableName);
 
-    // Omit columns defined in config
-    if (this.config.omittedColumns && !inDebug()) {
-      this.omitColumns(this.config.omittedColumns);
-    }
     /**
      * This parses and assigns the column type
      * and sorts it to match the configuration
@@ -197,11 +196,30 @@ export default class ColumnFactory {
      * This assigns column definitions to the columns which is then processed
      * by Ag-Grid to build the table.
      */
-    await this.defineColumns(this.processedColumns);
+    await this.defineColumns(overriddenColDefs);
+
+    // this.sortColumns;
 
     // Adds additional column definitions to the front of the array
     if (this.config.gridButtons) {
       this.addToColumnDefs(this.config.gridButtons);
+    }
+
+    // If we are in debug, it will display all columns
+    if (inDebug()) {
+      const columnNames = this.columnDefs
+        .map((col) =>
+          isGroupColumn(col)
+            ? col.children.map((child) => child.field)
+            : col.field,
+        )
+        .flat();
+
+      const debugFields = this.columns
+        .filter((col) => !columnNames.includes(col.name))
+        .map((col) => ({ field: col.name }));
+
+      this.columnDefs.push(...debugFields);
     }
 
     return this.columnDefs;

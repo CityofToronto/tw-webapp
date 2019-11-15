@@ -3,7 +3,7 @@ import { storeInstance } from '@/store';
 import GridInstance from './GridInstance';
 import { GridApi, ColumnApi, RowNode } from 'ag-grid-community';
 import { FormData } from '@/types/grid';
-import { BaseColumnParams } from '@/types/config';
+import { CellParams } from '@/types/config';
 
 /**
  * This function
@@ -52,12 +52,12 @@ export default class ComponentApi {
     confirmCallback: (...args: any[]) => void;
     data: FormData;
     popupTitle: string;
-    columnDefs?: BaseColumnParams[];
+    columnDefs?: CellParams[];
   }) {
     this.store.popup.setPopup({
       popupTitle,
       componentType: 'form',
-      columnDefs: this.gridInstance.columnDefs as BaseColumnParams[],
+      columnDefs: this.gridInstance.columnDefs as CellParams[],
       formData: data,
       confirmCallback,
     });
@@ -142,7 +142,7 @@ export default class ComponentApi {
       ...colDef,
       readonly: true,
       showInForm: twoConditionReturn(colDef.showInForm, colDef.showInView),
-    })) as BaseColumnParams[];
+    })) as CellParams[];
 
     this.store.popup.setPopup({
       componentType: 'form',

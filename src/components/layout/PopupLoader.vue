@@ -1,6 +1,6 @@
 <template>
-  <v-dialog v-model="isVisible" width="500">
-    <component :is="componentType" />
+  <v-dialog v-model="isVisible" max-width="70%">
+    <component :is="componentToShow" />
   </v-dialog>
 </template>
 
@@ -14,13 +14,8 @@ export default class PopupLoader extends Vue {
   store: Store = useStore(this.$store);
 
   // eslint-disable-next-line getter-return
-  get componentType() {
-    switch (this.store.popup.componentType) {
-      case 'confirmation':
-        return () => import('./ConfirmationDialog.vue');
-      case 'form':
-        return () => import('./DynamicForm.vue');
-    }
+  get componentToShow() {
+    return this.store.popup.popupComponent;
   }
 
   get isVisible() {

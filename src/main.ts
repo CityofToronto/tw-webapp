@@ -1,7 +1,6 @@
 import Vue, { VNode } from 'vue';
 import Vuetify from 'vuetify';
 import Toast from 'vue-toastification';
-import * as Sentry from '@sentry/browser';
 import 'vue-toastification/dist/index.css';
 
 import 'ag-grid-enterprise';
@@ -15,10 +14,6 @@ Vue.config.productionTip = false;
 
 Vue.use(Vuetify);
 Vue.use(Toast);
-
-// Sentry.init({
-//   dsn: 'https://e8cac8108cf943409b386d1ce70f0d15@sentry.io/1542138',
-// });
 
 const vuetify = new Vuetify({
   icons: {

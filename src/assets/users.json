@@ -1,0 +1,15 @@
+{
+  "tony.huang": {
+    "firstName": "Tony",
+    "lastName": "Huang"
+  },
+  "jon.ma": {
+    "firstName": "Jon",
+    "lastName": "Ma"
+  },
+  "amber.brasher": {
+    "firstName": "Amber",
+    "lastName": "Brasher",
+    "userType": "ADMIN"
+  }
+}

@@ -4,6 +4,7 @@ import gql from 'graphql-tag';
 import { link } from './lib/link';
 import { dispatchError } from './lib/utils';
 import { HasuraField, __TypeKind, TableQueryResult } from '@/types/api';
+import { inDebug } from '@/common/utils';
 
 const isColumn = (element: HasuraField): boolean => {
   const columnType: __TypeKind = element.type.ofType
@@ -16,6 +17,14 @@ const isRelationship = (element: HasuraField): boolean =>
   element.type.ofType
     ? element.type.ofType.kind !== 'SCALAR'
     : element.type.kind !== 'SCALAR';
+
+const getError = (error: Error) =>
+  inDebug
+    ? new Error(
+        `Can't fetch table, reload or try again later.
+If problem persists, contact support.`,
+      )
+    : error;
 
 class Apollo extends ApolloClient<NormalizedCacheObject> {
   public constructor() {
@@ -52,12 +61,7 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
       })
         // eslint-disable-next-line
         .then((response: TableQueryResult) => response.data.__type.fields)
-        .catch((error): never =>
-          dispatchError(
-            new Error(`Can't fetch table, reload or try again later.
-            If problem persists, contact support.`),
-          ),
-        )
+        .catch((error): never => dispatchError(getError(error)))
     );
   }
 
@@ -89,12 +93,7 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
       })
         // eslint-disable-next-line
         .then((response: TableQueryResult) => response.data.__type.fields.filter((element) => isColumn(element)))
-        .catch((error): never =>
-          dispatchError(
-            new Error(`Can't fetch table, reload or try again later.
-            If problem persists, contact support.`),
-          ),
-        )
+        .catch((error): never => dispatchError(getError(error)))
     );
   }
 
@@ -121,12 +120,7 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
       })
         // eslint-disable-next-line
         .then((response: TableQueryResult) => response.data.__type.fields.filter((element) => isRelationship(element)))
-        .catch((error): never =>
-          dispatchError(
-            new Error(`Can't fetch table, reload or try again later.
-            If problem persists, contact support.`),
-          ),
-        )
+        .catch((error): never => dispatchError(getError(error)))
     );
   }
 
@@ -145,12 +139,7 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
         }`,
     })
       .then((response): T => response.data[tableName])
-      .catch((error): never =>
-        dispatchError(
-          new Error(`Can't fetch table, reload or try again later.
-            If problem persists, contact support.`),
-        ),
-      );
+      .catch((error): never => dispatchError(getError(error)));
   }
 }
 
