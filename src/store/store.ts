@@ -5,6 +5,7 @@ import GridModule from './modules/grid';
 import PopupModule from './modules/popup';
 import AuthModule from './modules/auth';
 import SettingsModule from './modules/settings';
+import ProjectModule from './modules/user/projects';
 
 export default class Store {
   @Module()
@@ -24,4 +25,7 @@ export default class Store {
 
   @Module()
   public settings = new SettingsModule();
+
+  @Module()
+  public project = new ProjectModule();
 }

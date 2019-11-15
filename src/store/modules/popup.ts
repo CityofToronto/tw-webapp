@@ -1,7 +1,5 @@
 import { State, Getter, Mutation, Action } from 'vuex-simple';
-import { ColDef } from 'ag-grid-community';
 import { FormData } from '@/types/grid';
-import { MarkRequired } from 'ts-essentials';
 import { CellParams } from '@/types/config';
 
 interface PopupData {
@@ -28,6 +26,8 @@ type PopupDataTypes = ConfirmationData | FormEditorData;
 export default class PopupModule {
   @State() private visible: boolean = false;
 
+  @State() customComponent!: () => Promise<any>;
+
   @State() private popupData: PopupDataTypes = {
     componentType: 'confirmation',
     popupTitle: '',
@@ -44,8 +44,16 @@ export default class PopupModule {
   }
 
   @Getter()
-  public get componentType(): 'form' | 'confirmation' {
-    return this.popupData.componentType;
+  public get popupComponent(): () => Promise<any> {
+    if (this.customComponent) {
+      return this.customComponent;
+    }
+    switch (this.popupData.componentType) {
+      case 'confirmation':
+        return () => import('@/components/layout/ConfirmationDialog.vue');
+      default:
+        return () => import('@/components/layout/DynamicForm.vue');
+    }
   }
 
   @Getter()
@@ -71,5 +79,11 @@ export default class PopupModule {
   @Mutation()
   public closePopup() {
     this.visible = false;
+  }
+
+  @Mutation()
+  public setComponentPopup(component: () => Promise<any>) {
+    this.customComponent = component;
+    this.visible = true;
   }
 }

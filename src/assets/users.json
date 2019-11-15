@@ -1,19 +1,15 @@
 {
-  "tony.haung": {
-    "name": "Tony Huang",
-    "title": "Approver",
-    "sites": [
-      {
-        "name": "THC"
-      }
-    ]
+  "tony.huang": {
+    "firstName": "Tony",
+    "lastName": "Huang"
   },
   "jon.ma": {
-    "name": "Jon Ma",
-    "title": "Consultant"
+    "firstName": "Jon",
+    "lastName": "Ma"
   },
   "amber.brasher": {
-    "name": "Amber Brasher",
-    "title": "Consultant"
+    "firstName": "Amber",
+    "lastName": "Brasher",
+    "userType": "ADMIN"
   }
 }

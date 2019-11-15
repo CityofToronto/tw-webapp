@@ -7,36 +7,13 @@
 
       <v-toolbar-items>
         <!-- Define Toolbar Title -->
-
         <v-btn text class="title" @click="$router.replace('/')">
           Management Engine
         </v-btn>
-        <v-btn text class="project-title" @click="() => {}">
-          {{ businessUnit }}
-          <v-icon right>
-            arrow_drop_down
-          </v-icon>
+        <v-btn text class="project-title" @click="showProjectForm">
+          {{ projectTitle ? projectTitle : 'Select Project...' }}
+          <v-icon right>arrow_drop_down</v-icon>
         </v-btn>
-
-        <v-menu offset-y>
-          <template v-slot:activator="{ on }">
-            <v-btn text class="project-title" v-on="on">
-              {{ currentProject.name }}
-              <v-icon right>
-                arrow_drop_down
-              </v-icon>
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-item
-              v-for="project in userData.projects"
-              :key="project.id"
-              @click="setActiveProject(project)"
-            >
-              <v-list-item-title>{{ project.name }}</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
       </v-toolbar-items>
 
       <!-- Push Items to The Right -->
@@ -45,7 +22,7 @@
         <v-menu v-model="menu" :close-on-content-click="false" offset-y>
           <template v-slot:activator="{ on }">
             <v-btn text dark class="username" v-on="on">
-              Amber Brasher
+              {{ userFullName }}
             </v-btn>
           </template>
           <user-panel></user-panel>
@@ -79,12 +56,18 @@ export default class Navbar extends Vue {
 
   store: Store = useStore(this.$store);
 
-  get userData() {
-    return this.store.auth.currentUserData;
+  get projectTitle() {
+    return this.store.project.combinedName;
   }
 
-  get currentProject() {
-    return this.store.auth.activeProjectData;
+  showProjectForm() {
+    this.store.popup.setComponentPopup(() =>
+      import('@/components/form/ProjectForm.vue'),
+    );
+  }
+
+  get userFullName() {
+    return this.store.auth.fullName;
   }
 
   get loginStatus() {
@@ -93,10 +76,6 @@ export default class Navbar extends Vue {
 
   logout() {
     this.$router.push('/');
-  }
-
-  changeUser() {
-    this.store.auth.changeUser();
   }
 
   businessUnit = 'Highland Creek';
