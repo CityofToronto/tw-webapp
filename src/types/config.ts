@@ -43,9 +43,12 @@ export interface VueEvent<T> {
   callback: () => void;
 }
 
-export type CustomProperties = keyof Omit<
-  SimpleGridConfig & TreeGridConfig & DropGridConfig,
-  keyof GridOptions
+export type CustomProperties = Record<
+  keyof Omit<
+    SimpleGridConfig & TreeGridConfig & DropGridConfig,
+    keyof GridOptions
+  >,
+  boolean
 >;
 
 export type GridConfiguration =

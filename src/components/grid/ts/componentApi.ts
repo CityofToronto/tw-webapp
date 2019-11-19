@@ -54,9 +54,8 @@ export default class ComponentApi {
     popupTitle: string;
     columnDefs?: CellParams[];
   }) {
-    this.store.popup.setPopup({
+    this.store.modal.createFormModal({
       popupTitle,
-      componentType: 'form',
       columnDefs: this.gridInstance.columnDefs as CellParams[],
       formData: data,
       confirmCallback,
