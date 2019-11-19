@@ -2,10 +2,10 @@ import { Module } from 'vuex-simple';
 import DisplayModule from './modules/display';
 import NotificationModule from './modules/notification';
 import GridModule from './modules/grid';
-import PopupModule from './modules/popup';
 import AuthModule from './modules/auth';
 import SettingsModule from './modules/settings';
 import ProjectModule from './modules/user/projects';
+import ModalModule from './modules/modal';
 
 export default class Store {
   @Module()
@@ -18,7 +18,7 @@ export default class Store {
   public grid = new GridModule();
 
   @Module()
-  public popup = new PopupModule();
+  public modal = new ModalModule();
 
   @Module()
   public auth = new AuthModule();
