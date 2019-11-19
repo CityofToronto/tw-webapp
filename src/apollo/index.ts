@@ -44,7 +44,7 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
           __typename
         }
       }`,
-    }).then((response) => response.data[tableName])[0].__typename;
+    }).then((response) => response.data[tableName][0].__typename);
   }
 
   public async getColumns(tableName: string): Promise<HasuraField[]> {

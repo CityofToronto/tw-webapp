@@ -51,7 +51,7 @@ interface HasuraTypeResult {
   };
 }
 
-const mapHasuraType = (type: __TypeName): FormFields['type']  => {
+const mapHasuraType = (type: __TypeName): FormFields['type'] => {
   switch (type) {
     case 'Boolean':
       return 'boolean';
@@ -97,25 +97,25 @@ const getType = (typename: string) => {
   });
 };
 
-const recursiveMap = async (field: HasuraField): Promise<FormFields> => {
-  if (isColumn(field)) {
-    const typename = field.type?.ofType?.name ?? field.type.name;
-    return {
-      type: mapHasuraType(typename),
-    };
-  } else if (field.type.ofType.kind === 'LIST') {
-    const response = await getType(field.type.ofType.ofType.name);
-    return {
-      type: 'table',
-      schema: response.data.__type.fields.map(recursiveMap);
-    }
-  }
-};
+// const recursiveMap = async (field: HasuraField): Promise<FormFields> => {
+//   if (isColumn(field)) {
+//     const typename = field.type?.ofType?.name ?? field.type.name;
+//     return {
+//       type: mapHasuraType(typename),
+//     };
+//   } else if (field.type.ofType.kind === 'LIST') {
+//     const response = await getType(field.type.ofType.ofType.name);
+//     return {
+//       type: 'table',
+//       schema: response.data.__type.fields.map(recursiveMap);
+//     }
+//   }
+// };
 
-const hasuraToFormSchema = async (tableName: string): Promise<FormSchema> => {
-  const typename = await apolloClient.getTypename(tableName);
+// const hasuraToFormSchema = async (tableName: string): Promise<FormSchema> => {
+//   const typename = await apolloClient.getTypename(tableName);
 
-  const response = await getType(typename);
+//   const response = await getType(typename);
 
-  const fields: FormFields[] = response.data.__type.fields.map(recursiveMap);
-};
+//   const fields: FormFields[] = response.data.__type.fields.map(recursiveMap);
+// };
