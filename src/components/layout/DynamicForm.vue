@@ -1,39 +1,25 @@
 <template>
   <v-card>
-    <v-card-title>{{ popupData.popupTitle }}</v-card-title>
+    <v-card-title>{{ title }}</v-card-title>
     <!-- <v-divider /> -->
     <v-card-text style="height: 600px">
       <component
-        :is="getColumnType(column.cellType)"
-        v-for="column in properties"
-        :key="column.field"
-        v-model="data[column.field]"
-        class="mb-3"
-        :outlined="true"
-        :label="column.headerName"
-        :hide-details="true"
-        :readonly="!!column.readonly"
-        :items="column.cellEditorParams ? column.cellEditorParams.values : []"
-        :params="column.cellEditorParams ? column.cellEditorParams : []"
+        :is="field.component"
+        v-for="field in formComponents"
+        :key="field.key"
+        v-bind="field.props"
+        :value="formModel[field.key]"
+        @input="formModel[field.key] = $event"
       />
     </v-card-text>
     <v-divider />
     <v-card-actions>
       <v-spacer />
-      <v-btn
-        v-if="!!popupData.cancelButtonText"
-        color="blue darken-1"
-        text
-        @click="popupData.cancelCallback()"
-      >
-        {{ popupData.cancelButtonText }}
+      <v-btn color="blue darken-1" text @click="closeModal(id)">
+        Close
       </v-btn>
-      <v-btn
-        color="blue darken-1"
-        text
-        @click="popupData.confirmCallback(data)"
-      >
-        {{ popupData.confirmButtonText }}
+      <v-btn color="blue darken-1" text @click="saveForm">
+        Save
       </v-btn>
     </v-card-actions>
   </v-card>
@@ -43,12 +29,14 @@
 import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
 import { ColDef } from 'ag-grid-community';
 import modalMixin from '@/components/mixins/modalMixin';
-import TreeviewInput from '@/components/form/TreeviewInput.vue';
+import TreeviewInput from '@/components/inputs/TreeviewInput.vue';
 import { CellType } from '@/types/grid';
 import { QueryType } from '@/types/api';
 import { CellParams } from '@/types/config';
 import { MarkRequired } from 'ts-essentials';
 import { FormEditorData } from '@/store/modules/popup';
+import { FormSchema } from '@/types/form';
+import FormFactory, { FieldComponent } from '@/components/FormFactory';
 
 @Component({
   components: {
@@ -56,48 +44,41 @@ import { FormEditorData } from '@/store/modules/popup';
   },
 })
 export default class DynamicForm extends Mixins(modalMixin) {
-  @Prop({ required: true }) formSchema;
+  @Prop({ required: true }) formSchema!: FormSchema;
 
-  data: { [p: string]: any } = {};
+  @Prop({ required: false }) formData!: Record<string, any>;
 
-  get popupData() {
-    return this.store.popup.popupProperties as FormEditorData;
-  }
+  @Prop({ required: true }) title!: string;
 
-  get properties(): CellParams[] {
-    return this.popupData.columnDefs
-      .filter((column): boolean =>
-        typeof column.showInForm !== 'undefined' ? column.showInForm : true,
+  @Prop({ required: true }) confirmCallback!: Function;
+
+  formModel: Record<string, any> = {};
+
+  formComponents: FieldComponent[] = [];
+
+  populateModel() {
+    this.formModel = { ...this.formData } ?? {};
+    this.formSchema.properties
+      .filter(
+        (
+          prop, // filter for data already added
+        ) => !Object.keys(this.formModel).includes(prop.property),
       )
-      .filter((column): boolean => column.field !== undefined);
+      .forEach((prop) => (this.formModel[prop.property] = null));
   }
 
-  beforeMount() {
-    // This repopulates the data, and if it does not exist populate key with empty string
-    this.popupData.columnDefs.forEach((column): void => {
-      if (column.field !== undefined) {
-        this.data[column.field] = this.data[column.field]
-          ? this.data[column.field]
-          : '';
-      }
-    });
-    this.data = { ...this.data, ...this.popupData.formData };
+  created() {
+    this.populateModel();
+    const formFactory = new FormFactory(this.formSchema);
+    this.formComponents = formFactory.buildForm();
   }
-
-  getColumnType = (columnType: CellType) => {
-    const componentTypes: { [key in CellType]: string } = {
-      booleanCell: 'v-checkbox',
-      numberCell: 'v-text-field',
-      textCell: 'v-text-field',
-      selectCell: 'v-select',
-      treeCell: 'treeview-input',
-      rearrangeCell: 'v-text-field',
-    };
-    return componentTypes[columnType] ?? componentTypes.textCell;
-  };
 
   saveForm() {
-    this.$emit('save-form', this.data);
+    this.confirmCallback(
+      Object.fromEntries(
+        Object.entries(this.formModel).filter(([key, val]) => val !== null),
+      ),
+    );
   }
 }
 </script>

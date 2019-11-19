@@ -101,7 +101,7 @@ export default class GridComponent extends Vue {
 
   gridInstance!: GridInstance;
 
-  context!: GridContext;
+  context: GridContext = {} as GridContext;
 
   gridOptions!: GridOptions;
 

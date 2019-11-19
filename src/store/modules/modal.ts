@@ -1,6 +1,7 @@
 import { State, Getter, Mutation, Action } from 'vuex-simple';
 import { CellParams } from '@/types/config';
 import Vue from 'vue';
+import { FormSchema } from '@/types/form';
 
 type AsyncComponent = () => Promise<typeof import('*.vue')>;
 
@@ -11,13 +12,13 @@ interface Modal {
 }
 
 interface DynamicFormModal {
-  popupTitle: string;
+  title: string;
   confirmButtonText?: string | false;
   cancelButtonText?: string | false;
   confirmCallback: () => void;
   cancelCallback?: () => void;
   formData: Record<string, any>;
-  columnDefs: CellParams[];
+  formSchema: FormSchema;
 }
 
 export default class ModalModule {

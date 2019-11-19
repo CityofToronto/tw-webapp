@@ -4,6 +4,7 @@ import {
   CellDoubleClickedEvent,
 } from 'ag-grid-community';
 import { RowDragMoveEvent, RowDragEndEvent } from 'ag-grid-community';
+import { getColumGroupName } from '@/common/utils';
 
 // export * from './hierarchyRearrange';
 
@@ -37,7 +38,10 @@ export const doubleClickView = createGridEvent<CellDoubleClickedEvent>(
     return {
       type: 'cell-double-clicked',
       callback: () => {
-        this.gridInstance.componentApi.viewRow(this.event.node);
+        this.gridInstance.componentApi.viewRow(
+          this.event.node,
+          getColumGroupName(this.event.column),
+        );
       },
     };
   },

@@ -4,6 +4,8 @@ import GridInstance from './GridInstance';
 import { GridApi, ColumnApi, RowNode } from 'ag-grid-community';
 import { FormData } from '@/types/grid';
 import { CellParams } from '@/types/config';
+import { columnDefsToFormSchema } from './formAdapter';
+import { getColumGroupName } from '@/common/utils';
 
 /**
  * This function
@@ -23,6 +25,13 @@ const twoConditionReturn = (
   }
   return false;
 };
+
+type LaunchFormFunction = (args: {
+  confirmCallback: (...args: any[]) => void;
+  data: FormData;
+  title: string;
+  columnDefs?: CellParams[];
+}) => void;
 
 export default class ComponentApi {
   private gridInstance: GridInstance;
@@ -44,40 +53,38 @@ export default class ComponentApi {
    *
    * Used by editRow, addRow and cloneRow methods
    */
-  private launchForm({
+  private launchForm: LaunchFormFunction = ({
     confirmCallback,
     data,
-    popupTitle,
-  }: {
-    confirmCallback: (...args: any[]) => void;
-    data: FormData;
-    popupTitle: string;
-    columnDefs?: CellParams[];
-  }) {
+    title,
+  }) => {
     this.store.modal.createFormModal({
-      popupTitle,
-      columnDefs: this.gridInstance.columnDefs as CellParams[],
+      title,
+      formSchema: columnDefsToFormSchema(
+        this.gridInstance.columnDefs as CellParams[],
+      ),
       formData: data,
       confirmCallback,
     });
-  }
+  };
 
   /**
    * Edit a row node with a visual editor
    */
   editRow(rowNode: RowNode) {
+    const formId = this.store.modal.generateId();
     const confirmCallback = (formData: FormData) => {
       this.gridInstance
         .addRows({
           rowsToAdd: [formData],
         })
-        .then(() => this.store.popup.closePopup());
+        .then(() => this.store.modal.closeModal(formId));
     };
 
     this.launchForm({
       confirmCallback,
       data: rowNode.data,
-      popupTitle: `Edit ${this.gridInstance.gridTitle}`,
+      title: `Edit ${this.gridInstance.gridTitle}`,
     });
   }
 
@@ -85,18 +92,20 @@ export default class ComponentApi {
    * Add a row node with a visual editor
    */
   addRow(data?: { [p: string]: any }) {
+    const formId = this.store.modal.generateId();
     const confirmCallback = (formData: FormData) => {
+      console.log(formData);
       this.gridInstance
         .addRows({
           rowsToAdd: [formData],
         })
-        .then(() => this.store.popup.closePopup());
+        .then(() => this.store.modal.closeModal(formId));
     };
 
     this.launchForm({
       confirmCallback,
       data: data || {},
-      popupTitle: `Add ${this.gridInstance.gridTitle}`,
+      title: `Add ${this.gridInstance.gridTitle}`,
     });
   }
 
@@ -134,21 +143,19 @@ export default class ComponentApi {
   /**
    * View the row with none of the fields editable
    */
-  viewRow(rowNode: RowNode) {
+  viewRow(rowNode: RowNode, group?: string) {
     // const data
 
-    const columnDefs = this.gridInstance.columnDefs.map((colDef) => ({
-      ...colDef,
-      readonly: true,
-      showInForm: twoConditionReturn(colDef.showInForm, colDef.showInView),
-    })) as CellParams[];
+    const columnDefs = this.columnApi
+      .getAllColumns()
+      .filter((col) => (group ? getColumGroupName(col) === group : true))
+      .map((col) => col.getColDef()) as CellParams[];
 
-    this.store.popup.setPopup({
-      componentType: 'form',
-      columnDefs,
+    this.store.modal.createFormModal({
+      formSchema: columnDefsToFormSchema(columnDefs),
       formData: rowNode.data,
-      confirmCallback: () => this.store.popup.closePopup(),
-      popupTitle: 'Viewing Entry',
+      confirmCallback: () => {},
+      title: 'Viewing Entry',
       cancelButtonText: false,
     });
   }
