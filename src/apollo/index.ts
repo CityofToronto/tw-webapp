@@ -6,11 +6,11 @@ import { dispatchError } from './lib/utils';
 import { HasuraField, __TypeKind, TableQueryResult } from '@/types/api';
 import { inDebug } from '@/common/utils';
 
-const isColumn = (element: HasuraField): boolean => {
-  const columnType: __TypeKind = element.type.ofType
+export const isColumn = (element: HasuraField): boolean => {
+  const columnType = element.type.ofType
     ? element.type.ofType.kind
     : element.type.kind;
-  return ['ENUM', 'SCALAR', 'LIST'].includes(columnType);
+  return ['ENUM', 'SCALAR'].includes(columnType);
 };
 
 const isRelationship = (element: HasuraField): boolean =>

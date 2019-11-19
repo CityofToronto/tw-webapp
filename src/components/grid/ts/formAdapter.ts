@@ -1,7 +1,12 @@
 import { CellParams } from '@/types/config';
 import { FormSchema, FormFields } from '@/types/form';
-import { TableQueryResult, HasuraField } from '@/types/api';
-import apolloClient from '@/apollo';
+import {
+  TableQueryResult,
+  HasuraField,
+  __TypeKind,
+  __TypeName,
+} from '@/types/api';
+import apolloClient, { isColumn } from '@/apollo';
 import gql from 'graphql-tag';
 
 const convertCellType = (columnDef: CellParams): FormFields => {
@@ -40,9 +45,33 @@ export const columnDefsToFormSchema = (
   };
 };
 
-const hasuraToFormSchema = async (tableName: string): Promise<FormSchema> => {
-  const typename = await apolloClient.getTypename(tableName);
-  const response = await apolloClient.query<{ __type: HasuraField }>({
+interface HasuraTypeResult {
+  __type: {
+    fields: HasuraField[];
+  };
+}
+
+const mapHasuraType = (type: __TypeName): FormFields['type']  => {
+  switch (type) {
+    case 'Boolean':
+      return 'boolean';
+    case 'Date':
+      return 'date';
+    case 'Float':
+      return 'number';
+    case 'Int':
+      return 'number';
+    case 'ID':
+      return 'text';
+    case 'String':
+      return 'text';
+    case 'ltree':
+      return 'text';
+  }
+};
+
+const getType = (typename: string) => {
+  return apolloClient.query<HasuraTypeResult>({
     query: gql`
     {
       {
@@ -66,4 +95,27 @@ const hasuraToFormSchema = async (tableName: string): Promise<FormSchema> => {
     }
     `,
   });
+};
+
+const recursiveMap = async (field: HasuraField): Promise<FormFields> => {
+  if (isColumn(field)) {
+    const typename = field.type?.ofType?.name ?? field.type.name;
+    return {
+      type: mapHasuraType(typename),
+    };
+  } else if (field.type.ofType.kind === 'LIST') {
+    const response = await getType(field.type.ofType.ofType.name);
+    return {
+      type: 'table',
+      schema: response.data.__type.fields.map(recursiveMap);
+    }
+  }
+};
+
+const hasuraToFormSchema = async (tableName: string): Promise<FormSchema> => {
+  const typename = await apolloClient.getTypename(tableName);
+
+  const response = await getType(typename);
+
+  const fields: FormFields[] = response.data.__type.fields.map(recursiveMap);
 };

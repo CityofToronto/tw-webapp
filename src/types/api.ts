@@ -28,15 +28,15 @@ export type __TypeName =
 export interface HasuraField {
   name: string;
   type: {
-    name: string | __TypeName;
+    name: __TypeName;
     kind: __TypeKind;
     ofType: {
-      name: string | __TypeName;
-      kind: string | __TypeKind;
+      name: __TypeName;
+      kind: __TypeKind;
       enumValues: string[];
       ofType: {
         kind: __TypeKind;
-        name: string | __TypeName;
+        name: string;
       };
     };
   };

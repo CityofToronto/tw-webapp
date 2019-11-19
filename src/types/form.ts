@@ -16,7 +16,8 @@ export type FormFields =
   | BooleanField
   | EnumField
   | AutocompleteField
-  | TreeField;
+  | TreeField
+  | TableField;
 
 interface TextField {
   type: 'text';
@@ -48,4 +49,9 @@ interface AutocompleteField {
 interface TreeField {
   type: 'tree';
   items: LocalOrAsyncItems;
+}
+
+interface TableField {
+  type: 'table';
+  schema: FormSchema;
 }
