@@ -16,15 +16,28 @@ export type __TypeKind =
   | 'LIST'
   | 'NON_NULL';
 
+export type __TypeName =
+  | 'Boolean'
+  | 'Date'
+  | 'Float'
+  | 'Int'
+  | 'ID'
+  | 'String'
+  | 'ltree';
+
 export interface HasuraField {
   name: string;
   type: {
-    name: string;
+    name: string | __TypeName;
     kind: __TypeKind;
     ofType: {
-      name: string;
-      kind: __TypeKind;
+      name: string | __TypeName;
+      kind: string | __TypeKind;
       enumValues: string[];
+      ofType: {
+        kind: __TypeKind;
+        name: string | __TypeName;
+      };
     };
   };
 }

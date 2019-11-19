@@ -1,5 +1,8 @@
 import { CellParams } from '@/types/config';
 import { FormSchema, FormFields } from '@/types/form';
+import { TableQueryResult, HasuraField } from '@/types/api';
+import apolloClient from '@/apollo';
+import gql from 'graphql-tag';
 
 const convertCellType = (columnDef: CellParams): FormFields => {
   switch (columnDef.cellType) {
@@ -35,4 +38,32 @@ export const columnDefsToFormSchema = (
   return {
     properties: formFields,
   };
+};
+
+const hasuraToFormSchema = async (tableName: string): Promise<FormSchema> => {
+  const typename = await apolloClient.getTypename(tableName);
+  const response = await apolloClient.query<{ __type: HasuraField }>({
+    query: gql`
+    {
+      {
+        __type(name: "${typename}") {
+          fields {
+            name
+            type {
+              kind
+              ofType {
+                name
+                kind
+                ofType {
+                  kind
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    `,
+  });
 };

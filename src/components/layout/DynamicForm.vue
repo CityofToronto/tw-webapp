@@ -34,7 +34,6 @@ import { CellType } from '@/types/grid';
 import { QueryType } from '@/types/api';
 import { CellParams } from '@/types/config';
 import { MarkRequired } from 'ts-essentials';
-import { FormEditorData } from '@/store/modules/popup';
 import { FormSchema } from '@/types/form';
 import FormFactory, { FieldComponent } from '@/components/FormFactory';
 

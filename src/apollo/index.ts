@@ -10,7 +10,7 @@ const isColumn = (element: HasuraField): boolean => {
   const columnType: __TypeKind = element.type.ofType
     ? element.type.ofType.kind
     : element.type.kind;
-  return columnType === 'SCALAR' || columnType === 'ENUM';
+  return ['ENUM', 'SCALAR', 'LIST'].includes(columnType);
 };
 
 const isRelationship = (element: HasuraField): boolean =>
@@ -36,42 +36,24 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
     });
   }
 
-  public getFields(tableName: string): Promise<HasuraField[]> {
-    return (
-      this.query({
-        query: gql`
-        query getColumns {
-          __type (
-            name: "${tableName}"
-          ) {
-            fields{
-              name
-              type {
-                kind
-                name
-                ofType {
-                  kind
-                  name
-                }
-              }
-            }
-            
-          }
-        }`,
-      })
-        // eslint-disable-next-line
-        .then((response: TableQueryResult) => response.data.__type.fields)
-        .catch((error): never => dispatchError(getError(error)))
-    );
+  public getTypename(tableName: string): Promise<string> {
+    return this.query({
+      query: gql`
+      query getTypename {
+        ${tableName} {
+          __typename
+        }
+      }`,
+    }).then((response) => response.data[tableName])[0].__typename;
   }
 
-  public getColumns(tableName: string): Promise<HasuraField[]> {
+  public async getColumns(tableName: string): Promise<HasuraField[]> {
     return (
       this.query({
         query: gql`
         query getColumns {
           __type (
-            name: "${tableName}"
+            name: "${await this.getTypename(tableName)}"
           ) {
             fields{
               name
