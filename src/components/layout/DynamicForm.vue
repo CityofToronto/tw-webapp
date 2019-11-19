@@ -40,15 +40,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
 import { ColDef } from 'ag-grid-community';
+import modalMixin from '@/components/mixins/modalMixin';
 import TreeviewInput from '@/components/form/TreeviewInput.vue';
 import { CellType } from '@/types/grid';
 import { QueryType } from '@/types/api';
 import { CellParams } from '@/types/config';
 import { MarkRequired } from 'ts-essentials';
-import Store from '@/store/store';
-import { useStore } from 'vuex-simple';
 import { FormEditorData } from '@/store/modules/popup';
 
 @Component({
@@ -56,8 +55,8 @@ import { FormEditorData } from '@/store/modules/popup';
     TreeviewInput,
   },
 })
-export default class DynamicForm extends Vue {
-  store: Store = useStore(this.$store);
+export default class DynamicForm extends Mixins(modalMixin) {
+  @Prop({ required: true }) formSchema;
 
   data: { [p: string]: any } = {};
 
