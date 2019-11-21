@@ -1,4 +1,4 @@
-import apolloClient from '../../../apollo';
+import apolloClient from '../../src/apollo';
 
 it('equals ProjectDetailsType', () => {
   expect.assertions(1);
