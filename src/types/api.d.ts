@@ -25,21 +25,61 @@ export type __TypeName =
   | 'String'
   | 'ltree';
 
+export interface HasuraTypeResult {
+  __type: {
+    fields: HasuraField[];
+  };
+}
+
+type __Types =
+  | __EnumType
+  | __ScalarType
+  | __ListType
+  | __ObjectType
+  | __NonNull;
+
+interface __NonNull extends __Type {
+  kind: 'NON_NULL';
+  name: null;
+  ofType: __Types;
+}
+
+interface __ScalarType extends __Type {
+  kind: 'SCALAR';
+  name: __TypeName;
+  ofType: null;
+}
+
+interface __EnumType extends __Type {
+  kind: 'ENUM';
+  name: string;
+  enumValues: {
+    name: string;
+  }[];
+  ofType: null;
+}
+
+interface __ListType extends __Type {
+  kind: 'LIST';
+  name: null;
+  ofType: __ObjectType;
+}
+
+interface __ObjectType extends __Type {
+  kind: 'OBJECT';
+  name: string;
+  ofType: undefined;
+}
+
+interface __Type {
+  name: __TypeName | string | null;
+  kind: __TypeKind | string;
+  ofType: __Types | null | undefined;
+}
+
 export interface HasuraField {
   name: string;
-  type: {
-    name: __TypeName;
-    kind: __TypeKind;
-    ofType: {
-      name: __TypeName;
-      kind: __TypeKind;
-      enumValues: string[];
-      ofType: {
-        kind: __TypeKind;
-        name: string;
-      };
-    };
-  };
+  type: __Types;
 }
 
 export interface TreeStructure extends TreeData {

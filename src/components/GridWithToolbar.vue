@@ -70,13 +70,6 @@ export default class GridWithToolbar extends Vue {
 </script>
 
 <style lang="scss">
-@import '../../node_modules/ag-grid-community/dist/styles/ag-grid.css';
-@import '../../node_modules/ag-grid-community/dist/styles/ag-theme-material.css';
-
-$grid-size: 4px;
-$icon-size: 12px;
-$virtual-item-height: 5px;
-
 .grid {
   height: 100%;
 }
@@ -97,11 +90,7 @@ $virtual-item-height: 5px;
     border-left-width: 0.5px;
     border-left-color: #e2e2e2;
   }
-  .ag-cell {
-    .ag-icon {
-      display: flex;
-    }
-  }
+
   .ag-header-group-cell-label {
     justify-content: center;
   }

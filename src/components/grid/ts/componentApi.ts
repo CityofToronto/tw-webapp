@@ -94,7 +94,6 @@ export default class ComponentApi {
   addRow(data?: { [p: string]: any }) {
     const formId = this.store.modal.generateId();
     const confirmCallback = (formData: FormData) => {
-      console.log(formData);
       this.gridInstance
         .addRows({
           rowsToAdd: [formData],

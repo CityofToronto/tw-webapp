@@ -52,6 +52,6 @@ interface TreeField {
 }
 
 interface TableField {
-  type: 'table';
+  type: 'form';
   schema: FormSchema;
 }

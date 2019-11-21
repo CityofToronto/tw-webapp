@@ -1,5 +1,4 @@
 import { State, Getter, Mutation, Action } from 'vuex-simple';
-import { CellParams } from '@/types/config';
 import Vue from 'vue';
 import { FormSchema } from '@/types/form';
 

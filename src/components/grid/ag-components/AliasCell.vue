@@ -28,5 +28,3 @@ export default class AliasCell extends Vue {
   }
 }
 </script>
-
-<style></style>

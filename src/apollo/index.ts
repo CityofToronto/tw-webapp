@@ -3,7 +3,12 @@ import { NormalizedCacheObject, InMemoryCache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
 import { link } from './lib/link';
 import { dispatchError } from './lib/utils';
-import { HasuraField, __TypeKind, TableQueryResult } from '@/types/api';
+import {
+  HasuraField,
+  __TypeKind,
+  TableQueryResult,
+  HasuraTypeResult,
+} from '@/types/api';
 import { inDebug } from '@/common/utils';
 
 export const isColumn = (element: HasuraField): boolean => {
@@ -47,10 +52,38 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
     }).then((response) => response.data[tableName][0].__typename);
   }
 
+  async getFields(typename: string) {
+    return this.query<HasuraTypeResult>({
+      query: gql`
+         query {
+          __type(name: "${typename}") {
+            fields {
+              name
+              type {
+                kind
+                ofType {
+                  name
+                  kind
+                  ofType {
+                    kind
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+    })
+      .then(({ data }) => data.__type.fields)
+      .catch((error) => {
+        throw new Error(`Can't read the fields of ${typename}, ${error}`);
+      });
+  }
+
   public async getColumns(tableName: string): Promise<HasuraField[]> {
-    return (
-      this.query({
-        query: gql`
+    return this.query({
+      query: gql`
         query getColumns {
           __type (
             name: "${await this.getTypename(tableName)}"
@@ -72,11 +105,11 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
             
           }
         }`,
-      })
-        // eslint-disable-next-line
-        .then((response: TableQueryResult) => response.data.__type.fields.filter((element) => isColumn(element)))
-        .catch((error): never => dispatchError(getError(error)))
-    );
+    })
+      .then((response: TableQueryResult) =>
+        response.data.__type.fields.filter((element) => isColumn(element)),
+      )
+      .catch((error): never => dispatchError(getError(error)));
   }
 
   public getRelationships(tableName: string): Promise<HasuraField[]> {
@@ -101,7 +134,11 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
         }`,
       })
         // eslint-disable-next-line
-        .then((response: TableQueryResult) => response.data.__type.fields.filter((element) => isRelationship(element)))
+        .then((response: TableQueryResult) =>
+          response.data.__type.fields.filter((element) =>
+            isRelationship(element),
+          ),
+        )
         .catch((error): never => dispatchError(getError(error)))
     );
   }

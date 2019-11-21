@@ -5,9 +5,11 @@ import {
   HasuraField,
   __TypeKind,
   __TypeName,
+  __Types,
 } from '@/types/api';
-import apolloClient, { isColumn } from '@/apollo';
+import apolloClient from '@/apollo';
 import gql from 'graphql-tag';
+import _ from 'lodash';
 
 const convertCellType = (columnDef: CellParams): FormFields => {
   switch (columnDef.cellType) {
@@ -20,7 +22,7 @@ const convertCellType = (columnDef: CellParams): FormFields => {
     case 'rearrangeCell':
       return { type: 'text' };
     case 'selectCell':
-      return { type: 'enum', items: columnDef.enumValues.map((x) => x.name) };
+      return { type: 'enum', items: columnDef.enumValues };
     case 'treeCell':
       return { type: 'tree', items: columnDef.cellRendererParams.treeData };
     case undefined:
@@ -45,13 +47,9 @@ export const columnDefsToFormSchema = (
   };
 };
 
-interface HasuraTypeResult {
-  __type: {
-    fields: HasuraField[];
-  };
-}
-
-const mapHasuraType = (type: __TypeName): FormFields['type'] => {
+const mapHasuraType = (
+  type: __TypeName,
+): 'boolean' | 'date' | 'number' | 'text' => {
   switch (type) {
     case 'Boolean':
       return 'boolean';
@@ -70,52 +68,51 @@ const mapHasuraType = (type: __TypeName): FormFields['type'] => {
   }
 };
 
-const getType = (typename: string) => {
-  return apolloClient.query<HasuraTypeResult>({
-    query: gql`
-    {
-      {
-        __type(name: "${typename}") {
-          fields {
-            name
-            type {
-              kind
-              ofType {
-                name
-                kind
-                ofType {
-                  kind
-                  name
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    `,
-  });
+const getFormType = async (type: __Types): Promise<FormFields> => {
+  switch (type.kind) {
+    case 'SCALAR':
+      return {
+        type: mapHasuraType(type.name),
+      };
+    case 'ENUM':
+      return {
+        type: 'enum',
+        items: type.enumValues.map((val) => val.name),
+      };
+    case 'LIST':
+      return {
+        type: 'form',
+        schema: await hasuraToFormSchema(type.ofType.name),
+      };
+    case 'NON_NULL':
+      return getFormType(type.ofType);
+    case 'OBJECT':
+      return {
+        type: 'form',
+        schema: await hasuraToFormSchema(type.name),
+      };
+  }
 };
 
-// const recursiveMap = async (field: HasuraField): Promise<FormFields> => {
-//   if (isColumn(field)) {
-//     const typename = field.type?.ofType?.name ?? field.type.name;
-//     return {
-//       type: mapHasuraType(typename),
-//     };
-//   } else if (field.type.ofType.kind === 'LIST') {
-//     const response = await getType(field.type.ofType.ofType.name);
-//     return {
-//       type: 'table',
-//       schema: response.data.__type.fields.map(recursiveMap);
-//     }
-//   }
-// };
+const hasuraToFormSchema = async (typename: string): Promise<FormSchema> => {
+  const fields = await apolloClient.getFields(typename);
+  const properties = await Promise.all(
+    fields.map(async (field) => ({
+      label: _.startCase(_.lowerCase(field.name)),
+      property: field.name,
+      readonly: true,
+      field: await getFormType(field.type),
+    })),
+  );
 
-// const hasuraToFormSchema = async (tableName: string): Promise<FormSchema> => {
-//   const typename = await apolloClient.getTypename(tableName);
+  return {
+    properties,
+  };
+};
 
-//   const response = await getType(typename);
-
-//   const fields: FormFields[] = response.data.__type.fields.map(recursiveMap);
-// };
+export const hasuraTableToFormSchema = async (
+  tableName: string,
+): Promise<FormSchema> => {
+  const typename = await apolloClient.getTypename(tableName);
+  return hasuraTableToFormSchema(typename);
+};

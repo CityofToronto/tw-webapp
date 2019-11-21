@@ -92,6 +92,7 @@ export default class ProjectForm extends Vue {
   saveProject() {
     this.store.project.setProject(this.selectedItem[0]);
     this.store.modal.closeModal(this.id);
+    this.$router.go(0);
   }
 
   created() {

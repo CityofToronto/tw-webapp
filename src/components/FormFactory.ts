@@ -74,6 +74,10 @@ export default class FormFactory {
               typeof field.items === 'function' ? field.items() : field.items,
           },
         };
+      case 'table':
+        return {
+          component: () => import('@/components/inputs/TreeviewInput.vue'),
+        };
     }
   }
 }

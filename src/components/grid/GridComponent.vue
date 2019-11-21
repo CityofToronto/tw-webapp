@@ -6,9 +6,9 @@
       :dom-layout="config.autoHeight ? 'autoHeight' : 'normal'"
       :grid-options="gridOptions"
       :column-defs="columnDefs"
+      :context="context"
       :row-height="7 * 6"
       :header-height="7 * 7"
-      :context="context"
       @grid-ready="onGridReady"
       v-on="events"
     />
@@ -173,7 +173,7 @@ export default class GridComponent extends Vue {
     api.setRowData(await this.gridInstance.gridProvider.getData());
 
     // Set-up the subscription
-    this.gridInstance.subscribeToMore();
+    //this.gridInstance.subscribeToMore();
 
     // Give grid instance to GridWithToolbar and the store
     this.$emit('set-grid-instance', this.gridInstance);
@@ -213,3 +213,11 @@ export default class GridComponent extends Vue {
   }
 }
 </script>
+
+<style lang="scss">
+$grid-size: 7px;
+$icon-size: 18px;
+
+@import '../../../node_modules/ag-grid-community/src/styles/ag-grid.scss';
+@import '../../../node_modules/ag-grid-community/src/styles/ag-theme-material/sass/ag-theme-material.scss';
+</style>

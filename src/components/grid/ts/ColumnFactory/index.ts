@@ -21,7 +21,7 @@ interface NormalColumn {
 interface EnumColumn {
   name: string;
   cellType: 'selectCell';
-  enumValues?: string[];
+  enumValues: string[];
 }
 
 const isGroupColumn = (column: ColDef | ColGroupDef): column is ColGroupDef =>
@@ -48,12 +48,6 @@ export default class ColumnFactory {
     this.config = config;
   }
 
-  private omitColumns(columnsToOmit: string[]): void {
-    this.columns = this.columns.filter(
-      (column): boolean => !columnsToOmit.includes(column.name),
-    );
-  }
-
   private addToColumnDefs(columnsToAdd: ColDef[]): void {
     columnsToAdd.forEach((columnToAdd): void => {
       this.columnDefs.unshift(columnToAdd);
@@ -63,32 +57,40 @@ export default class ColumnFactory {
   private parseType(column: HasuraField): NormalColumn | EnumColumn {
     const name = column.name;
 
-    // Type is defined in two places depending if nullable
-    const type = column.type.ofType
-      ? column.type.ofType.name
-      : column.type.name;
-
-    const isEnum = column.type.ofType
-      ? column.type.ofType.kind === 'ENUM'
-      : column.type.kind === 'ENUM';
-
-    if (isEnum) {
+    const getType = (type: HasuraField['type']) => {
+      if (type.kind === 'SCALAR') {
+        if (type.name === 'Boolean') {
+          return {
+            cellType: 'booleanCell',
+          };
+        }
+        if (type.name === 'Int') {
+          return {
+            cellType: 'numberCell',
+          };
+        }
+        return {
+          cellType: 'textCell',
+        };
+      }
+      if (type.kind === 'ENUM') {
+        return {
+          cellType: 'selectCell',
+          enumValues: type.enumValues.map((x) => x.name),
+        };
+      }
+      if (type.kind === 'NON_NULL') {
+        return getType(type.ofType);
+      }
       return {
-        name,
-        cellType: 'selectCell',
-        enumValues: column.type.ofType.enumValues,
+        cellType: 'textCell',
       };
-    }
-    switch (type) {
-      case 'Int':
-      case 'numeric':
-      case 'bigint':
-        return { name, cellType: 'numberCell' };
-      case 'Boolean':
-        return { name, cellType: 'numberCell' };
-      default:
-        return { name, cellType: 'textCell' };
-    }
+    };
+
+    return {
+      name,
+      ...getType(column.type),
+    };
   }
 
   private processColumns(sortingOrder?: string[]): void {
@@ -110,9 +112,7 @@ export default class ColumnFactory {
       }
       // Select column requires values as string[]
       case 'selectCell': {
-        return cellTypes.selectCell(
-          column.enumValues.map((enumVal) => enumVal.name),
-        );
+        return cellTypes.selectCell(column.enumValues);
       }
       default:
         if (column.cellType) {
@@ -137,7 +137,7 @@ export default class ColumnFactory {
       ...column,
       ...hasuraColumn,
       showInForm: true,
-      cellType: hasuraColumn.cellType,
+      cellType: column.cellType ?? hasuraColumn.cellType,
       sort: hasuraColumn.name === 'id' ? 'asc' : undefined,
       headerName:
         column.headerName ?? _.startCase(_.lowerCase(hasuraColumn.name)),
@@ -146,7 +146,7 @@ export default class ColumnFactory {
       field: column.field,
     };
 
-    const rendererColDef = this.getCustomColDef(defaultColumnDef);
+    const rendererColDef = await this.getCustomColDef(defaultColumnDef);
 
     const mergedConditional = {
       cellRendererParams: {
@@ -197,8 +197,6 @@ export default class ColumnFactory {
      * by Ag-Grid to build the table.
      */
     await this.defineColumns(overriddenColDefs);
-
-    // this.sortColumns;
 
     // Adds additional column definitions to the front of the array
     if (this.config.gridButtons) {

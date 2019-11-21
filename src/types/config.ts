@@ -155,9 +155,7 @@ export interface BaseColumn extends CommonCell {
 }
 interface SelectColumn extends CommonCell {
   cellType: 'selectCell';
-  enumValues: {
-    name: string;
-  }[];
+  enumValues: string[];
 }
 
 interface ExternalColumn extends CommonCell {

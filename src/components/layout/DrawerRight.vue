@@ -70,10 +70,6 @@ export default class DrawerRight extends Vue {
 </script>
 
 <style scoped>
-.tool-icon {
-  overflow: visible;
-  font-size: 22px;
-}
 .v-toolbar {
   border-bottom: 0.5px solid #e2e2e2;
 }

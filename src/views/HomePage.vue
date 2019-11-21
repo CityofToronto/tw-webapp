@@ -15,6 +15,7 @@ import { Vue, Component } from 'vue-property-decorator';
 import Store from '@/store/store';
 import ModulePanel from '@/components/ModulePanel.vue';
 import { useStore } from 'vuex-simple';
+import { hasuraTableToFormSchema } from '@/components/grid/ts/formAdapter';
 
 @Component({
   components: {
@@ -23,6 +24,12 @@ import { useStore } from 'vuex-simple';
 })
 export default class HomeView extends Vue {
   store: Store = useStore(this.$store);
+
+  beforeMount() {
+    hasuraTableToFormSchema('project_details').then((resp) =>
+      console.log(resp),
+    );
+  }
 
   modules = [
     {
