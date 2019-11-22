@@ -1,4 +1,4 @@
-import { State, Mutation, Action, Getter } from 'vuex-simple';
+import { State, Mutation, Getter } from 'vuex-simple';
 
 export interface Project {
   id: string;

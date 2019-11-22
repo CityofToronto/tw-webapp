@@ -1,8 +1,12 @@
 import { RowData, AddQuery, RemoveQuery, UpdateQuery } from '@/types/grid';
-import { ColumnApi, GridApi, GridOptions, RowNode } from 'ag-grid-community';
+import {
+  ColumnApi,
+  GridApi,
+  GridOptions,
+  RowNode,
+} from '@ag-grid-enterprise/all-modules';
 import BaseGridProvider from './GridProviders/BaseGridProvider';
 import ComponentApi from './componentApi';
-import _ from 'lodash';
 import { CellParams } from '@/types/config';
 
 export default class GridInstance {
@@ -16,7 +20,7 @@ export default class GridInstance {
 
   public componentApi: ComponentApi;
 
-  public gridTitle: String = '';
+  public gridTitle = '';
 
   public constructor({
     gridApi,

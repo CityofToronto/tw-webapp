@@ -1,11 +1,9 @@
 import { Mutation, State, Action, Getter } from 'vuex-simple';
 import GridInstance from '@/components/grid/ts/GridInstance';
-import { RowNode, GridApi } from 'ag-grid-community';
+import { RowNode, GridApi } from '@ag-grid-enterprise/all-modules';
 
 export default class GridModule {
   @State() private potentialParentState!: RowNode | null;
-
-  public constructor() {}
 
   @Getter()
   public get potentialParent() {
@@ -29,7 +27,7 @@ export default class GridModule {
     if (this.potentialParent === newPotentialParent) {
       return;
     }
-    let rowsToRefresh: RowNode[] = [];
+    const rowsToRefresh: RowNode[] = [];
     if (this.potentialParent) {
       rowsToRefresh.push(this.potentialParent);
     }

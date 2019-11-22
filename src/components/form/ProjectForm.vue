@@ -43,6 +43,7 @@ import { dispatchError } from '../../apollo/lib/utils';
 import Store from '@/store/store';
 import { useStore } from 'vuex-simple';
 import { Project } from '@/store/modules/user/projects';
+import { hasuraTableToFormSchema } from '@/components/grid/ts/formAdapter';
 
 interface TableHeader {
   text: string;
@@ -112,37 +113,21 @@ export default class ProjectForm extends Vue {
       .catch(dispatchError);
   }
 
-  showProjectInfo(id: number) {
-    apolloClient
-      .query({
-        query: gql`{
-        project_details(where: {id: {_eq: ${id}}}) {
-          asset_data_steward
-          asset_data_steward_email
-          budget
-          bus_unit_name
-          contract_number
-          designer_organization_name
-          end_date
-          id
-          key_bus_unit_contract
-          key_bus_unit_contract_email
-          name
-          phase_number
-          project_manager
-          project_manager_email
-        }
-      }`,
-      })
-      .then(({ data }) =>
-        this.store.modal.createModal(
-          () => import('./ProjectDetails.vue'),
-          data.project_details,
-        ),
-      )
-      .catch(() =>
-        dispatchError(new Error('Unable to load project information')),
-      );
+  async showProjectInfo(id: number) {
+    const formSchema = await hasuraTableToFormSchema('project_details');
+
+    const formData = await apolloClient.queryTable('project_details', {
+      id: { _eq: id },
+    });
+
+    this.store.modal.createFormModal({
+      title: 'Project Details',
+      formSchema,
+      formData,
+      confirmCallback: (closeForm) => {
+        closeForm();
+      },
+    });
   }
 }
 </script>

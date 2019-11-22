@@ -3,7 +3,7 @@ import {
   GridOptions,
   ICellRendererParams,
   ColGroupDef,
-} from 'ag-grid-community';
+} from '@ag-grid-enterprise/all-modules';
 import { CellType, MergeContext, FunctionProps } from './grid';
 import { MarkRequired } from 'ts-essentials';
 import GridInstance from '@/components/grid/ts/GridInstance';

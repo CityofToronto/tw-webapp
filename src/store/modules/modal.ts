@@ -1,4 +1,4 @@
-import { State, Getter, Mutation, Action } from 'vuex-simple';
+import { State, Mutation, Action } from 'vuex-simple';
 import Vue from 'vue';
 import { FormSchema } from '@/types/form';
 
@@ -14,7 +14,7 @@ interface DynamicFormModal {
   title: string;
   confirmButtonText?: string | false;
   cancelButtonText?: string | false;
-  confirmCallback: () => void;
+  confirmCallback: (closeForm: () => void) => void;
   cancelCallback?: () => void;
   formData: Record<string, any>;
   formSchema: FormSchema;

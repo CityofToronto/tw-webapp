@@ -2,11 +2,14 @@
   <v-card>
     <v-card-title>{{ title }}</v-card-title>
     <!-- <v-divider /> -->
-    <v-card-text style="height: 600px">
+    <v-card-text>
       <component
         :is="field.component"
         v-for="field in formComponents"
         :key="field.key"
+        :items="
+          field.component === 'v-data-table' ? formModel[field.key] : undefined
+        "
         v-bind="field.props"
         :value="formModel[field.key]"
         @input="formModel[field.key] = $event"
@@ -26,20 +29,29 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
-import { ColDef } from 'ag-grid-community';
+import { Component, Prop, Mixins } from 'vue-property-decorator';
 import modalMixin from '@/components/mixins/modalMixin';
 import TreeviewInput from '@/components/inputs/TreeviewInput.vue';
-import { CellType } from '@/types/grid';
-import { QueryType } from '@/types/api';
-import { CellParams } from '@/types/config';
-import { MarkRequired } from 'ts-essentials';
 import { FormSchema } from '@/types/form';
 import FormFactory, { FieldComponent } from '@/components/FormFactory';
+import {
+  VTextField,
+  VSelect,
+  VSwitch,
+  VCheckbox,
+  VAutocomplete,
+  VDataTable,
+} from 'vuetify/lib';
 
 @Component({
   components: {
     TreeviewInput,
+    VTextField,
+    VSelect,
+    VSwitch,
+    VCheckbox,
+    VAutocomplete,
+    VDataTable,
   },
 })
 export default class DynamicForm extends Mixins(modalMixin) {
@@ -74,8 +86,9 @@ export default class DynamicForm extends Mixins(modalMixin) {
 
   saveForm() {
     this.confirmCallback(
+      this.closeModal(),
       Object.fromEntries(
-        Object.entries(this.formModel).filter(([key, val]) => val !== null),
+        Object.entries(this.formModel).filter((entry) => entry[1] !== null),
       ),
     );
   }

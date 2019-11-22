@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
+import { Vue, Component } from 'vue-property-decorator';
 import Store from '@/store/store';
 import { useStore } from 'vuex-simple';
 
@@ -56,13 +56,13 @@ export default class UserPanel extends Vue {
     return this.store.settings.debugStatus;
   }
 
-  logout() {
-    this.store.auth.logUserOut();
-  }
-
   set debugMode(value: boolean) {
     this.store.settings.setDebugMode(value);
     this.$router.go(0);
+  }
+
+  logout() {
+    this.store.auth.logUserOut();
   }
 }
 </script>

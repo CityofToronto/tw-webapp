@@ -5,9 +5,10 @@ import { link } from './lib/link';
 import { dispatchError } from './lib/utils';
 import {
   HasuraField,
-  __TypeKind,
   TableQueryResult,
   HasuraTypeResult,
+  HasuraWhere,
+  __Types,
 } from '@/types/api';
 import { inDebug } from '@/common/utils';
 
@@ -41,7 +42,7 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
     });
   }
 
-  public getTypename(tableName: string): Promise<string> {
+  public async getTypename(tableName: string): Promise<string> {
     return this.query({
       query: gql`
       query getTypename {
@@ -52,10 +53,10 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
     }).then((response) => response.data[tableName][0].__typename);
   }
 
-  async getFields(typename: string) {
+  public async getFields(typename: string) {
     return this.query<HasuraTypeResult>({
       query: gql`
-         query {
+        {
           __type(name: "${typename}") {
             fields {
               name
@@ -79,6 +80,33 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
       .catch((error) => {
         throw new Error(`Can't read the fields of ${typename}, ${error}`);
       });
+  }
+
+  async getQueryFields(tableName: string) {
+    const fieldsTo = (fields: HasuraField[]) => {
+      return fields.map((field) => getType(field.type, field.name));
+    };
+
+    const typeNameToFields = async (typename: string) => {
+      const fields = await this.getFields(typename);
+      return await Promise.all(fieldsTo(fields));
+    };
+
+    // Declared as function to be hoisted
+    async function getType(type: __Types, name?: string) {
+      switch (type.kind) {
+        case 'ENUM':
+        case 'SCALAR':
+          return name;
+        case 'NON_NULL':
+          return await getType(type.ofType, name);
+        case 'LIST':
+          return `${name} {${await getType(type.ofType)}}`;
+        case 'OBJECT':
+          return await typeNameToFields(type.name);
+      }
+    }
+    return typeNameToFields(await this.getTypename(tableName));
   }
 
   public async getColumns(tableName: string): Promise<HasuraField[]> {
@@ -159,6 +187,20 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
     })
       .then((response): T => response.data[tableName])
       .catch((error): never => dispatchError(getError(error)));
+  }
+
+  public async queryTable(tableName: string, where?: HasuraWhere) {
+    const argsString = where ? `(where: {id: {_eq: ${where.id._eq}}})` : '';
+    return this.query({
+      query: gql`
+      {
+        ${tableName} ${argsString} {
+          ${await this.getQueryFields(tableName)}
+        }
+      }`,
+    })
+      .then((resp) => resp.data[tableName][0])
+      .catch(dispatchError);
   }
 }
 

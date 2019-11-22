@@ -37,7 +37,6 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import Store from '@/store/store';
 import { ToolbarCall } from './ts/toolbarItems';
-import { storeInstance } from '@/store';
 import GridInstance from './ts/GridInstance';
 import { useStore } from 'vuex-simple';
 

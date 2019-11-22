@@ -11,9 +11,9 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import { GridConfiguration } from '@/types/config';
-import { MergeContext, RowStyleParams } from '@/types/grid';
+import { MergeContext } from '@/types/grid';
 import * as toolbarItems from '@/components/grid/ts/toolbarItems';
-import { ICellRendererParams } from 'ag-grid-community';
+import { ICellRendererParams } from '@ag-grid-enterprise/all-modules';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
 import agComponents from '@/components/grid/ag-components';
 import { reservationRowStyle } from './common/cssStyles';
@@ -100,10 +100,10 @@ export default class ReservationView extends Vue {
           },
           clickFunction: (params: MergeContext<ICellRendererParams>) => {
             if (params.data.approved && params.data.reserved) {
-              const newData = {
-                id: params.data.id,
-                reserved: false,
-              };
+              // const newData = {
+              //   id: params.data.id,
+              //   reserved: false,
+              // };
               // TODO REPLACE WITH SWEET ALERT
               // params.context.vueStore.modal.setPopup({
               //   componentType: 'confirmation',

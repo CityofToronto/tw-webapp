@@ -9,6 +9,7 @@
       :context="context"
       :row-height="7 * 6"
       :header-height="7 * 7"
+      :modules="modules"
       @grid-ready="onGridReady"
       v-on="events"
     />
@@ -16,8 +17,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Watch, Component, Prop } from 'vue-property-decorator';
-import { RowEvent, RowNode } from 'ag-grid-community';
+import { Vue, Component, Prop } from 'vue-property-decorator';
 import TreeviewEditor from './ag-components/TreeviewEditor.vue';
 import TreeviewRenderer from './ag-components/TreeviewRenderer.vue';
 import TreeviewFilter from './ag-components/TreeviewFilter.vue';
@@ -28,21 +28,18 @@ import GridInstance from './ts/GridInstance';
 import { useStore } from 'vuex-simple';
 
 // Types
-import { QueryType } from '@/types/api';
 import {
-  ColumnApi,
-  GridApi,
+  AllModules,
   ColDef,
   GridOptions,
   AgGridEvent,
-  CellValueChangedEvent,
   GetContextMenuItemsParams,
   MenuItemDef,
-} from 'ag-grid-community';
+} from '@ag-grid-enterprise/all-modules';
 import Store from '@/store/store';
 
 // Components
-import { AgGridVue } from 'ag-grid-vue';
+import { AgGridVue } from '@ag-grid-community/vue';
 import GridButton from '@/components/grid/ag-components/GridButton.vue';
 import SetFilter from './ag-components/SetFilter.vue';
 import _ from 'lodash';
@@ -53,12 +50,7 @@ import {
   CustomProperties,
   CustomColGroupDef,
 } from '@/types/config';
-import {
-  RequiredConfig,
-  GridContext,
-  MergeContext,
-  FunctionProps,
-} from '@/types/grid';
+import { RequiredConfig, GridContext, MergeContext } from '@/types/grid';
 import { DirectProvider } from './ts/GridProviders';
 
 // ag-Grid complains if you pass in extra keys to the grid options object, this function removes them
@@ -94,6 +86,8 @@ const removeInvalidProperties = (config: GridConfiguration): GridOptions => {
 })
 export default class GridComponent extends Vue {
   @Prop({ required: true, type: Object }) readonly config!: RequiredConfig;
+
+  modules = AllModules;
 
   store: Store = useStore(this.$store);
 
@@ -213,11 +207,3 @@ export default class GridComponent extends Vue {
   }
 }
 </script>
-
-<style lang="scss">
-$grid-size: 7px;
-$icon-size: 18px;
-
-@import '../../../node_modules/ag-grid-community/src/styles/ag-grid.scss';
-@import '../../../node_modules/ag-grid-community/src/styles/ag-theme-material/sass/ag-theme-material.scss';
-</style>

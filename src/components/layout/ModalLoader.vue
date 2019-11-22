@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Component } from 'vue-property-decorator';
+import { Vue, Component } from 'vue-property-decorator';
 import { useStore } from 'vuex-simple';
 import Store from '@/store/store';
 

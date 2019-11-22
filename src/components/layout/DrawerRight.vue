@@ -22,7 +22,6 @@
 import { Vue, Prop, Component } from 'vue-property-decorator';
 import { GridType } from '@/types/grid';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
-import apolloClient from '@/apollo';
 
 @Component({
   components: {

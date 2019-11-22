@@ -1,14 +1,8 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import { CellParams } from '@/types/config';
 import { FormSchema, FormFields } from '@/types/form';
-import {
-  TableQueryResult,
-  HasuraField,
-  __TypeKind,
-  __TypeName,
-  __Types,
-} from '@/types/api';
+import { __TypeName, __Types } from '@/types/api';
 import apolloClient from '@/apollo';
-import gql from 'graphql-tag';
 import _ from 'lodash';
 
 const convertCellType = (columnDef: CellParams): FormFields => {
@@ -68,32 +62,6 @@ const mapHasuraType = (
   }
 };
 
-const getFormType = async (type: __Types): Promise<FormFields> => {
-  switch (type.kind) {
-    case 'SCALAR':
-      return {
-        type: mapHasuraType(type.name),
-      };
-    case 'ENUM':
-      return {
-        type: 'enum',
-        items: type.enumValues.map((val) => val.name),
-      };
-    case 'LIST':
-      return {
-        type: 'form',
-        schema: await hasuraToFormSchema(type.ofType.name),
-      };
-    case 'NON_NULL':
-      return getFormType(type.ofType);
-    case 'OBJECT':
-      return {
-        type: 'form',
-        schema: await hasuraToFormSchema(type.name),
-      };
-  }
-};
-
 const hasuraToFormSchema = async (typename: string): Promise<FormSchema> => {
   const fields = await apolloClient.getFields(typename);
   const properties = await Promise.all(
@@ -110,9 +78,32 @@ const hasuraToFormSchema = async (typename: string): Promise<FormSchema> => {
   };
 };
 
+const getFormType = async (type: __Types): Promise<FormFields> => {
+  switch (type.kind) {
+    case 'SCALAR':
+      return {
+        type: mapHasuraType(type.name),
+      };
+    case 'ENUM':
+      return {
+        type: 'enum',
+        items: type.enumValues.map((val) => val.name),
+      };
+    case 'LIST':
+      return getFormType(type.ofType);
+    case 'NON_NULL':
+      return getFormType(type.ofType);
+    case 'OBJECT':
+      return {
+        type: 'table',
+        schema: await hasuraToFormSchema(type.name),
+      };
+  }
+};
+
 export const hasuraTableToFormSchema = async (
   tableName: string,
 ): Promise<FormSchema> => {
   const typename = await apolloClient.getTypename(tableName);
-  return hasuraTableToFormSchema(typename);
+  return hasuraToFormSchema(typename);
 };

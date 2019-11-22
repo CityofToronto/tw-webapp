@@ -1,10 +1,7 @@
 import Vue, { VNode } from 'vue';
-import Vuetify from 'vuetify';
+import Vuetify from 'vuetify/lib';
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
-
-import 'ag-grid-enterprise';
-
 import 'vuetify/dist/vuetify.min.css';
 import App from './App.vue';
 import store from './store';

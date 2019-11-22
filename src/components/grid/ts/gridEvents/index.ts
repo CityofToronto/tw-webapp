@@ -1,9 +1,9 @@
 import { VueEventParams, VueEvent } from '@/types/config';
 import {
-  RowDoubleClickedEvent,
   CellDoubleClickedEvent,
-} from 'ag-grid-community';
-import { RowDragMoveEvent, RowDragEndEvent } from 'ag-grid-community';
+  RowDragMoveEvent,
+  RowDragEndEvent,
+} from '@ag-grid-enterprise/all-modules';
 import { getColumGroupName } from '@/common/utils';
 
 // export * from './hierarchyRearrange';

@@ -47,9 +47,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Mixins } from 'vue-property-decorator';
+import { Component, Mixins } from 'vue-property-decorator';
 import Store from '@/store/store';
-import { required, maxLength, email } from 'vuelidate/lib/validators';
+import { required, email } from 'vuelidate/lib/validators';
 import { useStore } from 'vuex-simple';
 import { validationMixin } from 'vuelidate';
 
@@ -60,9 +60,9 @@ import { validationMixin } from 'vuelidate';
   },
 })
 export default class LoginPage extends Mixins(validationMixin) {
-  email: string = '';
+  email = '';
 
-  password: string = '';
+  password = '';
 
   store: Store = useStore(this.$store);
 

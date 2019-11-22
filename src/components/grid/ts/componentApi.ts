@@ -1,33 +1,14 @@
 import Store from '@/store/store';
 import { storeInstance } from '@/store';
 import GridInstance from './GridInstance';
-import { GridApi, ColumnApi, RowNode } from 'ag-grid-community';
+import { GridApi, ColumnApi, RowNode } from '@ag-grid-enterprise/all-modules';
 import { FormData } from '@/types/grid';
 import { CellParams } from '@/types/config';
 import { columnDefsToFormSchema } from './formAdapter';
 import { getColumGroupName } from '@/common/utils';
 
-/**
- * This function
- */
-const twoConditionReturn = (
-  cond1: boolean | undefined,
-  cond2: boolean | undefined,
-): boolean => {
-  if (!!cond1 && !!cond2) {
-    return cond1 || cond2;
-  } else if (!!cond1 || !!cond2) {
-    if (cond1) {
-      return cond1;
-    } else if (cond2) {
-      return cond2;
-    }
-  }
-  return false;
-};
-
 type LaunchFormFunction = (args: {
-  confirmCallback: (...args: any[]) => void;
+  confirmCallback: (closeForm: Function, ...args: any[]) => void;
   data: FormData;
   title: string;
   columnDefs?: CellParams[];
@@ -72,13 +53,12 @@ export default class ComponentApi {
    * Edit a row node with a visual editor
    */
   editRow(rowNode: RowNode) {
-    const formId = this.store.modal.generateId();
-    const confirmCallback = (formData: FormData) => {
+    const confirmCallback = (closeForm, formData: FormData) => {
       this.gridInstance
         .addRows({
           rowsToAdd: [formData],
         })
-        .then(() => this.store.modal.closeModal(formId));
+        .then(() => closeForm());
     };
 
     this.launchForm({
@@ -92,13 +72,12 @@ export default class ComponentApi {
    * Add a row node with a visual editor
    */
   addRow(data?: { [p: string]: any }) {
-    const formId = this.store.modal.generateId();
-    const confirmCallback = (formData: FormData) => {
+    const confirmCallback = (closeForm, formData: FormData) => {
       this.gridInstance
         .addRows({
           rowsToAdd: [formData],
         })
-        .then(() => this.store.modal.closeModal(formId));
+        .then(() => closeForm());
     };
 
     this.launchForm({
@@ -126,10 +105,12 @@ export default class ComponentApi {
     const rowsToClone = this.gridApi.getSelectedRows();
 
     if (rowsToClone.length === 1) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [{ id, ...omittedId }] = rowsToClone;
       this.addRow(omittedId);
     } else if (rowsToClone.length > 1) {
       const removedIds = rowsToClone.map((row) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, ...omittedId } = row;
         return omittedId;
       });
@@ -153,7 +134,9 @@ export default class ComponentApi {
     this.store.modal.createFormModal({
       formSchema: columnDefsToFormSchema(columnDefs),
       formData: rowNode.data,
-      confirmCallback: () => {},
+      confirmCallback: (closeForm) => {
+        closeForm();
+      },
       title: 'Viewing Entry',
       cancelButtonText: false,
     });

@@ -15,7 +15,6 @@ import { Vue, Component } from 'vue-property-decorator';
 import Store from '@/store/store';
 import ModulePanel from '@/components/ModulePanel.vue';
 import { useStore } from 'vuex-simple';
-import { hasuraTableToFormSchema } from '@/components/grid/ts/formAdapter';
 
 @Component({
   components: {
@@ -25,12 +24,6 @@ import { hasuraTableToFormSchema } from '@/components/grid/ts/formAdapter';
 export default class HomeView extends Vue {
   store: Store = useStore(this.$store);
 
-  beforeMount() {
-    hasuraTableToFormSchema('project_details').then((resp) =>
-      console.log(resp),
-    );
-  }
-
   modules = [
     {
       title: 'Project Asset Module',
@@ -39,7 +32,7 @@ export default class HomeView extends Vue {
         {
           title: 'Reservation',
           subtitle:
-            'Reserve entities for a project to be approved for reconciliation and update. that if goes over the number of lines support what happnes?',
+            'Reserve entities for a project to be approved for reconciliation and update.',
           route: '/asset/reservation',
         },
         {

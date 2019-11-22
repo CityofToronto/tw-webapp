@@ -1,5 +1,3 @@
-import { RowData } from './grid';
-
 export interface TreeData {
   id: string;
   parent: number;
@@ -31,26 +29,21 @@ export interface HasuraTypeResult {
   };
 }
 
-type __Types =
-  | __EnumType
-  | __ScalarType
-  | __ListType
-  | __ObjectType
-  | __NonNull;
+type __Types = EnumType | ScalarType | ListType | ObjectType | NonNull;
 
-interface __NonNull extends __Type {
+interface NonNull extends Type {
   kind: 'NON_NULL';
   name: null;
   ofType: __Types;
 }
 
-interface __ScalarType extends __Type {
+interface ScalarType extends Type {
   kind: 'SCALAR';
   name: __TypeName;
   ofType: null;
 }
 
-interface __EnumType extends __Type {
+interface EnumType extends Type {
   kind: 'ENUM';
   name: string;
   enumValues: {
@@ -59,19 +52,19 @@ interface __EnumType extends __Type {
   ofType: null;
 }
 
-interface __ListType extends __Type {
+interface ListType extends Type {
   kind: 'LIST';
   name: null;
-  ofType: __ObjectType;
+  ofType: __Types;
 }
 
-interface __ObjectType extends __Type {
+interface ObjectType extends Type {
   kind: 'OBJECT';
   name: string;
   ofType: undefined;
 }
 
-interface __Type {
+interface Type {
   name: __TypeName | string | null;
   kind: __TypeKind | string;
   ofType: __Types | null | undefined;
@@ -80,6 +73,13 @@ interface __Type {
 export interface HasuraField {
   name: string;
   type: __Types;
+}
+
+export interface HasuraWhere {
+  // TODO Make this better
+  id: {
+    _eq: number;
+  };
 }
 
 export interface TreeStructure extends TreeData {

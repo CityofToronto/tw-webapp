@@ -43,18 +43,16 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
-import { GridType, RowData } from '@/types/grid';
+import { RowData } from '@/types/grid';
 import { GridConfiguration } from '@/types/config';
 
-import agComponents from '@/components/grid/ag-components';
 import * as toolbarItems from '@/components/grid/ts/toolbarItems';
-import * as contextItems from '@/components/grid/ts/contextItems';
 import * as gridEvents from '@/components/grid/ts/gridEvents/';
 import * as gridButtons from '@/components/grid/ts/ColumnFactory/gridButtons';
 import { isCurrentProject } from './common/conditionals';
 import { orphanBranch, adoptBranch } from './common/orphanage';
-import { ICellRendererParams, CellClassParams } from 'ag-grid-community';
-import { CellType, RowStyleParams, MergeContext } from '@/types/grid';
+import { ICellRendererParams } from '@ag-grid-enterprise/all-modules';
+import { RowStyleParams, MergeContext } from '@/types/grid';
 import Store from '@/store/store';
 import { useStore } from 'vuex-simple';
 import { ClassRules } from '@/types/agGrid';
@@ -68,6 +66,12 @@ export const roleClassRules: ClassRules = {
   'background-green': ({ data }) => data?.role_missing_from_registry,
   'background-light-blue': ({ data }) => data?.parent_changed,
 };
+
+const isApproved = (data: {
+  project_id: number;
+  approved: boolean;
+  role_missing_from_registry: boolean;
+}) => isCurrentProject(data?.project_id) && data.approved;
 
 const assetGetClass = (cssClasses: string[] = []) => ({ data }) => {
   if (!isCurrentProject(data?.project_id))
@@ -163,12 +167,6 @@ const restoreFromTrash = toolbarItems.createToolbarItem(function(
     },
   };
 });
-
-const isApproved = (data: {
-  project_id: number;
-  approved: boolean;
-  role_missing_from_registry: boolean;
-}) => isCurrentProject(data?.project_id) && data.approved;
 
 @Component({
   components: {
@@ -269,7 +267,7 @@ export default class ReconciliationView extends Vue {
             cellType: 'rearrangeCell', // define cell to a rearrange cell
             showInForm: false, // disable this field when adding a child
             showInView: true, // show this when double clicking
-            conditional: ({ data, value }) => isApproved(data), // this controls whether a row is draggable
+            conditional: ({ data }) => isApproved(data), // this controls whether a row is draggable
             headerClass: 'asset-separator', // apply the separator between role and asset
             cellClass: assetGetClass(['asset-separator']),
           },
@@ -294,7 +292,7 @@ export default class ReconciliationView extends Vue {
         field: 'asset_serial_number',
         headerName: 'Asset Serial Number',
         cellType: 'rearrangeCell',
-        conditional: ({ data, value }) => isCurrentProject(data.project_id), // this controls whether a row is draggable
+        conditional: ({ data }) => isCurrentProject(data.project_id), // this controls whether a row is draggable
       },
       {
         field: 'id',

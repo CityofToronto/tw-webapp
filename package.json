@@ -10,6 +10,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@ag-grid-community/vue": "^22.0.0",
     "@ag-grid-enterprise/all-modules": "^22.0.0",
     "ag-grid-vue": "^22.0.0",
     "apollo-cache-inmemory": "^1.6.3",
@@ -52,6 +53,7 @@
     "eslint": "^6.0.0",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-vue": "^6.0.0",
+    "identity-obj-proxy": "^3.0.0",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",
     "ts-essentials": "^3.0.5",

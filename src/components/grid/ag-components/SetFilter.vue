@@ -29,16 +29,19 @@
 
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
-import { IDoesFilterPassParams, RowNode } from 'ag-grid-community';
+import {
+  IDoesFilterPassParams,
+  RowNode,
+} from '@ag-grid-enterprise/all-modules';
 import { SetFilterParams } from '@/types/grid';
 
 @Component({})
 export default class SetFilter extends Vue {
   params!: SetFilterParams;
 
-  search: string = '';
+  search = '';
 
-  checked: boolean = true;
+  checked = true;
 
   valueGetter!: (rowNode: RowNode) => any;
 

@@ -1,5 +1,5 @@
 import { GridButtonRendererParams } from '@/types/grid';
-import { ColDef } from 'ag-grid-community';
+import { ColDef } from '@ag-grid-enterprise/all-modules';
 
 const buttonDefault: Omit<GridButton, 'cellRendererParams'> = {
   resizable: false,

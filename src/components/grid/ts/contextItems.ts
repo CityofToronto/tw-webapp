@@ -1,4 +1,7 @@
-import { MenuItemDef, GetContextMenuItemsParams } from 'ag-grid-community';
+import {
+  MenuItemDef,
+  GetContextMenuItemsParams,
+} from '@ag-grid-enterprise/all-modules';
 import { MergeContext } from '@/types/grid';
 
 export type ContextMenuParams = MergeContext<GetContextMenuItemsParams>;
@@ -26,7 +29,7 @@ export function createContextItem<T extends ContextMenuFunc>(func: T) {
 /**
  * Context menu that selects all children
  */
-export const selectAllChildren = createContextItem(function(test: string) {
+export const selectAllChildren = createContextItem(function() {
   return {
     name: 'Select All Children',
     action: () =>

@@ -2,10 +2,6 @@ import { RowData, RequiredConfig } from '@/types/grid';
 import apolloClient from '@/apollo';
 import GridInstance from '../GridInstance';
 
-const isTreeData = (columnNames: string[]): boolean => {
-  return columnNames.includes('parent');
-};
-
 export default abstract class BaseGridProvider {
   protected tableName: string;
   protected tableID: string;

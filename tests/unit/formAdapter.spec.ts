@@ -1,8 +1,9 @@
 import apolloClient from '../../src/apollo';
 
-it('equals ProjectDetailsType', () => {
-  expect.assertions(1);
-  return expect(apolloClient.getTypename('project_details')).resolves.toEqual(
+// jest.setTimeout(30000);
+
+test('equals ProjectDetailsType', async () => {
+  await expect(apolloClient.getTypename('project_details')).resolves.toBe(
     'ProjectDetailsType',
   );
-});
+}, 20000);

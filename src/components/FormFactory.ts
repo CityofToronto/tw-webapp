@@ -19,7 +19,7 @@ export default class FormFactory {
         ...component,
         key: prop.property,
         props: {
-          ...component.props,
+          ...component?.props,
           label: prop.label,
           readonly: prop.readonly ?? false,
         },
@@ -75,8 +75,15 @@ export default class FormFactory {
           },
         };
       case 'table':
+        console.log(field);
         return {
-          component: () => import('@/components/inputs/TreeviewInput.vue'),
+          component: 'v-data-table',
+          props: {
+            headers: field.schema.properties.map((x) => ({
+              text: x.label,
+              value: x.property,
+            })),
+          },
         };
     }
   }

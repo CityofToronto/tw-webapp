@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { RowData } from '@/types/grid';
 import { storeInstance } from '@/store';
 import GridInstance from '@/components/grid/ts/GridInstance';

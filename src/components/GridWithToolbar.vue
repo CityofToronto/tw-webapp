@@ -16,17 +16,13 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { RowNode } from 'ag-grid-community';
 import { useStore } from 'vuex-simple';
 import Store from '@/store/store';
 
 import RelationshipBuilder from './grid/RelationshipBuilder.vue';
 import GridToolbar from './grid/GridToolbar.vue';
 import GridInstance from './grid/ts/GridInstance';
-import { GridComponentOptions, GridType, RowData } from '@/types/grid';
-import { GRID_CONFIG } from '@/config';
 import { GridConfiguration } from '@/types/config';
-import TreeGrid from './grid/TreeGrid.vue';
 import GridComponent from './grid/GridComponent.vue';
 
 @Component({

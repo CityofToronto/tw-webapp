@@ -1,4 +1,4 @@
-import { ColDef, ColGroupDef } from 'ag-grid-community';
+import { ColDef, ColGroupDef } from '@ag-grid-enterprise/all-modules';
 import apolloClient from '@/apollo';
 import { TreeData } from '@/types/api';
 import { CellType, RequiredConfig } from '@/types/grid';
@@ -93,7 +93,7 @@ export default class ColumnFactory {
     };
   }
 
-  private processColumns(sortingOrder?: string[]): void {
+  private processColumns(): void {
     // Assign a normal either as a normal column or enum column
     this.processedColumns = this.columns.map((column):
       | NormalColumn
@@ -190,7 +190,7 @@ export default class ColumnFactory {
      * This parses and assigns the column type
      * and sorts it to match the configuration
      */
-    this.processColumns(this.config.columnOrder);
+    this.processColumns();
 
     /**
      * This assigns column definitions to the columns which is then processed
