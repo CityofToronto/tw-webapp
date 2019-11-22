@@ -22,6 +22,8 @@ export default class GridInstance {
 
   public gridTitle = '';
 
+  public rendered = true;
+
   public constructor({
     gridApi,
     columnApi,

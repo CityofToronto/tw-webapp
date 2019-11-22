@@ -38,8 +38,6 @@
 <script lang="ts">
 import apolloClient from '@/apollo';
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import gql from 'graphql-tag';
-import { dispatchError } from '../../apollo/lib/utils';
 import Store from '@/store/store';
 import { useStore } from 'vuex-simple';
 import { Project } from '@/store/modules/user/projects';
@@ -67,7 +65,7 @@ export default class ProjectForm extends Vue {
 
   search = '';
 
-  data = [];
+  data: any[] = [];
 
   headers: TableHeader[] = [
     {
@@ -96,27 +94,14 @@ export default class ProjectForm extends Vue {
     this.$router.go(0);
   }
 
-  created() {
-    const tableName = 'user_projects';
-    apolloClient
-      .query({
-        query: gql`{
-          ${tableName} {
-            id
-            project_number
-            project_name
-            user_role
-          }
-        } `,
-      })
-      .then(({ data }) => (this.data = data[tableName]))
-      .catch(dispatchError);
+  async created() {
+    this.data = await apolloClient.queryTable('user_projects');
   }
 
   async showProjectInfo(id: number) {
     const formSchema = await hasuraTableToFormSchema('project_details');
 
-    const formData = await apolloClient.queryTable('project_details', {
+    const [formData] = await apolloClient.queryTable('project_details', {
       id: { _eq: id },
     });
 
@@ -127,6 +112,24 @@ export default class ProjectForm extends Vue {
       confirmCallback: (closeForm) => {
         closeForm();
       },
+      sortingOrder: [
+        'name',
+        'scope_description',
+        'business_unit_name',
+        'contract_number',
+        'design_organization_name',
+        'project_manager',
+        'project_manager_email',
+        'key_business_unit_contact',
+        'key_business_unit_contact_email',
+        'asset_data_steward',
+        'asset_data_steward_email',
+        'budget',
+        'start_date',
+        'end_date',
+        'phase_number',
+        'project_phases',
+      ],
     });
   }
 }

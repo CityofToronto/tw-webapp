@@ -62,6 +62,7 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
               name
               type {
                 kind
+                name
                 ofType {
                   name
                   kind
@@ -191,7 +192,7 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
 
   public async queryTable(tableName: string, where?: HasuraWhere) {
     const argsString = where ? `(where: {id: {_eq: ${where.id._eq}}})` : '';
-    return this.query({
+    return this.query<{ [p: string]: object[] }>({
       query: gql`
       {
         ${tableName} ${argsString} {
@@ -199,7 +200,7 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
         }
       }`,
     })
-      .then((resp) => resp.data[tableName][0])
+      .then((resp) => resp.data[tableName])
       .catch(dispatchError);
   }
 }

@@ -12,19 +12,25 @@ export default class FormFactory {
     this.schema = schema;
   }
 
-  buildForm() {
-    return this.schema.properties.map((prop) => {
-      const component = this.getComponent(prop.field);
-      return {
-        ...component,
-        key: prop.property,
-        props: {
-          ...component?.props,
-          label: prop.label,
-          readonly: prop.readonly ?? false,
-        },
-      };
-    });
+  buildForm(sortingOrder: string[] = []) {
+    return this.schema.properties
+      .sort(
+        (a, b) =>
+          sortingOrder.indexOf(a.property) - sortingOrder.indexOf(b.property),
+      )
+      .filter((prop) => prop.property !== 'id') // really never want to show the id
+      .map((prop) => {
+        const component = this.getComponent(prop.field);
+        return {
+          ...component,
+          key: prop.property,
+          props: {
+            ...component?.props,
+            label: prop.label,
+            readonly: prop.readonly ?? false,
+          },
+        };
+      });
   }
 
   private getComponent(field: FormFields): FieldComponent {
@@ -75,14 +81,15 @@ export default class FormFactory {
           },
         };
       case 'table':
-        console.log(field);
         return {
           component: 'v-data-table',
           props: {
-            headers: field.schema.properties.map((x) => ({
-              text: x.label,
-              value: x.property,
-            })),
+            headers: field.schema.properties
+              .filter((x) => x.property !== 'id')
+              .map((x) => ({
+                text: x.label,
+                value: x.property,
+              })),
           },
         };
     }

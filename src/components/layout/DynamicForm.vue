@@ -2,7 +2,7 @@
   <v-card>
     <v-card-title>{{ title }}</v-card-title>
     <!-- <v-divider /> -->
-    <v-card-text>
+    <v-card-text style="min-height: 400px">
       <component
         :is="field.component"
         v-for="field in formComponents"
@@ -63,6 +63,8 @@ export default class DynamicForm extends Mixins(modalMixin) {
 
   @Prop({ required: true }) confirmCallback!: Function;
 
+  @Prop({ required: false, default: () => [] }) sortingOrder!: string[];
+
   formModel: Record<string, any> = {};
 
   formComponents: FieldComponent[] = [];
@@ -80,17 +82,20 @@ export default class DynamicForm extends Mixins(modalMixin) {
 
   created() {
     this.populateModel();
+    this.formSchema.properties = this.formSchema.properties.filter((prop) =>
+      prop.readonly // if the prop is readonly, and no data is provided it is omitted
+        ? this.formData[prop.property] !== null
+        : true,
+    );
     const formFactory = new FormFactory(this.formSchema);
-    this.formComponents = formFactory.buildForm();
+    this.formComponents = formFactory.buildForm(this.sortingOrder);
   }
 
   saveForm() {
-    this.confirmCallback(
-      this.closeModal(),
-      Object.fromEntries(
-        Object.entries(this.formModel).filter((entry) => entry[1] !== null),
-      ),
+    Object.keys(this.formModel).forEach(
+      (key) => this.formModel[key] == null && delete this.formModel[key],
     );
+    this.confirmCallback(this.closeModal(), this.formModel);
   }
 }
 </script>

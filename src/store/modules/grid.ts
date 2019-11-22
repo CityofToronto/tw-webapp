@@ -64,8 +64,13 @@ export default class GridModule {
     return (tableID: string) => this.gridInstances.get(tableID);
   }
 
+  /**
+   * Force refresh all grids that are currently on screen.
+   */
   @Action()
   public forceUpdateAllGrids(): void {
-    this.gridInstances.forEach((grid) => grid.forceUpdateData());
+    this.gridInstances.forEach(
+      (grid) => grid.rendered && grid.forceUpdateData(),
+    );
   }
 }

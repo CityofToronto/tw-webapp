@@ -16,6 +16,7 @@ interface DynamicFormModal {
   cancelButtonText?: string | false;
   confirmCallback: (closeForm: () => void) => void;
   cancelCallback?: () => void;
+  sortingOrder?: string[];
   formData: Record<string, any>;
   formSchema: FormSchema;
 }

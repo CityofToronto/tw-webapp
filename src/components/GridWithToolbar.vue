@@ -62,6 +62,14 @@ export default class GridWithToolbar extends Vue {
   setGridInstance(gridInstance: GridInstance) {
     this.gridInstance = gridInstance;
   }
+
+  activated() {
+    this.gridInstance.rendered = true;
+  }
+
+  deactivated() {
+    this.gridInstance.rendered = false;
+  }
 }
 </script>
 
