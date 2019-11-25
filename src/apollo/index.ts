@@ -44,13 +44,14 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
 
   public async getTypename(tableName: string): Promise<string> {
     return this.query({
-      query: gql`
-      query getTypename {
-        ${tableName} {
-          __typename
+      query: gql` {
+        get_type_name(name: "${tableName}") {
+          name
+          query_type
         }
-      }`,
-    }).then((response) => response.data[tableName][0].__typename);
+      }       
+      `,
+    }).then((response) => response.data.get_type_name.query_type);
   }
 
   public async getFields(typename: string) {
@@ -142,9 +143,8 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
   }
 
   public getRelationships(tableName: string): Promise<HasuraField[]> {
-    return (
-      this.query({
-        query: gql`
+    return this.query({
+      query: gql`
         query getRelationships {
           __type (
             name: "${tableName}"
@@ -161,15 +161,13 @@ class Apollo extends ApolloClient<NormalizedCacheObject> {
             
           }
         }`,
-      })
-        // eslint-disable-next-line
-        .then((response: TableQueryResult) =>
-          response.data.__type.fields.filter((element) =>
-            isRelationship(element),
-          ),
-        )
-        .catch((error): never => dispatchError(getError(error)))
-    );
+    })
+      .then((response: TableQueryResult) =>
+        response.data.__type.fields.filter((element) =>
+          isRelationship(element),
+        ),
+      )
+      .catch((error): never => dispatchError(getError(error)));
   }
 
   public getValuesFromTable<T>({
