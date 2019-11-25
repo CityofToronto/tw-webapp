@@ -37,7 +37,6 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import Store from '@/store/store';
 import { ToolbarCall } from './ts/toolbarItems';
-import { storeInstance } from '@/store';
 import GridInstance from './ts/GridInstance';
 import { useStore } from 'vuex-simple';
 
@@ -72,10 +71,6 @@ export default class GridToolbar extends Vue {
 </script>
 
 <style scoped>
-.tool-icon {
-  overflow: visible;
-  font-size: 22px;
-}
 .v-toolbar {
   border-bottom: 0.5px solid #e2e2e2;
   border-top: 0.5px solid #e2e2e2;

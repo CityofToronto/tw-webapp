@@ -17,9 +17,6 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import { ICellRendererParams } from 'ag-grid-community';
-import GridInstance from '../ts/GridInstance';
-import { storeInstance } from '@/store';
 import { CellRendererParams } from '@/types/config';
 
 /**

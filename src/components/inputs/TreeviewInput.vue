@@ -48,7 +48,7 @@ export default class TreeViewInput extends Vue {
     treeData: [];
   };
 
-  searchModel: string = '';
+  searchModel = '';
 
   selectedItems: number[] = [];
 

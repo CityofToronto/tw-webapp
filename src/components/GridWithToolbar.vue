@@ -16,17 +16,13 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { RowNode } from 'ag-grid-community';
 import { useStore } from 'vuex-simple';
 import Store from '@/store/store';
 
 import RelationshipBuilder from './grid/RelationshipBuilder.vue';
 import GridToolbar from './grid/GridToolbar.vue';
 import GridInstance from './grid/ts/GridInstance';
-import { GridComponentOptions, GridType, RowData } from '@/types/grid';
-import { GRID_CONFIG } from '@/config';
 import { GridConfiguration } from '@/types/config';
-import TreeGrid from './grid/TreeGrid.vue';
 import GridComponent from './grid/GridComponent.vue';
 
 @Component({
@@ -66,17 +62,18 @@ export default class GridWithToolbar extends Vue {
   setGridInstance(gridInstance: GridInstance) {
     this.gridInstance = gridInstance;
   }
+
+  activated() {
+    this.gridInstance.rendered = true;
+  }
+
+  deactivated() {
+    this.gridInstance.rendered = false;
+  }
 }
 </script>
 
 <style lang="scss">
-@import '../../node_modules/ag-grid-community/dist/styles/ag-grid.css';
-@import '../../node_modules/ag-grid-community/dist/styles/ag-theme-material.css';
-
-$grid-size: 4px;
-$icon-size: 12px;
-$virtual-item-height: 5px;
-
 .grid {
   height: 100%;
 }
@@ -97,11 +94,7 @@ $virtual-item-height: 5px;
     border-left-width: 0.5px;
     border-left-color: #e2e2e2;
   }
-  .ag-cell {
-    .ag-icon {
-      display: flex;
-    }
-  }
+
   .ag-header-group-cell-label {
     justify-content: center;
   }

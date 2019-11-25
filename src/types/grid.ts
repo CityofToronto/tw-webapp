@@ -6,8 +6,8 @@ import {
   ColDef,
   RowNode,
   GridApi,
-} from 'ag-grid-community';
-import { QueryType, TreeStructure, TreeData } from '@/types/api';
+} from '@ag-grid-enterprise/all-modules';
+import { QueryType, TreeStructure } from '@/types/api';
 import GridInstance from '@/components/grid/ts/GridInstance';
 import Store from '@/store/store';
 import { GridConfiguration } from './config';

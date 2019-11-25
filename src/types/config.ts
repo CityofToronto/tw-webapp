@@ -3,7 +3,7 @@ import {
   GridOptions,
   ICellRendererParams,
   ColGroupDef,
-} from 'ag-grid-community';
+} from '@ag-grid-enterprise/all-modules';
 import { CellType, MergeContext, FunctionProps } from './grid';
 import { MarkRequired } from 'ts-essentials';
 import GridInstance from '@/components/grid/ts/GridInstance';
@@ -43,9 +43,12 @@ export interface VueEvent<T> {
   callback: () => void;
 }
 
-export type CustomProperties = keyof Omit<
-  SimpleGridConfig & TreeGridConfig & DropGridConfig,
-  keyof GridOptions
+export type CustomProperties = Record<
+  keyof Omit<
+    SimpleGridConfig & TreeGridConfig & DropGridConfig,
+    keyof GridOptions
+  >,
+  boolean
 >;
 
 export type GridConfiguration =
@@ -152,9 +155,7 @@ export interface BaseColumn extends CommonCell {
 }
 interface SelectColumn extends CommonCell {
   cellType: 'selectCell';
-  enumValues: {
-    name: string;
-  }[];
+  enumValues: string[];
 }
 
 interface ExternalColumn extends CommonCell {

@@ -22,7 +22,6 @@
 import { Vue, Prop, Component } from 'vue-property-decorator';
 import { GridType } from '@/types/grid';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
-import apolloClient from '@/apollo';
 
 @Component({
   components: {
@@ -70,10 +69,6 @@ export default class DrawerRight extends Vue {
 </script>
 
 <style scoped>
-.tool-icon {
-  overflow: visible;
-  font-size: 22px;
-}
 .v-toolbar {
   border-bottom: 0.5px solid #e2e2e2;
 }

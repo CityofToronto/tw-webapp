@@ -29,16 +29,19 @@
 
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
-import { IDoesFilterPassParams, RowNode } from 'ag-grid-community';
+import {
+  IDoesFilterPassParams,
+  RowNode,
+} from '@ag-grid-enterprise/all-modules';
 import { TreeFilterParams } from '@/types/grid';
 
 @Component({})
 export default class TreeviewFilter extends Vue {
   params!: TreeFilterParams;
 
-  search: string = '';
+  search = '';
 
-  checked: boolean = true;
+  checked = true;
 
   valueGetter!: (rowNode: RowNode) => any;
 

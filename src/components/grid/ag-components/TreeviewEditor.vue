@@ -29,9 +29,9 @@ export default class TreeSelectEditor extends Vue {
 
   selectedItems: number[] = [];
 
-  popup: boolean = true;
+  popup = true;
 
-  search: string = '';
+  search = '';
 
   created() {
     this.selectedItems.push(this.params.value);

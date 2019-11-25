@@ -5,9 +5,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator';
-import { ICellRendererParams } from 'ag-grid-community';
-import { MergeContext, GridButtonRendererParams } from '@/types/grid';
+import { Vue, Component } from 'vue-property-decorator';
+import { ICellRendererParams } from '@ag-grid-enterprise/all-modules';
+import { GridButtonRendererParams } from '@/types/grid';
 
 @Component({})
 export default class GridButton extends Vue {

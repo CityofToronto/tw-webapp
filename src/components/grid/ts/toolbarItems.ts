@@ -33,7 +33,7 @@ export function createToolbarItem<T extends ToolbarFunc>(func: T) {
 }
 
 /**
- * Launches the add form popup window populated with
+ * Launches the add form modal window populated with
  * column defs where showInForm is true.
  */
 export const addRow = createToolbarItem(function() {

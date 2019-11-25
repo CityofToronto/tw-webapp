@@ -6,19 +6,18 @@
       :dom-layout="config.autoHeight ? 'autoHeight' : 'normal'"
       :grid-options="gridOptions"
       :column-defs="columnDefs"
+      :context="context"
       :row-height="7 * 6"
       :header-height="7 * 7"
-      :context="context"
+      :modules="modules"
       @grid-ready="onGridReady"
-      @cell-value-changed="cellValueChanged"
       v-on="events"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Watch, Component, Prop } from 'vue-property-decorator';
-import { RowEvent, RowNode } from 'ag-grid-community';
+import { Vue, Component, Prop } from 'vue-property-decorator';
 import TreeviewEditor from './ag-components/TreeviewEditor.vue';
 import TreeviewRenderer from './ag-components/TreeviewRenderer.vue';
 import TreeviewFilter from './ag-components/TreeviewFilter.vue';
@@ -29,21 +28,18 @@ import GridInstance from './ts/GridInstance';
 import { useStore } from 'vuex-simple';
 
 // Types
-import { QueryType } from '@/types/api';
 import {
-  ColumnApi,
-  GridApi,
+  AllModules,
   ColDef,
   GridOptions,
   AgGridEvent,
-  CellValueChangedEvent,
   GetContextMenuItemsParams,
   MenuItemDef,
-} from 'ag-grid-community';
+} from '@ag-grid-enterprise/all-modules';
 import Store from '@/store/store';
 
 // Components
-import { AgGridVue } from 'ag-grid-vue';
+import { AgGridVue } from '@ag-grid-community/vue';
 import GridButton from '@/components/grid/ag-components/GridButton.vue';
 import SetFilter from './ag-components/SetFilter.vue';
 import _ from 'lodash';
@@ -54,31 +50,26 @@ import {
   CustomProperties,
   CustomColGroupDef,
 } from '@/types/config';
-import {
-  RequiredConfig,
-  GridContext,
-  MergeContext,
-  FunctionProps,
-} from '@/types/grid';
+import { RequiredConfig, GridContext, MergeContext } from '@/types/grid';
 import { DirectProvider } from './ts/GridProviders';
 
 // ag-Grid complains if you pass in extra keys to the grid options object, this function removes them
 const removeInvalidProperties = (config: GridConfiguration): GridOptions => {
-  const invalidProperties: CustomProperties[] = [
-    'title',
-    'contextMenu',
-    'gridButtons',
-    'overrideColumnDefinitions',
-    'columnOrder',
-    'gridType',
-    'toolbarItems',
-    'gridEvents',
-    'tableName',
-    'tableID',
-    'gridInitializedEvent',
-  ];
+  const invalidProperties: CustomProperties = {
+    title: true,
+    contextMenu: true,
+    gridButtons: true,
+    overrideColumnDefinitions: true,
+    columnOrder: true,
+    gridType: true,
+    toolbarItems: true,
+    gridEvents: true,
+    tableName: true,
+    tableID: true,
+    gridInitializedEvent: true,
+  };
 
-  return _.omit(config, invalidProperties);
+  return _.omit(config, Object.keys(invalidProperties));
 };
 
 // TODO Figure out a better way of loading in additional components since these get loaded even if they aren't used
@@ -96,19 +87,15 @@ const removeInvalidProperties = (config: GridConfiguration): GridOptions => {
 export default class GridComponent extends Vue {
   @Prop({ required: true, type: Object }) readonly config!: RequiredConfig;
 
+  modules = AllModules;
+
   store: Store = useStore(this.$store);
-
-  columnApi!: ColumnApi;
-
-  gridApi!: GridApi;
 
   columnDefs: (ColDef | CustomColGroupDef)[] = [];
 
   gridInstance!: GridInstance;
 
   context: GridContext = {} as GridContext;
-
-  sharedData: any = {};
 
   gridOptions!: GridOptions;
 
@@ -118,8 +105,6 @@ export default class GridComponent extends Vue {
    * This event is called after the grid is finished loading for the first time.
    * It is fired when the onGridReady function is completed
    */
-  gridInitializedEvent: (params: FunctionProps) => void = (): void => {};
-
   eventHandler<T>(event: T, eventFunction: Function) {
     const functionParams = {
       event,
@@ -159,15 +144,11 @@ export default class GridComponent extends Vue {
     };
   }
 
-  async onGridReady(params: AgGridEvent): Promise<void> {
-    // Bind gridApi and columnApi
-    this.gridApi = params.api;
-    this.columnApi = params.columnApi;
-
+  async onGridReady({ api, columnApi }: AgGridEvent): Promise<void> {
     // Create gridInstance
     this.gridInstance = new GridInstance({
-      columnApi: this.columnApi,
-      gridApi: this.gridApi,
+      columnApi,
+      gridApi: api,
       gridOptions: this.gridOptions,
       gridProvider: new DirectProvider(this.config),
     });
@@ -183,10 +164,10 @@ export default class GridComponent extends Vue {
     this.columnDefs = await new ColumnFactory(this.config).getColumnDefs();
 
     // Get initial data and load the grid with it
-    this.gridApi.setRowData(await this.gridInstance.gridProvider.getData());
+    api.setRowData(await this.gridInstance.gridProvider.getData());
 
     // Set-up the subscription
-    await this.gridInstance.subscribeToMore();
+    //this.gridInstance.subscribeToMore();
 
     // Give grid instance to GridWithToolbar and the store
     this.$emit('set-grid-instance', this.gridInstance);
@@ -209,6 +190,7 @@ export default class GridComponent extends Vue {
   }
 
   // This callback is run whenever a right click happens
+  // Populate the right context menu
   getContextMenuItems(
     params: MergeContext<GetContextMenuItemsParams>,
   ): (MenuItemDef | string)[] {
@@ -220,23 +202,8 @@ export default class GridComponent extends Vue {
         return item(params);
       });
       return ['copy', 'export', 'separator', ...mappedMenu];
-    } else {
-      return ['copy', 'export'];
     }
-  }
-
-  /**
-   * Cell updates and call an async function to mutate the grid
-   * If the mutation fails, cell value is reset and error message is shown
-   */
-  cellValueChanged(event: CellValueChangedEvent): void {
-    this.gridInstance
-      .updateRows({
-        rowsToUpdate: [event.data],
-      })
-      .catch(() => {
-        event.node.setDataValue(event.column.getColId(), event.oldValue);
-      });
+    return ['copy', 'export'];
   }
 }
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div style="height: 100%">
     <TheNavbar />
-    <PopupLoader />
+    <modal-loader />
     <NotificationBar />
     <keep-alive>
       <router-view style="height:100%" />
@@ -13,7 +13,7 @@
 import { Vue, Component } from 'vue-property-decorator';
 import NotificationBar from '@/components/layout/NotificationBar.vue';
 import TheNavbar from '@/components/layout/TheNavbar.vue';
-import PopupLoader from '@/components/layout/PopupLoader.vue';
+import ModalLoader from '@/components/layout/ModalLoader.vue';
 import Store from '@/store/store';
 import { useStore } from 'vuex-simple';
 
@@ -21,7 +21,7 @@ import { useStore } from 'vuex-simple';
   components: {
     TheNavbar,
     NotificationBar,
-    PopupLoader,
+    ModalLoader,
   },
 })
 export default class extends Vue {

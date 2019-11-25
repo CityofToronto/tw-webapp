@@ -61,7 +61,7 @@ export default class Navbar extends Vue {
   }
 
   showProjectForm() {
-    this.store.popup.setComponentPopup(() =>
+    this.store.modal.createModal(() =>
       import('@/components/form/ProjectForm.vue'),
     );
   }

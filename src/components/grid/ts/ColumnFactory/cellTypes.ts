@@ -1,7 +1,6 @@
 import { TreeData } from '@/types/api';
 import { listToTree } from '@/common/listToTree';
-import { ColDef } from 'ag-grid-community';
-import { CellType } from '@/types/grid';
+import { ColDef } from '@ag-grid-enterprise/all-modules';
 
 type ColDefType =
   | ColDef

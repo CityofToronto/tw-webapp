@@ -32,7 +32,7 @@ export default class HomeView extends Vue {
         {
           title: 'Reservation',
           subtitle:
-            'Reserve entities for a project to be approved for reconciliation and update. that if goes over the number of lines support what happnes?',
+            'Reserve entities for a project to be approved for reconciliation and update.',
           route: '/asset/reservation',
         },
         {

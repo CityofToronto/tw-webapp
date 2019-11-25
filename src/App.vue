@@ -15,14 +15,13 @@ import { Vue, Component } from 'vue-property-decorator';
 export default class App extends Vue {}
 </script>
 
-<style>
-@import '../node_modules/ag-grid-community/dist/styles/ag-grid.css';
-@import '../node_modules/ag-grid-community/dist/styles/ag-theme-balham.css';
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
+<style lang="scss">
+$grid-size: 7px;
+$icon-size: 18px;
+
+@import '../node_modules/@ag-grid-enterprise/all-modules/dist/styles/ag-grid.scss';
+@import '../node_modules/@ag-grid-enterprise/all-modules/dist/styles/ag-theme-material/sass/ag-theme-material.scss';
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

@@ -1,5 +1,5 @@
 import { storeInstance } from '@/store';
-import { Column } from 'ag-grid-community';
+import { Column } from '@ag-grid-enterprise/all-modules';
 
 export const capitalize = (string: string): string => {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();

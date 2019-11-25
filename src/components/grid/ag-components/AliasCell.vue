@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import { ICellRendererParams } from 'ag-grid-community';
+import { ICellRendererParams } from '@ag-grid-enterprise/all-modules';
 
 export interface AliasCellParams extends ICellRendererParams {
   aliasColumn: string;
@@ -28,5 +28,3 @@ export default class AliasCell extends Vue {
   }
 }
 </script>
-
-<style></style>

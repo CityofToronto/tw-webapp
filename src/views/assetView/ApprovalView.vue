@@ -13,9 +13,7 @@ import { Vue, Component } from 'vue-property-decorator';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
 import * as toolbarItems from '@/components/grid/ts/toolbarItems';
 import agComponents from '@/components/grid/ag-components';
-import { MergeContext } from '@/types/grid';
 import { GridConfiguration } from '@/types/config';
-import { ICellRendererParams } from 'ag-grid-community';
 import { createGridButton } from '@/components/grid/ts/ColumnFactory/gridButtons';
 import { reservationRowStyle } from './common/cssStyles';
 import { isCurrentProject } from './common/conditionals';
@@ -34,7 +32,6 @@ const approveButton = createGridButton({
       ? 'check'
       : '',
   clickFunction: (params) => {
-    const rowData = params.data;
     params.context.gridInstance.updateRows({
       rowsToUpdate: [
         {
