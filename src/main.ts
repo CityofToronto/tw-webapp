@@ -6,11 +6,14 @@ import 'vuetify/dist/vuetify.min.css';
 import App from './App.vue';
 import store from './store';
 import { router } from './router';
+import VueSweetalert2 from 'vue-sweetalert2';
+import '@sweetalert2/theme-material-ui/material-ui.min.css';
 
 Vue.config.productionTip = false;
 
 Vue.use(Vuetify);
 Vue.use(Toast);
+Vue.use(VueSweetalert2);
 
 const vuetify = new Vuetify({
   icons: {

@@ -8,7 +8,7 @@
       <v-toolbar-items>
         <!-- Define Toolbar Title -->
         <v-btn text class="title" @click="$router.replace('/')">
-          Management Engine
+          SAIS Engine
         </v-btn>
         <v-btn text class="project-title" @click="showProjectForm">
           {{ projectTitle ? projectTitle : 'Select Project...' }}

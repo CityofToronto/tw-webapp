@@ -6,7 +6,7 @@
           <grid-with-toolbar :config="reconciliationConfig" />
         </v-sheet>
       </pane>
-      <pane min-size="20" size="33" style="padding: 2px;">
+      <pane min-size="23" size="37" style="padding: 2px;">
         <v-sheet height="100%" elevation="2">
           <v-tabs v-model="tabState" right="" height="48">
             <v-tab @click="changeView">Inactive</v-tab>
@@ -204,7 +204,6 @@ export default class ReconciliationView extends Vue {
       toolbarItems.collapseAll(),
       toolbarItems.fitColumns(),
       toolbarItems.sizeColumns(),
-      toolbarItems.togglePanel(),
     ],
     contextMenu: [adoptBranch(undefined, this.currentView), orphanBranch()], // register our context menu item
     getDataPath: (data) => data?.full_path.split('.'), // tell agGrid how parse tree data
@@ -281,6 +280,8 @@ export default class ReconciliationView extends Vue {
       toolbarItems.addRow(), // register toolbar items
       toolbarItems.copyRow(),
       toolbarItems.removeRow(),
+      toolbarItems.fitColumns(),
+      toolbarItems.sizeColumns(),
     ],
     title: 'Assets Without a Role',
     tableName: 'unassigned_assets',

@@ -20,9 +20,10 @@
           color="primary"
           :disabled="item.disabled"
           v-on="on"
+          small
           @click="clickHandler(item.clickFunction)"
         >
-          <v-icon v-if="item.icon" left class="tool-icon">
+          <v-icon v-if="item.icon" left class="d-sm-none d-md-flex">
             {{ item.icon }}
           </v-icon>
           {{ item.text }}
@@ -75,7 +76,9 @@ export default class GridToolbar extends Vue {
   border-bottom: 0.5px solid #e2e2e2;
   border-top: 0.5px solid #e2e2e2;
 }
-.sub-menu {
-  font-size: 12px;
+.v-btn {
+}
+
+.smaller-icon {
 }
 </style>

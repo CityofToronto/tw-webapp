@@ -11,11 +11,14 @@ import { storeInstance } from '@/store';
 
 Vue.use(VueRouter);
 
-const routes: RouteConfig[] = [
+export const routes: RouteConfig[] = [
   {
     name: 'login',
     path: '/login',
     component: LoginPage,
+    meta: {
+      requiresAuth: false,
+    },
   },
   {
     path: '/',
@@ -30,19 +33,31 @@ const routes: RouteConfig[] = [
         path: '/assets/reservation',
         component: ReservationView,
         name: 'reservation',
+        meta: {
+          requiresProject: true,
+        },
       },
       {
         path: '/assets/reconciliation',
         component: ReconciliationView,
         name: 'reconciliation',
+        meta: {
+          requiresProject: true,
+        },
       },
       {
         path: '/assets/update',
         component: UpdateView,
+        meta: {
+          requiresProject: true,
+        },
       },
       {
         path: '/admin/approval',
         component: ApprovalView,
+        meta: {
+          requiresProject: true,
+        },
       },
       {
         path: '*',
@@ -58,12 +73,14 @@ export const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/login'];
-  const authRequired = !publicPages.includes(to.path);
   const loggedIn = storeInstance.auth.loginStatus;
+  const projectedNotSelected = !storeInstance.project.id;
 
-  if (authRequired && !loggedIn) {
+  if ((to.meta.requiresAuth ?? true) && !loggedIn) {
     return next('/login');
+  }
+  if (to.meta.requiresProject && projectedNotSelected) {
+    return next('/');
   }
 
   next();

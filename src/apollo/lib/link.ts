@@ -15,10 +15,12 @@ const subscriptionClient = new SubscriptionClient(GRAPHQL_ENDPOINT, {
   lazy: true,
   connectionParams: () => {
     const username = storeInstance.auth.userName;
+    const project = storeInstance?.project?.project_number ?? '';
     return {
       headers: {
         'x-hasura-admin-secret': authToken,
         'x-username': username,
+        'x-project': project,
       },
     };
   },
