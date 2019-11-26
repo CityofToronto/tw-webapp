@@ -2,12 +2,12 @@
   <v-container class="fill-height" fluid>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="4">
-        <v-card class="elevation-12">
-          <v-toolbar color="primary" dark flat>
-            <v-toolbar-title>Login</v-toolbar-title>
-          </v-toolbar>
-          <v-card-text>
-            <v-form>
+        <v-form>
+          <v-card class="elevation-12">
+            <v-toolbar color="primary" dark flat>
+              <v-toolbar-title>Login</v-toolbar-title>
+            </v-toolbar>
+            <v-card-text>
               <v-text-field
                 v-model="email"
                 label="Email"
@@ -32,15 +32,20 @@
                 @input="$v.password.$touch()"
                 @blur="$v.password.$touch()"
               ></v-text-field>
-            </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" :disabled="$v.$invalid" @click="login">
-              Login
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="primary"
+                :disabled="$v.$invalid"
+                @click="login"
+                type="submit"
+              >
+                Login
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-form>
       </v-col>
     </v-row>
   </v-container>
