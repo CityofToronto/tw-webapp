@@ -1,7 +1,8 @@
 {
   "tony.huang": {
     "firstName": "Tony",
-    "lastName": "Huang"
+    "lastName": "Huang",
+    "userType": "ADMIN"
   },
   "jon.ma": {
     "firstName": "Jon",
@@ -9,7 +10,6 @@
   },
   "amber.brasher": {
     "firstName": "Amber",
-    "lastName": "Brasher",
-    "userType": "ADMIN"
+    "lastName": "Brasher"
   }
 }

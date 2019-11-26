@@ -38,6 +38,7 @@ export const doubleClickView = createGridEvent<CellDoubleClickedEvent>(
     return {
       type: 'cell-double-clicked',
       callback: () => {
+        if (this.event.event?.type === 'click') return; // bug in ag grid where a dblClick is sent twice
         this.gridInstance.componentApi.viewRow(
           this.event.node,
           getColumGroupName(this.event.column),
