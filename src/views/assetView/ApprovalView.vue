@@ -12,11 +12,14 @@
 import { Vue, Component } from 'vue-property-decorator';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
 import * as toolbarItems from '@/components/grid/ts/toolbarItems';
+import * as contextItems from '@/components/grid/ts/contextItems';
 import agComponents from '@/components/grid/ag-components';
 import { GridConfiguration } from '@/types/config';
 import { createGridButton } from '@/components/grid/ts/ColumnFactory/gridButtons';
 import { reservationRowStyle } from './common/cssStyles';
 import { isCurrentProject } from './common/conditionals';
+import { expandAndFit } from './common/mixins';
+import { useGridMixin } from '@/components/grid/ts/gridConfigMixin';
 
 /**
  * Creates a custom grid button (approveButton)
@@ -75,18 +78,18 @@ const rejectButton = createGridButton({
   },
 })
 export default class ApprovalView extends Vue {
-  private approvalConfig: GridConfiguration = {
+  private approvalConfig: GridConfiguration = useGridMixin([expandAndFit], {
     gridType: 'normal',
     tableName: 'reservation_view',
     tableID: 'approval_view',
     title: 'Approval',
     toolbarItems: [
       // register our toolbar items
-      toolbarItems.expandAll(),
       toolbarItems.collapseAll(),
       toolbarItems.fitColumns(),
       toolbarItems.sizeColumns(),
     ],
+    contextMenu: [contextItems.expandBranch()],
     // array to order the columns
     columnOrder: ['role_name', 'project_id', 'approval_status'],
     gridButtons: [rejectButton, approveButton], // register our buttons
@@ -125,6 +128,6 @@ export default class ApprovalView extends Vue {
         headerName: 'Role Name2',
       },
     ],
-  };
+  });
 }
 </script>

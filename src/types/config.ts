@@ -90,7 +90,7 @@ interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
   /**
    * Items displayed in the toolbar
    */
-  toolbarItems: ToolbarCall[];
+  toolbarItems?: ToolbarCall[];
   /**
    * Events to bind to the ag-Grid instance
    */

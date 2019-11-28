@@ -167,7 +167,7 @@ export default class GridComponent extends Vue {
     api.setRowData(await this.gridInstance.gridProvider.getData());
 
     // Set-up the subscription
-    //this.gridInstance.subscribeToMore();
+    this.gridInstance.subscribeToMore();
 
     // Give grid instance to GridWithToolbar and the store
     this.$emit('set-grid-instance', this.gridInstance);

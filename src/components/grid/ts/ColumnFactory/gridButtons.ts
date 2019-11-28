@@ -39,6 +39,7 @@ export const editButton: GridButton = {
   ...buttonDefault,
   cellRendererParams: {
     icon: 'create',
+    tooltip: 'Edit This Row',
     clickFunction: ({ node, context }) =>
       context.gridInstance.componentApi.editRow(node),
   },
@@ -48,6 +49,7 @@ export const addChildButton: GridButton = {
   ...buttonDefault,
   cellRendererParams: {
     icon: 'keyboard_tab',
+    tooltip: 'Add Child to This Row',
     clickFunction: ({ node, context }) =>
       context.gridInstance.componentApi.addChildToRow(node),
   },
