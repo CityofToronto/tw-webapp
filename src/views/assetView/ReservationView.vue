@@ -13,11 +13,14 @@ import { Vue, Component } from 'vue-property-decorator';
 import { GridConfiguration } from '@/types/config';
 import { MergeContext } from '@/types/grid';
 import * as toolbarItems from '@/components/grid/ts/toolbarItems';
+import * as contextItems from '@/components/grid/ts/contextItems';
 import { ICellRendererParams } from '@ag-grid-enterprise/all-modules';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
 import agComponents from '@/components/grid/ag-components';
 import { reservationRowStyle } from './common/cssStyles';
 import { ContextMenuFunc } from '@/components/grid/ts/contextItems';
+import { expandAndFit } from './common/mixins';
+import { useGridMixin } from '@/components/grid/ts/gridConfigMixin';
 
 const reserveBranchItem: ContextMenuFunc = (params) => ({
   icon: '<i class="material-icons">playlist_add_check</i>',
@@ -41,7 +44,7 @@ const reserveBranchItem: ContextMenuFunc = (params) => ({
   },
 })
 export default class ReservationView extends Vue {
-  private reservationConfig: GridConfiguration = {
+  private reservationConfig: GridConfiguration = useGridMixin([expandAndFit], {
     gridType: 'normal',
     tableName: 'reservation_view',
     title: 'Reservation',
@@ -60,7 +63,7 @@ export default class ReservationView extends Vue {
     ],
     treeData: true,
     getDataPath: (data) => data.full_path.split('.'),
-    contextMenu: [reserveBranchItem],
+    contextMenu: [contextItems.expandBranch(), reserveBranchItem],
     getRowStyle: reservationRowStyle,
     autoGroupColumnDef: {
       headerName: 'Role',
@@ -140,7 +143,7 @@ export default class ReservationView extends Vue {
         headerName: 'Approval Status',
       },
     ],
-  };
+  });
 }
 </script>
 

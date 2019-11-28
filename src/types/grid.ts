@@ -52,6 +52,7 @@ export interface FunctionProps {
 
 export interface GridButtonRendererParams {
   icon: string | ((params: MergeContext<ICellRendererParams>) => string);
+  tooltip?: string;
   clickFunction?: (params: MergeContext<ICellRendererParams>) => void;
 }
 

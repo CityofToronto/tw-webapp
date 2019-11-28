@@ -36,3 +36,11 @@ export const selectAllChildren = createContextItem(function() {
       this.node.allLeafChildren.forEach((rowNode) => rowNode.setSelected(true)),
   };
 });
+
+export const expandBranch = createContextItem(function() {
+  return {
+    name: 'Expand Branch',
+    action: () =>
+      this.node.allLeafChildren.forEach((rowNode) => rowNode.setExpanded(true)),
+  };
+});

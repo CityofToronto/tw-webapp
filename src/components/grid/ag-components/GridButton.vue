@@ -1,5 +1,13 @@
 <template>
-  <v-icon @click.stop="clickHandler">
+  <v-tooltip bottom v-if="params.tooltip">
+    <template v-slot:activator="{ on }">
+      <v-icon @click.stop="clickHandler" v-on="on">
+        {{ iconName }}
+      </v-icon>
+    </template>
+    <span>{{ params.tooltip }}</span>
+  </v-tooltip>
+  <v-icon @click.stop="clickHandler" v-else>
     {{ iconName }}
   </v-icon>
 </template>
