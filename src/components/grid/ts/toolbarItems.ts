@@ -81,7 +81,7 @@ export const removeRow = createToolbarItem(function() {
         )
       ) {
         this.gridInstance.removeRows({
-          rowsToRemove: rowsToRemove,
+          rowsToRemove,
         });
       }
     },

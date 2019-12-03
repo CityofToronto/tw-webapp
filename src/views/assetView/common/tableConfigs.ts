@@ -11,6 +11,7 @@ import { ICellRendererParams } from '@ag-grid-enterprise/all-modules';
 import { roleClassRules, assetGetStyle } from './cssStyles';
 import { useGridMixin } from '@/components/grid/ts/gridConfigMixin';
 import { orphanBranch } from './orphanage';
+import _ from 'lodash';
 
 const isApproved = (data: {
   project_id: number;
@@ -58,9 +59,7 @@ const markDoesNotExist = gridButtons.createGridButton({
   },
 });
 
-export const updateReconciliationConfig = (
-  enableDragging = true,
-): GridConfiguration =>
+export const updateReconciliationConfig = (): GridConfiguration =>
   useGridMixin([expandAndFit], {
     treeData: true,
     groupSuppressAutoColumn: true,
@@ -79,6 +78,8 @@ export const updateReconciliationConfig = (
       gridEvents.rowDragMoved(),
       gridEvents.rowDragEnd(),
       gridEvents.doubleClickView(), // double click to open view (shows more details)
+      gridEvents.bindRowDragging(),
+      gridEvents.bindCustomClick(),
     ],
     columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
     // Size the columns on initialization and open the first group
@@ -95,8 +96,8 @@ export const updateReconciliationConfig = (
             showRowGroup: true,
             resizable: true,
             width: 400,
-            // Only reserved roles will be draggable
-            rowDrag: enableDragging ? ({ data }) => isApproved(data) : false,
+            // Only approved roles will be draggable
+            rowDrag: ({ data }) => isApproved(data),
             valueFormatter: (params) => params?.data?.role_number ?? 'unknown',
             headerName: 'Role Number',
             cellRenderer: 'agGroupCellRenderer',
@@ -105,9 +106,9 @@ export const updateReconciliationConfig = (
             },
             cellClassRules: {
               // css styling that highlights the potential parent when rearranging the hierarchy
+              ...roleClassRules,
               'hover-over': (params: MergeContext<ICellRendererParams>) =>
                 params.node === params.context.vueStore.grid.potentialParent,
-              ...roleClassRules,
             },
           },
           {
@@ -130,7 +131,7 @@ export const updateReconciliationConfig = (
             cellType: 'rearrangeCell', // define cell to a rearrange cell
             showInForm: false, // disable this field when adding a child
             showInView: true, // show this when double clicking
-            conditional: ({ data }) => isApproved(data), // this controls whether a row is draggable
+            conditional: ({ data, value }) => isApproved(data) && value, // this controls whether a row is draggable
             headerClass: 'asset-separator', // apply the separator between role and asset
             cellClass: 'asset-separator',
             cellStyle: assetGetStyle(),
@@ -145,21 +146,52 @@ const onDropAsset = gridEvents.createGridEvent<DragEvent>(function() {
     type: 'drop',
     callback: () => {
       if (this.event.dataTransfer) {
+        // Get event data from clipboard
         const eventData = JSON.parse(
           this.event.dataTransfer.getData('text/plain'),
         );
+        // if asset id is empty, exit
         if (!eventData.asset_id) return;
         const rowData = {
           id: eventData.asset_id,
           role_id: 0,
         };
+        const reconciliationGrid = this.vueStore.grid.getGridInstance(
+          'reconciliation_view',
+        );
+
+        reconciliationGrid?.gridApi.updateRowData({
+          update: [
+            {
+              ...eventData,
+              asset_id: 0,
+              asset_serial_number: '',
+              asset_exists: false,
+              asset_missing_from_registry: false,
+              role_changed: false,
+            },
+          ],
+        });
+
+        // bind id to the asset_id and bring allow any columns that match
+        this.gridInstance.gridApi.updateRowData({
+          add: [
+            {
+              ..._.pick(
+                eventData,
+                ...this.gridInstance.columnDefs.map((x) => x.field),
+              ),
+              id: eventData.asset_id,
+            },
+          ],
+        });
 
         this.gridInstance
           .updateRows({
             rowsToUpdate: [rowData],
             refresh: false,
           })
-          .then(() => this.vueStore.grid.forceUpdateAllGrids());
+          .finally(() => this.vueStore.grid.forceUpdateAllGrids());
       }
     },
   };
@@ -182,12 +214,17 @@ export const unassignedConfigObject: GridConfiguration = {
       field: 'asset_serial_number',
       headerName: 'Asset Serial Number',
       cellType: 'rearrangeCell',
-      conditional: ({ data }) => isCurrentProject(data.project_id), // this controls whether a row is draggable
+      conditional: ({ data, value }) =>
+        isCurrentProject(data.project_id) && value, // this controls whether a row is draggable
     },
     {
       field: 'id',
       hide: true,
       showInForm: false,
+    },
+    {
+      field: 'project_id',
+      hide: true,
     },
   ],
 };

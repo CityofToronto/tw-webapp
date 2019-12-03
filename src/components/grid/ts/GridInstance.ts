@@ -22,6 +22,8 @@ export default class GridInstance {
 
   public gridTitle = '';
 
+  public gridId;
+
   public rendered = true;
 
   public constructor({
@@ -29,17 +31,20 @@ export default class GridInstance {
     columnApi,
     gridOptions,
     gridProvider,
+    tableId,
   }: {
     gridProvider: BaseGridProvider;
     gridApi: GridApi;
     columnApi: ColumnApi;
     gridOptions: GridOptions;
+    tableId: string;
   }) {
     this.gridProvider = gridProvider;
     this.gridApi = gridApi;
     this.columnApi = columnApi;
     this.gridOptions = gridOptions;
     this.componentApi = new ComponentApi(this);
+    this.gridId = tableId;
   }
 
   public forceUpdateData() {
@@ -91,23 +96,23 @@ export default class GridInstance {
     });
   }
 
-  public async removeRows({ rowsToRemove }: RemoveQuery): Promise<void> {
-    rowsToRemove.map((row): void => {
+  public async removeRows({ rowsToRemove }: RemoveQuery) {
+    rowsToRemove.forEach((row) =>
       this.gridProvider.removeData(row.id).then((response) =>
         this.gridApi.updateRowData({
           remove: [response],
         }),
-      );
-    });
+      ),
+    );
   }
 
   public async updateRows({
     rowsToUpdate,
     refresh = true,
   }: UpdateQuery): Promise<void> {
-    rowsToUpdate.map((rowData): void => {
+    const updates = rowsToUpdate.map(async (rowData) => {
       // TODO Bug fix this
-      this.gridProvider.updateData(rowData).then((response) => {
+      await this.gridProvider.updateData(rowData).then((response) => {
         if (refresh) {
           this.gridApi.updateRowData({
             update: [response],
@@ -119,5 +124,6 @@ export default class GridInstance {
         }
       });
     });
+    await Promise.all(updates);
   }
 }

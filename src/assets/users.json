@@ -10,6 +10,7 @@
   },
   "amber.brasher": {
     "firstName": "Amber",
-    "lastName": "Brasher"
+    "lastName": "Brasher",
+    "userType": "ADMIN"
   }
 }

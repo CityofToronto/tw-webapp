@@ -3,7 +3,9 @@ import {
   CellDoubleClickedEvent,
   RowDragMoveEvent,
   RowDragEndEvent,
+  RowNode,
 } from '@ag-grid-enterprise/all-modules';
+
 import { getColumGroupName } from '@/common/utils';
 
 // export * from './hierarchyRearrange';
@@ -99,10 +101,50 @@ export const rowDragEnd = createGridEvent<RowDragEndEvent>(function() {
         parent: newParentId,
       };
 
-      this.gridInstance.updateRows({
-        rowsToUpdate: [newData],
+      const oldPathArray = (this.event.node.data.full_path as string).split(
+        '.',
+      );
+      // Remove last element
+      oldPathArray.pop();
+      const oldPath = oldPathArray.join('.');
+
+      const childrenData = this.event.node.allLeafChildren.map((node) => {
+        const oldNodePath: string = node.data.full_path;
+
+        return {
+          ...node.data,
+          full_path:
+            this.event.overNode.data.full_path +
+            oldNodePath.replace(oldPath, ''),
+        };
       });
-      this.gridInstance.gridApi.getRowNode(newParentId).setExpanded(true);
+
+      const openRows = this.event.node.allLeafChildren.filter(
+        (node) => node.expanded,
+      );
+
+      // Optimistically update the branch
+      this.gridInstance.gridApi.updateRowData({
+        update: childrenData,
+      });
+
+      // If the branch fails, revert to previous state
+      this.gridInstance
+        .updateRows({
+          rowsToUpdate: [newData],
+          refresh: false,
+        })
+        .catch(() =>
+          this.gridInstance.gridApi.updateRowData({
+            update: this.event.node.allLeafChildren.map((node) => node.data),
+          }),
+        );
+
+      // Open any previously open children and the new parent
+      this.event.overNode.setExpanded(true);
+      openRows.forEach((node) =>
+        this.gridInstance.gridApi.getRowNode(node.id).setExpanded(true),
+      );
     },
   };
 });
@@ -123,5 +165,47 @@ export const rowDragMoved = createGridEvent<RowDragMoveEvent>(function() {
         gridApi: this.event.api,
       });
     },
+  };
+});
+
+interface BindedEvent {
+  node: RowNode;
+}
+
+export const bindRowDragging = createGridEvent<any>(function() {
+  return {
+    type: 'first-data-rendered',
+    callback: () => {
+      document
+        .querySelectorAll<HTMLElement>(
+          `#${this.gridInstance.gridId} .ag-center-cols-container div[role='row'][row-id]`,
+        )
+        .forEach((el) =>
+          el.addEventListener('dragover', (event) => {
+            const getRowId = (element: Element) => {
+              if (element.hasAttribute('row-id')) {
+                return element.getAttribute('row-id');
+              }
+              getRowId(element.parentNode);
+            };
+            if (event.target instanceof Element) {
+              console.log(getRowId(event.target));
+            }
+
+            // const id = el.getAttribute('row-id');
+            // id &&
+            //   this.component.$children[0].$emit('custom-row-click', {
+            //     node: this.gridInstance.gridApi.getRowNode(id),
+            //   });
+          }),
+        );
+    },
+  };
+});
+
+export const bindCustomClick = createGridEvent<BindedEvent>(function() {
+  return {
+    type: 'custom-row-click',
+    callback: () => console.log(this.event.node),
   };
 });

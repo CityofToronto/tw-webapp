@@ -12,6 +12,7 @@
       :modules="modules"
       @grid-ready="onGridReady"
       v-on="events"
+      :id="config.tableID"
     />
   </div>
 </template>
@@ -110,6 +111,7 @@ export default class GridComponent extends Vue {
       event,
       gridInstance: this.gridInstance,
       vueStore: this.store,
+      component: this,
     };
     eventFunction(functionParams).callback();
   }
@@ -151,6 +153,7 @@ export default class GridComponent extends Vue {
       gridApi: api,
       gridOptions: this.gridOptions,
       gridProvider: new DirectProvider(this.config),
+      tableId: this.config.tableID,
     });
 
     // Set context for ag grid components to use

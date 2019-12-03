@@ -99,10 +99,11 @@ export const adoptBranch = createContextItem(function(data: {
       },
       disabled: !selectedRows.length,
     };
-  } catch {
+  } catch (error) {
     // If we error, return the item as disabled.
+    console.error(error);
     return {
-      name,
+      name: `${name} Failed`,
       action: () => {},
       disabled: true,
     };
