@@ -181,7 +181,7 @@ export const bindRowDragging = createGridEvent<any>(function() {
           `#${this.gridInstance.gridId} .ag-center-cols-container div[role='row'][row-id]`,
         )
         .forEach((el) =>
-          el.addEventListener('dragover', (event) => {
+          el.addEventListener('dragenter', (event) => {
             const getRowId = (element: Element) => {
               if (element.hasAttribute('row-id')) {
                 return element.getAttribute('row-id');

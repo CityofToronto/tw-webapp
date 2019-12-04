@@ -1,5 +1,5 @@
 <template>
-  <div style="height: calc(100% - 48px);" v-on="events">
+  <div style="height: calc(100% - 48px);" v-on="events" id="ag-grid">
     <ag-grid-vue
       :style="config.autoHeight ? 'width: 100%;' : 'width: 100%; height: 100%;'"
       class="ag-theme-material"

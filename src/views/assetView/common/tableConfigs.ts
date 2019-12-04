@@ -5,7 +5,7 @@ import * as gridButtons from '@/components/grid/ts/ColumnFactory/gridButtons';
 import * as contextItems from '@/components/grid/ts/contextItems';
 
 import { isCurrentProject } from './conditionals';
-import { expandAndFit } from './mixins';
+import { expandAndFit, dragOutside } from './mixins';
 import { RowStyleParams, MergeContext } from '@/types/grid';
 import { ICellRendererParams } from '@ag-grid-enterprise/all-modules';
 import { roleClassRules, assetGetStyle } from './cssStyles';
@@ -60,7 +60,7 @@ const markDoesNotExist = gridButtons.createGridButton({
 });
 
 export const updateReconciliationConfig = (): GridConfiguration =>
-  useGridMixin([expandAndFit], {
+  useGridMixin([expandAndFit, dragOutside], {
     treeData: true,
     groupSuppressAutoColumn: true,
     suppressRowClickSelection: true,
@@ -78,7 +78,7 @@ export const updateReconciliationConfig = (): GridConfiguration =>
       gridEvents.rowDragMoved(),
       gridEvents.rowDragEnd(),
       gridEvents.doubleClickView(), // double click to open view (shows more details)
-      gridEvents.bindRowDragging(),
+      //gridEvents.bindRowDragging(),
       gridEvents.bindCustomClick(),
     ],
     columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
@@ -97,7 +97,8 @@ export const updateReconciliationConfig = (): GridConfiguration =>
             resizable: true,
             width: 400,
             // Only approved roles will be draggable
-            rowDrag: ({ data }) => isApproved(data),
+            dndSource: true,
+            //rowDrag: ({ data }) => isApproved(data),
             valueFormatter: (params) => params?.data?.role_number ?? 'unknown',
             headerName: 'Role Number',
             cellRenderer: 'agGroupCellRenderer',
@@ -197,39 +198,42 @@ const onDropAsset = gridEvents.createGridEvent<DragEvent>(function() {
   };
 });
 
-export const unassignedConfigObject: GridConfiguration = {
-  toolbarItems: [
-    toolbarItems.addRow(), // register toolbar items
-    toolbarItems.copyRow(),
-    toolbarItems.removeRow(),
-    toolbarItems.fitColumns(),
-    toolbarItems.sizeColumns(),
-  ],
+export const unassignedConfigObject: GridConfiguration = useGridMixin(
+  [dragOutside],
+  {
+    toolbarItems: [
+      toolbarItems.addRow(), // register toolbar items
+      toolbarItems.copyRow(),
+      toolbarItems.removeRow(),
+      toolbarItems.fitColumns(),
+      toolbarItems.sizeColumns(),
+    ],
 
-  getRowStyle: assetGetStyle(),
-  gridEvents: [onDropAsset(), gridEvents.dragOver()], // register the asset drop logic
+    getRowStyle: assetGetStyle(),
+    //gridEvents: [onDropAsset(), gridEvents.dragOver()], // register the asset drop logic
 
-  overrideColumnDefinitions: [
-    {
-      field: 'asset_serial_number',
-      headerName: 'Asset Serial Number',
-      cellType: 'rearrangeCell',
-      conditional: ({ data, value }) =>
-        isCurrentProject(data.project_id) && value, // this controls whether a row is draggable
-    },
-    {
-      field: 'id',
-      hide: true,
-      showInForm: false,
-    },
-    {
-      field: 'project_id',
-      hide: true,
-    },
-  ],
-};
+    overrideColumnDefinitions: [
+      {
+        field: 'asset_serial_number',
+        headerName: 'Asset Serial Number',
+        cellType: 'rearrangeCell',
+        conditional: ({ data, value }) =>
+          isCurrentProject(data.project_id) && value, // this controls whether a row is draggable
+      },
+      {
+        field: 'id',
+        hide: true,
+        showInForm: false,
+      },
+      {
+        field: 'project_id',
+        hide: true,
+      },
+    ],
+  },
+);
 
-export const orphanLikeConfig: GridConfiguration = {
+export const orphanLikeConfig: GridConfiguration = useGridMixin([dragOutside], {
   treeData: true,
   getDataPath: (data) => data?.full_path.split('.'),
   columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
@@ -246,9 +250,9 @@ export const orphanLikeConfig: GridConfiguration = {
     width: 400,
     headerName: 'Role Number',
     valueFormatter: (params) => params?.data?.role_number ?? 'unknown',
+    dndSource: true,
     cellRendererParams: {
       suppressCount: true,
-      checkbox: (params) => isCurrentProject(params?.data?.project_id),
     },
   },
   overrideColumnDefinitions: [
@@ -267,4 +271,4 @@ export const orphanLikeConfig: GridConfiguration = {
       field: 'asset_serial_number',
     },
   ],
-};
+});
