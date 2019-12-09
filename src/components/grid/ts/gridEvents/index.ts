@@ -3,7 +3,6 @@ import {
   CellDoubleClickedEvent,
   RowDragMoveEvent,
   RowDragEndEvent,
-  RowNode,
 } from '@ag-grid-enterprise/all-modules';
 
 import { getColumGroupName } from '@/common/utils';
@@ -122,11 +121,13 @@ export const rowDragEnd = createGridEvent<RowDragEndEvent>(function() {
       const openRows = this.event.node.allLeafChildren.filter(
         (node) => node.expanded,
       );
-
       // Optimistically update the branch
-      this.gridInstance.gridApi.updateRowData({
-        update: childrenData,
-      });
+      if (this.gridInstance.gridApi.getRowNode(this.event.node.id)) {
+        this.gridInstance.gridApi.updateRowData({
+          update: childrenData,
+        });
+      }
+      // if row node is part of another grid, then we wait on subscriptions
 
       // If the branch fails, revert to previous state
       this.gridInstance
@@ -165,47 +166,5 @@ export const rowDragMoved = createGridEvent<RowDragMoveEvent>(function() {
         gridApi: this.event.api,
       });
     },
-  };
-});
-
-interface BindedEvent {
-  node: RowNode;
-}
-
-export const bindRowDragging = createGridEvent<any>(function() {
-  return {
-    type: 'first-data-rendered',
-    callback: () => {
-      document
-        .querySelectorAll<HTMLElement>(
-          `#${this.gridInstance.gridId} .ag-center-cols-container div[role='row'][row-id]`,
-        )
-        .forEach((el) =>
-          el.addEventListener('dragenter', (event) => {
-            const getRowId = (element: Element) => {
-              if (element.hasAttribute('row-id')) {
-                return element.getAttribute('row-id');
-              }
-              getRowId(element.parentNode);
-            };
-            if (event.target instanceof Element) {
-              console.log(getRowId(event.target));
-            }
-
-            // const id = el.getAttribute('row-id');
-            // id &&
-            //   this.component.$children[0].$emit('custom-row-click', {
-            //     node: this.gridInstance.gridApi.getRowNode(id),
-            //   });
-          }),
-        );
-    },
-  };
-});
-
-export const bindCustomClick = createGridEvent<BindedEvent>(function() {
-  return {
-    type: 'custom-row-click',
-    callback: () => console.log(this.event.node),
   };
 });

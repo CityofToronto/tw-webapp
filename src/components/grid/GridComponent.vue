@@ -122,6 +122,7 @@ export default class GridComponent extends Vue {
       event,
       gridInstance: this.gridInstance,
       vueStore: this.store,
+      component: this,
     };
 
     if (this.config.gridEvents) {

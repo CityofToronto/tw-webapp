@@ -5,7 +5,7 @@ import * as gridButtons from '@/components/grid/ts/ColumnFactory/gridButtons';
 import * as contextItems from '@/components/grid/ts/contextItems';
 
 import { isCurrentProject } from './conditionals';
-import { expandAndFit, dragOutside } from './mixins';
+import { expandAndFit } from './mixins';
 import { RowStyleParams, MergeContext } from '@/types/grid';
 import { ICellRendererParams } from '@ag-grid-enterprise/all-modules';
 import { roleClassRules, assetGetStyle } from './cssStyles';
@@ -60,7 +60,7 @@ const markDoesNotExist = gridButtons.createGridButton({
 });
 
 export const updateReconciliationConfig = (): GridConfiguration =>
-  useGridMixin([expandAndFit, dragOutside], {
+  useGridMixin([expandAndFit], {
     treeData: true,
     groupSuppressAutoColumn: true,
     suppressRowClickSelection: true,
@@ -78,8 +78,6 @@ export const updateReconciliationConfig = (): GridConfiguration =>
       gridEvents.rowDragMoved(),
       gridEvents.rowDragEnd(),
       gridEvents.doubleClickView(), // double click to open view (shows more details)
-      //gridEvents.bindRowDragging(),
-      gridEvents.bindCustomClick(),
     ],
     columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
     // Size the columns on initialization and open the first group
@@ -97,8 +95,8 @@ export const updateReconciliationConfig = (): GridConfiguration =>
             resizable: true,
             width: 400,
             // Only approved roles will be draggable
-            dndSource: true,
-            //rowDrag: ({ data }) => isApproved(data),
+            rowDrag: ({ data }) => isApproved(data),
+            //dndSource: ({ data }) => isApproved(data),
             valueFormatter: (params) => params?.data?.role_number ?? 'unknown',
             headerName: 'Role Number',
             cellRenderer: 'agGroupCellRenderer',
@@ -149,7 +147,7 @@ const onDropAsset = gridEvents.createGridEvent<DragEvent>(function() {
       if (this.event.dataTransfer) {
         // Get event data from clipboard
         const eventData = JSON.parse(
-          this.event.dataTransfer.getData('text/plain'),
+          this.event.dataTransfer.getData('application/json'),
         );
         // if asset id is empty, exit
         if (!eventData.asset_id) return;
@@ -198,8 +196,10 @@ const onDropAsset = gridEvents.createGridEvent<DragEvent>(function() {
   };
 });
 
+//const onDropTrash = gridEvents.createGridEvent(function() {});
+
 export const unassignedConfigObject: GridConfiguration = useGridMixin(
-  [dragOutside],
+  [expandAndFit],
   {
     toolbarItems: [
       toolbarItems.addRow(), // register toolbar items
@@ -210,7 +210,7 @@ export const unassignedConfigObject: GridConfiguration = useGridMixin(
     ],
 
     getRowStyle: assetGetStyle(),
-    //gridEvents: [onDropAsset(), gridEvents.dragOver()], // register the asset drop logic
+    gridEvents: [onDropAsset(), gridEvents.dragOver()], // register the asset drop logic
 
     overrideColumnDefinitions: [
       {
@@ -233,42 +233,46 @@ export const unassignedConfigObject: GridConfiguration = useGridMixin(
   },
 );
 
-export const orphanLikeConfig: GridConfiguration = useGridMixin([dragOutside], {
-  treeData: true,
-  getDataPath: (data) => data?.full_path.split('.'),
-  columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
-  toolbarItems: [toolbarItems.fitColumns(), toolbarItems.sizeColumns()],
-  rowClassRules: {
-    'background-grey': (params: RowStyleParams) =>
-      !isCurrentProject(params?.data?.project_id),
+export const orphanLikeConfig: GridConfiguration = useGridMixin(
+  [expandAndFit],
+  {
+    treeData: true,
+    getDataPath: (data) => data?.full_path.split('.'),
+    columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
+    toolbarItems: [toolbarItems.fitColumns(), toolbarItems.sizeColumns()],
+    rowClassRules: {
+      'background-grey': (params: RowStyleParams) =>
+        !isCurrentProject(params?.data?.project_id),
+    },
+    // Size the columns on initialization
+    gridInitializedEvent: ({ gridInstance }) =>
+      gridInstance.gridApi.sizeColumnsToFit(),
+    autoGroupColumnDef: {
+      resizable: true,
+      width: 400,
+      headerName: 'Role Number',
+      valueFormatter: (params) => params?.data?.role_number ?? 'unknown',
+      // dndSource: true,
+      cellRendererParams: {
+        checkbox: true,
+        suppressCount: true,
+      },
+    },
+    overrideColumnDefinitions: [
+      {
+        field: 'id',
+        hide: true,
+      },
+      {
+        field: 'project_id',
+        hide: true,
+      },
+      {
+        field: 'role_name',
+      },
+      {
+        field: 'asset_serial_number',
+      },
+    ],
   },
-  // Size the columns on initialization
-  gridInitializedEvent: ({ gridInstance }) =>
-    gridInstance.gridApi.sizeColumnsToFit(),
-  autoGroupColumnDef: {
-    resizable: true,
-    width: 400,
-    headerName: 'Role Number',
-    valueFormatter: (params) => params?.data?.role_number ?? 'unknown',
-    dndSource: true,
-    cellRendererParams: {
-      suppressCount: true,
-    },
-  },
-  overrideColumnDefinitions: [
-    {
-      field: 'id',
-      hide: true,
-    },
-    {
-      field: 'project_id',
-      hide: true,
-    },
-    {
-      field: 'role_name',
-    },
-    {
-      field: 'asset_serial_number',
-    },
-  ],
-});
+);

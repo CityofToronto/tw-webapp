@@ -1,13 +1,13 @@
 <template>
   <div
-    :draggable="isDraggable"
+    :draggable="true"
     class="cell-container"
     @dragstart="onDragStart"
     @drop="onDrop"
     @dragover="onDragOver"
   >
     <span style="flex-shrink: 1; width: 20px;">
-      <v-icon v-if="isDraggable">drag_indicator</v-icon>
+      <v-icon>drag_indicator</v-icon>
     </span>
     <span style="flex-grow: 1">
       {{ params.value }}
@@ -35,8 +35,9 @@ export default class RearrangeRenderer extends Vue {
     const fieldName = this.params.colDef.field;
     if (event.dataTransfer && fieldName) {
       event.dataTransfer.setData(
-        'text/plain',
+        'application/json',
         JSON.stringify({
+          dragType: 'cell',
           fieldName,
           ...this.params.node.data,
           uid: this.uid,
@@ -80,7 +81,7 @@ export default class RearrangeRenderer extends Vue {
     if (event.dataTransfer) {
       // get data from event as { key: value }
       const { fieldName, uid, ...draggedFromData } = JSON.parse(
-        event.dataTransfer.getData('text/plain'),
+        event.dataTransfer.getData('application/json'),
       );
 
       // Prevent the component from dropping onto itself

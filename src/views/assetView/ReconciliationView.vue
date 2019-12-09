@@ -70,6 +70,7 @@ const restoreFromTrash = toolbarItems.createToolbarItem(function(
       const rowsToRestore = this.gridInstance
         .getSelectedRows()
         .map(rowTransform);
+
       this.gridInstance.updateRows({
         rowsToUpdate: rowsToRestore,
       });
