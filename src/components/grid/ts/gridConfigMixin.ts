@@ -15,9 +15,8 @@ export const useGridMixin = (
   grid: GridConfiguration,
 ) => {
   _.mergeWith(grid, ...mixins, (objValue, srcValue) => {
-    console.log(objValue, srcValue);
     if (_.isArray(srcValue)) {
-      return [...srcValue, ...objValue];
+      return [...srcValue, ...(objValue ?? [])];
     }
     if (typeof srcValue === 'function') {
       return (params) => {

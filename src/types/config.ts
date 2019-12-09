@@ -12,6 +12,7 @@ import Store from '@/store/store';
 import { ContextMenuCall } from '@/components/grid/ts/contextItems';
 import { GridButton } from '@/components/grid/ts/ColumnFactory/gridButtons';
 import { VueEventCall } from '@/components/grid/ts/gridEvents';
+import { Vue } from 'vue/types/vue';
 
 export enum GridType {
   Tree = 'tree',
@@ -35,6 +36,7 @@ export interface VueEventParams<T> {
   event: T;
   gridInstance: GridInstance;
   vueStore: Store;
+  component: Vue;
 }
 
 export interface VueEvent<T> {

@@ -131,7 +131,7 @@ export default class GridWithToolbar extends Vue {
 }
 
 .hover-over {
-  background-color: #e5e5ff;
+  background-color: #e5e5ff !important;
 }
 
 .ag-theme-material .ag-cell-data-changed {

@@ -34,14 +34,7 @@ export class DirectProvider extends BaseGridProvider {
       .subscribe({
         next: ({ data }) => {
           // Refresh all custom cell renderers
-          const columnsToRefresh = gridInstance.columnApi
-            .getAllColumns()
-            .filter((column) => column.getColDef().cellRendererFramework);
           gridInstance.gridApi.setRowData(data[this.tableName]);
-          gridInstance.gridApi.refreshCells({
-            force: true,
-            columns: columnsToRefresh,
-          });
         },
       });
   }

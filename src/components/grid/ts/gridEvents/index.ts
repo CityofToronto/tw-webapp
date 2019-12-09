@@ -4,6 +4,7 @@ import {
   RowDragMoveEvent,
   RowDragEndEvent,
 } from '@ag-grid-enterprise/all-modules';
+
 import { getColumGroupName } from '@/common/utils';
 
 // export * from './hierarchyRearrange';
@@ -99,10 +100,52 @@ export const rowDragEnd = createGridEvent<RowDragEndEvent>(function() {
         parent: newParentId,
       };
 
-      this.gridInstance.updateRows({
-        rowsToUpdate: [newData],
+      const oldPathArray = (this.event.node.data.full_path as string).split(
+        '.',
+      );
+      // Remove last element
+      oldPathArray.pop();
+      const oldPath = oldPathArray.join('.');
+
+      const childrenData = this.event.node.allLeafChildren.map((node) => {
+        const oldNodePath: string = node.data.full_path;
+
+        return {
+          ...node.data,
+          full_path:
+            this.event.overNode.data.full_path +
+            oldNodePath.replace(oldPath, ''),
+        };
       });
-      this.gridInstance.gridApi.getRowNode(newParentId).setExpanded(true);
+
+      const openRows = this.event.node.allLeafChildren.filter(
+        (node) => node.expanded,
+      );
+      // Optimistically update the branch
+      if (this.gridInstance.gridApi.getRowNode(this.event.node.id)) {
+        this.gridInstance.gridApi.updateRowData({
+          update: childrenData,
+        });
+      }
+      // if row node is part of another grid, then we wait on subscriptions
+
+      // If the branch fails, revert to previous state
+      this.gridInstance
+        .updateRows({
+          rowsToUpdate: [newData],
+          refresh: false,
+        })
+        .catch(() =>
+          this.gridInstance.gridApi.updateRowData({
+            update: this.event.node.allLeafChildren.map((node) => node.data),
+          }),
+        );
+
+      // Open any previously open children and the new parent
+      this.event.overNode.setExpanded(true);
+      openRows.forEach((node) =>
+        this.gridInstance.gridApi.getRowNode(node.id).setExpanded(true),
+      );
     },
   };
 });

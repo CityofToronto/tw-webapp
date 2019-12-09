@@ -11,6 +11,7 @@ import { ICellRendererParams } from '@ag-grid-enterprise/all-modules';
 import { roleClassRules, assetGetStyle } from './cssStyles';
 import { useGridMixin } from '@/components/grid/ts/gridConfigMixin';
 import { orphanBranch } from './orphanage';
+import _ from 'lodash';
 
 const isApproved = (data: {
   project_id: number;
@@ -58,9 +59,7 @@ const markDoesNotExist = gridButtons.createGridButton({
   },
 });
 
-export const updateReconciliationConfig = (
-  enableDragging = true,
-): GridConfiguration =>
+export const updateReconciliationConfig = (): GridConfiguration =>
   useGridMixin([expandAndFit], {
     treeData: true,
     groupSuppressAutoColumn: true,
@@ -95,8 +94,9 @@ export const updateReconciliationConfig = (
             showRowGroup: true,
             resizable: true,
             width: 400,
-            // Only reserved roles will be draggable
-            rowDrag: enableDragging ? ({ data }) => isApproved(data) : false,
+            // Only approved roles will be draggable
+            rowDrag: ({ data }) => isApproved(data),
+            //dndSource: ({ data }) => isApproved(data),
             valueFormatter: (params) => params?.data?.role_number ?? 'unknown',
             headerName: 'Role Number',
             cellRenderer: 'agGroupCellRenderer',
@@ -105,9 +105,9 @@ export const updateReconciliationConfig = (
             },
             cellClassRules: {
               // css styling that highlights the potential parent when rearranging the hierarchy
+              ...roleClassRules,
               'hover-over': (params: MergeContext<ICellRendererParams>) =>
                 params.node === params.context.vueStore.grid.potentialParent,
-              ...roleClassRules,
             },
           },
           {
@@ -130,7 +130,7 @@ export const updateReconciliationConfig = (
             cellType: 'rearrangeCell', // define cell to a rearrange cell
             showInForm: false, // disable this field when adding a child
             showInView: true, // show this when double clicking
-            conditional: ({ data }) => isApproved(data), // this controls whether a row is draggable
+            conditional: ({ data, value }) => isApproved(data) && value, // this controls whether a row is draggable
             headerClass: 'asset-separator', // apply the separator between role and asset
             cellClass: 'asset-separator',
             cellStyle: assetGetStyle(),
@@ -145,89 +145,134 @@ const onDropAsset = gridEvents.createGridEvent<DragEvent>(function() {
     type: 'drop',
     callback: () => {
       if (this.event.dataTransfer) {
+        // Get event data from clipboard
         const eventData = JSON.parse(
-          this.event.dataTransfer.getData('text/plain'),
+          this.event.dataTransfer.getData('application/json'),
         );
+        // if asset id is empty, exit
         if (!eventData.asset_id) return;
         const rowData = {
           id: eventData.asset_id,
           role_id: 0,
         };
+        const reconciliationGrid = this.vueStore.grid.getGridInstance(
+          'reconciliation_view',
+        );
+
+        reconciliationGrid?.gridApi.updateRowData({
+          update: [
+            {
+              ...eventData,
+              asset_id: 0,
+              asset_serial_number: '',
+              asset_exists: false,
+              asset_missing_from_registry: false,
+              role_changed: false,
+            },
+          ],
+        });
+
+        // bind id to the asset_id and bring allow any columns that match
+        this.gridInstance.gridApi.updateRowData({
+          add: [
+            {
+              ..._.pick(
+                eventData,
+                ...this.gridInstance.columnDefs.map((x) => x.field),
+              ),
+              id: eventData.asset_id,
+            },
+          ],
+        });
 
         this.gridInstance
           .updateRows({
             rowsToUpdate: [rowData],
             refresh: false,
           })
-          .then(() => this.vueStore.grid.forceUpdateAllGrids());
+          .finally(() => this.vueStore.grid.forceUpdateAllGrids());
       }
     },
   };
 });
 
-export const unassignedConfigObject: GridConfiguration = {
-  toolbarItems: [
-    toolbarItems.addRow(), // register toolbar items
-    toolbarItems.copyRow(),
-    toolbarItems.removeRow(),
-    toolbarItems.fitColumns(),
-    toolbarItems.sizeColumns(),
-  ],
+//const onDropTrash = gridEvents.createGridEvent(function() {});
 
-  getRowStyle: assetGetStyle(),
-  gridEvents: [onDropAsset(), gridEvents.dragOver()], // register the asset drop logic
+export const unassignedConfigObject: GridConfiguration = useGridMixin(
+  [expandAndFit],
+  {
+    toolbarItems: [
+      toolbarItems.addRow(), // register toolbar items
+      toolbarItems.copyRow(),
+      toolbarItems.removeRow(),
+      toolbarItems.fitColumns(),
+      toolbarItems.sizeColumns(),
+    ],
 
-  overrideColumnDefinitions: [
-    {
-      field: 'asset_serial_number',
-      headerName: 'Asset Serial Number',
-      cellType: 'rearrangeCell',
-      conditional: ({ data }) => isCurrentProject(data.project_id), // this controls whether a row is draggable
-    },
-    {
-      field: 'id',
-      hide: true,
-      showInForm: false,
-    },
-  ],
-};
+    getRowStyle: assetGetStyle(),
+    gridEvents: [onDropAsset(), gridEvents.dragOver()], // register the asset drop logic
 
-export const orphanLikeConfig: GridConfiguration = {
-  treeData: true,
-  getDataPath: (data) => data?.full_path.split('.'),
-  columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
-  toolbarItems: [toolbarItems.fitColumns(), toolbarItems.sizeColumns()],
-  rowClassRules: {
-    'background-grey': (params: RowStyleParams) =>
-      !isCurrentProject(params?.data?.project_id),
+    overrideColumnDefinitions: [
+      {
+        field: 'asset_serial_number',
+        headerName: 'Asset Serial Number',
+        cellType: 'rearrangeCell',
+        conditional: ({ data, value }) =>
+          isCurrentProject(data.project_id) && value, // this controls whether a row is draggable
+      },
+      {
+        field: 'id',
+        hide: true,
+        showInForm: false,
+      },
+      {
+        field: 'project_id',
+        hide: true,
+      },
+    ],
   },
-  // Size the columns on initialization
-  gridInitializedEvent: ({ gridInstance }) =>
-    gridInstance.gridApi.sizeColumnsToFit(),
-  autoGroupColumnDef: {
-    resizable: true,
-    width: 400,
-    headerName: 'Role Number',
-    valueFormatter: (params) => params?.data?.role_number ?? 'unknown',
-    cellRendererParams: {
-      suppressCount: true,
-      checkbox: (params) => isCurrentProject(params?.data?.project_id),
+);
+
+export const orphanLikeConfig: GridConfiguration = useGridMixin(
+  [expandAndFit],
+  {
+    treeData: true,
+    getDataPath: (data) => data?.full_path.split('.'),
+    columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
+    toolbarItems: [toolbarItems.fitColumns(), toolbarItems.sizeColumns()],
+    rowClassRules: {
+      'background-grey': (params: RowStyleParams) =>
+        !isCurrentProject(params?.data?.project_id),
     },
+    // Size the columns on initialization
+    gridInitializedEvent: ({ gridInstance }) =>
+      gridInstance.gridApi.sizeColumnsToFit(),
+    autoGroupColumnDef: {
+      resizable: true,
+      width: 400,
+      headerName: 'Role Number',
+      valueFormatter: (params) => params?.data?.role_number ?? 'unknown',
+      // dndSource: true,
+      cellRendererParams: {
+        checkbox: true,
+        suppressCount: true,
+      },
+    },
+    overrideColumnDefinitions: [
+      {
+        field: 'id',
+        hide: true,
+      },
+      {
+        field: 'project_id',
+        hide: true,
+      },
+      {
+        field: 'role_name',
+      },
+      {
+        field: 'asset_serial_number',
+      },
+    ],
   },
-  overrideColumnDefinitions: [
-    {
-      field: 'id',
-      hide: true,
-    },
-    {
-      field: 'project_id',
-      hide: true,
-    },
-    {
-      field: 'role_name',
-    },
-    {
-      field: 'asset_serial_number',
-    },
-  ],
-};
+);

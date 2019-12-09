@@ -84,7 +84,7 @@ export default class ReconciliationView extends Vue {
   }
 
   private reconciliationConfig: GridConfiguration = {
-    ...updateReconciliationConfig(false),
+    ...updateReconciliationConfig(),
     title: 'Update / Change',
     tableName: 'change_view',
   };

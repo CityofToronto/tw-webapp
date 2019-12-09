@@ -95,7 +95,7 @@ export default class DynamicForm extends Mixins(modalMixin) {
     Object.keys(this.formModel).forEach(
       (key) => this.formModel[key] == null && delete this.formModel[key],
     );
-    this.confirmCallback(this.closeModal(), this.formModel);
+    this.confirmCallback(this.closeModal, this.formModel);
   }
 }
 </script>

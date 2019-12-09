@@ -1,5 +1,5 @@
 <template>
-  <div style="height: calc(100% - 48px);" v-on="events">
+  <div style="height: calc(100% - 48px);" v-on="events" id="ag-grid">
     <ag-grid-vue
       :style="config.autoHeight ? 'width: 100%;' : 'width: 100%; height: 100%;'"
       class="ag-theme-material"
@@ -12,6 +12,7 @@
       :modules="modules"
       @grid-ready="onGridReady"
       v-on="events"
+      :id="config.tableID"
     />
   </div>
 </template>
@@ -110,6 +111,7 @@ export default class GridComponent extends Vue {
       event,
       gridInstance: this.gridInstance,
       vueStore: this.store,
+      component: this,
     };
     eventFunction(functionParams).callback();
   }
@@ -120,6 +122,7 @@ export default class GridComponent extends Vue {
       event,
       gridInstance: this.gridInstance,
       vueStore: this.store,
+      component: this,
     };
 
     if (this.config.gridEvents) {
@@ -151,6 +154,7 @@ export default class GridComponent extends Vue {
       gridApi: api,
       gridOptions: this.gridOptions,
       gridProvider: new DirectProvider(this.config),
+      tableId: this.config.tableID,
     });
 
     // Set context for ag grid components to use

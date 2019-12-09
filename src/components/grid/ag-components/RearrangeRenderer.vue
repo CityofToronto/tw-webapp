@@ -1,13 +1,13 @@
 <template>
   <div
-    :draggable="isDraggable"
+    :draggable="true"
     class="cell-container"
     @dragstart="onDragStart"
     @drop="onDrop"
     @dragover="onDragOver"
   >
     <span style="flex-shrink: 1; width: 20px;">
-      <v-icon v-if="isDraggable">drag_indicator</v-icon>
+      <v-icon>drag_indicator</v-icon>
     </span>
     <span style="flex-grow: 1">
       {{ params.value }}
@@ -18,6 +18,7 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import { CellRendererParams } from '@/types/config';
+import _ from 'lodash';
 
 /**
  * RearrangeRenderer
@@ -27,19 +28,27 @@ import { CellRendererParams } from '@/types/config';
 export default class RearrangeRenderer extends Vue {
   params!: CellRendererParams;
 
+  uid!: string;
+
   // When drag is started, assign the row's data to the dataTransfer object
   onDragStart(event: DragEventInit) {
     const fieldName = this.params.colDef.field;
     if (event.dataTransfer && fieldName) {
       event.dataTransfer.setData(
-        'text/plain',
+        'application/json',
         JSON.stringify({
+          dragType: 'cell',
           fieldName,
           ...this.params.node.data,
+          uid: this.uid,
         }),
       );
       event.dataTransfer.dropEffect = 'move';
     }
+  }
+
+  created() {
+    this.uid = _.uniqueId();
   }
 
   get isDraggable() {
@@ -71,9 +80,12 @@ export default class RearrangeRenderer extends Vue {
     // null check
     if (event.dataTransfer) {
       // get data from event as { key: value }
-      const { fieldName, ...draggedFromData } = JSON.parse(
-        event.dataTransfer.getData('text/plain'),
+      const { fieldName, uid, ...draggedFromData } = JSON.parse(
+        event.dataTransfer.getData('application/json'),
       );
+
+      // Prevent the component from dropping onto itself
+      if (uid === this.uid) return;
 
       // Get ID of row dropped on and combine with from the row it was dragged from
       const eventData = {
