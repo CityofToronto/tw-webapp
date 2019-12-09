@@ -3,17 +3,28 @@
     <splitpanes>
       <pane min-size="33" size="67" style="padding: 2px;">
         <v-sheet height="100%" elevation="2">
-          <grid-with-toolbar :config="reconciliationConfig" />
+          <grid-with-toolbar :config="changeMainViewConfig" />
         </v-sheet>
       </pane>
       <pane min-size="23" size="37" style="padding: 2px;">
         <v-sheet height="100%" elevation="2">
           <splitpanes horizontal>
             <pane>
-              <grid-with-toolbar :config="trashAssetConfig" />
+              <v-tabs v-model="tabState" right="" height="48">
+                <v-tab>Unassigned</v-tab>
+                <v-tab>Dumpster</v-tab>
+              </v-tabs>
+              <v-tabs-items v-model="tabState" style="height: 100%">
+                <v-tab-item style="height: calc(100% - 48px)">
+                  <grid-with-toolbar :config="trashAssetConfig" />
+                </v-tab-item>
+                <v-tab-item style="height: calc(100% - 48px)">
+                  <grid-with-toolbar :config="dumpsterAssetConfig" />
+                </v-tab-item>
+              </v-tabs-items>
             </pane>
             <pane>
-              <grid-with-toolbar :config="trashRoleConfig" />
+              <grid-with-toolbar :config="orphanedRoleConfig" />
             </pane>
           </splitpanes>
         </v-sheet>
@@ -27,6 +38,7 @@ import { Vue, Component } from 'vue-property-decorator';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
 import { RowData } from '@/types/grid';
 import { GridConfiguration } from '@/types/config';
+import { useGridMixin } from '@/components/grid/ts/gridConfigMixin';
 
 import * as toolbarItems from '@/components/grid/ts/toolbarItems';
 // import * as gridEvents from '@/components/grid/ts/gridEvents/';
@@ -66,61 +78,39 @@ const restoreFromTrash = toolbarItems.createToolbarItem(function(
     Pane,
   },
 })
-export default class ReconciliationView extends Vue {
+export default class ChangeView extends Vue {
   // Define the VueX Store
   store: Store = useStore(this.$store);
 
   tabState: number | null = null;
 
-  currentView: {
-    tableName: string;
-  } = { tableName: 'orphan_view' };
-
-  changeView() {
-    this.currentView.tableName =
-      this.currentView.tableName === 'orphan_view'
-        ? 'garbage_can_reconciliation_view'
-        : 'orphan_view';
-  }
-
-  private reconciliationConfig: GridConfiguration = {
+  private changeMainViewConfig: GridConfiguration = {
     ...updateReconciliationConfig(),
     title: 'Update / Change',
     tableName: 'change_view',
   };
 
-  private unassignedConfig: GridConfiguration = {
-    ...unassignedConfigObject,
-    title: 'Assets Without a Role',
-    tableName: 'unassigned_assets',
-  };
-
-  private orphanConfig: GridConfiguration = {
-    ...orphanLikeConfig,
-    title: 'Orphaned Roles',
-    tableName: 'orphan_view',
-  };
-
   private trashAssetConfig: GridConfiguration = {
     ...unassignedConfigObject,
-    title: 'Deleted Assets',
-    tableName: 'garbage_can_unassigned_assets',
+    title: 'Assets Without a Role',
+    tableName: 'change_unassigned_asset_view',
+  };
+
+  private dumpsterAssetConfig: GridConfiguration = {
+    ...unassignedConfigObject,
+    title: 'Dumpster Assets',
+    tableName: 'dumpster_asset_view',
     toolbarItems: [
       restoreFromTrash(undefined, (row) => ({ id: row.id, role_id: 0 })),
       toolbarItems.fitColumns(),
       toolbarItems.sizeColumns(),
     ],
-    gridEvents: [],
   };
 
-  private trashRoleConfig: GridConfiguration = {
+  private orphanedRoleConfig: GridConfiguration = {
     ...orphanLikeConfig,
-    title: 'Deleted Roles',
-    tableName: 'garbage_can_reconciliation_view',
-    toolbarItems: [
-      restoreFromTrash(undefined, (row) => ({ id: row.id, parent: 2 })),
-      ...(orphanLikeConfig.toolbarItems ?? []),
-    ],
+    title: 'Orphaned Roles',
+    tableName: 'dumpster_change_view',
   };
 }
 </script>

@@ -90,8 +90,6 @@ export default class ApprovalView extends Vue {
       toolbarItems.sizeColumns(),
     ],
     contextMenu: [contextItems.expandBranch()],
-    // array to order the columns
-    columnOrder: ['role_name', 'project_id', 'approval_status'],
     gridButtons: [rejectButton, approveButton], // register our buttons
     treeData: true,
     getDataPath: (data) => data.full_path.split('.'),

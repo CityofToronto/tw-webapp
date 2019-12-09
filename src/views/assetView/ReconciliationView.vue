@@ -93,13 +93,13 @@ export default class ReconciliationView extends Vue {
 
   currentView: {
     tableName: string;
-  } = { tableName: 'orphan_view' };
+  } = { tableName: 'reconciliation_orphan_view' };
 
   changeView() {
     this.currentView.tableName =
-      this.currentView.tableName === 'orphan_view'
+      this.currentView.tableName === 'reconciliation_orphan_view'
         ? 'garbage_can_reconciliation_view'
-        : 'orphan_view';
+        : 'reconciliation_orphan_view';
   }
 
   private reconciliationConfig: GridConfiguration = useGridMixin(
@@ -118,19 +118,19 @@ export default class ReconciliationView extends Vue {
   private unassignedConfig: GridConfiguration = {
     ...unassignedConfigObject,
     title: 'Assets Without a Role',
-    tableName: 'unassigned_assets',
+    tableName: 'reconciliation_unassigned_asset_view',
   };
 
   private orphanConfig: GridConfiguration = {
     ...orphanLikeConfig,
     title: 'Orphaned Roles',
-    tableName: 'orphan_view',
+    tableName: 'reconciliation_orphan_view',
   };
 
   private trashAssetConfig: GridConfiguration = {
     ...unassignedConfigObject,
     title: 'Deleted Assets',
-    tableName: 'garbage_can_unassigned_assets',
+    tableName: 'garbage_can_asset_view',
     toolbarItems: [
       restoreFromTrash(undefined, (row) => ({ id: row.id, role_id: 0 })),
       toolbarItems.fitColumns(),

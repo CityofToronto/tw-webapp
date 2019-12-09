@@ -86,10 +86,6 @@ interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
    */
   overrideColumnDefinitions?: (CellParams | CustomColGroupDef)[];
   /**
-   * Order of the columns from left to right
-   */
-  columnOrder?: string[];
-  /**
    * Items displayed in the toolbar
    */
   toolbarItems?: ToolbarCall[];
