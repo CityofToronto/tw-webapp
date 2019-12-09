@@ -54,13 +54,6 @@ export default class ReservationView extends Vue {
       toolbarItems.fitColumns(),
       toolbarItems.sizeColumns(),
     ],
-    columnOrder: [
-      'id',
-      'role_name',
-      'reserved',
-      'project_id',
-      'approval_status',
-    ],
     treeData: true,
     getDataPath: (data) => data.full_path.split('.'),
     contextMenu: [contextItems.expandBranch(), reserveBranchItem],

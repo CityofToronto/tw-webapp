@@ -79,7 +79,6 @@ export const updateReconciliationConfig = (): GridConfiguration =>
       gridEvents.rowDragEnd(),
       gridEvents.doubleClickView(), // double click to open view (shows more details)
     ],
-    columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
     // Size the columns on initialization and open the first group
     rowClassRules: {
       'background-grey': ({ data }: RowStyleParams) => !isApproved(data),
@@ -225,10 +224,6 @@ export const unassignedConfigObject: GridConfiguration = useGridMixin(
         hide: true,
         showInForm: false,
       },
-      {
-        field: 'project_id',
-        hide: true,
-      },
     ],
   },
 );
@@ -238,7 +233,6 @@ export const orphanLikeConfig: GridConfiguration = useGridMixin(
   {
     treeData: true,
     getDataPath: (data) => data?.full_path.split('.'),
-    columnOrder: ['id', 'role_number', 'role_name', 'asset_serial_number'],
     toolbarItems: [toolbarItems.fitColumns(), toolbarItems.sizeColumns()],
     rowClassRules: {
       'background-grey': (params: RowStyleParams) =>
@@ -261,10 +255,6 @@ export const orphanLikeConfig: GridConfiguration = useGridMixin(
     overrideColumnDefinitions: [
       {
         field: 'id',
-        hide: true,
-      },
-      {
-        field: 'project_id',
         hide: true,
       },
       {

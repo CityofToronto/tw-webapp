@@ -61,7 +61,6 @@ const removeInvalidProperties = (config: GridConfiguration): GridOptions => {
     contextMenu: true,
     gridButtons: true,
     overrideColumnDefinitions: true,
-    columnOrder: true,
     gridType: true,
     toolbarItems: true,
     gridEvents: true,
