@@ -49,7 +49,6 @@ export default class ReservationView extends Vue {
     tableName: 'reservation_view',
     title: 'Reservation',
     toolbarItems: [
-      toolbarItems.expandAll(),
       toolbarItems.collapseAll(),
       toolbarItems.fitColumns(),
       toolbarItems.sizeColumns(),
@@ -62,9 +61,9 @@ export default class ReservationView extends Vue {
       headerName: 'Role',
       width: 400,
       resizable: true,
+      valueFormatter: ({ data }) => data.role_number,
       cellRendererParams: {
-        aliasColumn: 'role_number',
-        innerRendererFramework: agComponents.AliasCell,
+        suppressCount: true,
       },
     },
     overrideColumnDefinitions: [
