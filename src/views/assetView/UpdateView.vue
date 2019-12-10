@@ -52,7 +52,6 @@ import Store from '@/store/store';
 import { useStore } from 'vuex-simple';
 import { Splitpanes, Pane } from 'splitpanes';
 import { adoptBranch } from './common/orphanage';
-import { useGridMixin } from '@/components/grid/ts/gridConfigMixin';
 import 'splitpanes/dist/splitpanes.css';
 
 const restoreFromTrash = toolbarItems.createToolbarItem(function(
