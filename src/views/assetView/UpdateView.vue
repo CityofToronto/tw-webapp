@@ -51,6 +51,8 @@ import {
 import Store from '@/store/store';
 import { useStore } from 'vuex-simple';
 import { Splitpanes, Pane } from 'splitpanes';
+import { adoptBranch } from './common/orphanage';
+import { useGridMixin } from '@/components/grid/ts/gridConfigMixin';
 import 'splitpanes/dist/splitpanes.css';
 
 const restoreFromTrash = toolbarItems.createToolbarItem(function(
@@ -84,11 +86,20 @@ export default class ChangeView extends Vue {
 
   tabState: number | null = null;
 
-  private changeMainViewConfig: GridConfiguration = {
-    ...updateReconciliationConfig(),
-    title: 'Update / Change',
-    tableName: 'change_view',
-  };
+  private changeMainViewConfig: GridConfiguration = useGridMixin(
+    [
+      {
+        contextMenu: [
+          adoptBranch(undefined, { tableName: 'dumpster_change_view' }),
+        ],
+      },
+    ],
+    {
+      ...updateReconciliationConfig(),
+      title: 'Update / Change',
+      tableName: 'change_view',
+    },
+  );
 
   private trashAssetConfig: GridConfiguration = {
     ...unassignedConfigObject,

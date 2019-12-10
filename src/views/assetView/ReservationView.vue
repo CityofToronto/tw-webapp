@@ -16,7 +16,6 @@ import * as toolbarItems from '@/components/grid/ts/toolbarItems';
 import * as contextItems from '@/components/grid/ts/contextItems';
 import { ICellRendererParams } from '@ag-grid-enterprise/all-modules';
 import GridWithToolbar from '@/components/GridWithToolbar.vue';
-import agComponents from '@/components/grid/ag-components';
 import { reservationRowStyle } from './common/cssStyles';
 import { ContextMenuFunc } from '@/components/grid/ts/contextItems';
 import { expandAndFit } from './common/mixins';
