@@ -96,10 +96,10 @@ export default class ApprovalView extends Vue {
     autoGroupColumnDef: {
       resizable: true,
       headerName: 'Role Name',
+      valueFormatter: ({ data }) => data.role_number,
       width: 400,
       cellRendererParams: {
-        aliasColumn: 'role_number',
-        innerRendererFramework: agComponents.AliasCell,
+        suppressCount: true,
       },
     },
     getRowStyle: reservationRowStyle, // apply same style as reservation page

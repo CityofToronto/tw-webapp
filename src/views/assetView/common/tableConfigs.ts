@@ -38,24 +38,12 @@ const markDoesNotExist = gridButtons.createGridButton({
   },
   tooltip: 'Delete this Role',
   clickFunction: (params) => {
-    if (params.data.role_missing_from_registry) {
-      const removeData = {
-        id: params.data.id,
-      };
-      params.context.gridInstance.removeRows({
-        rowsToRemove: [removeData],
-      });
-    } else {
-      const updateData = {
-        id: params.data.id,
-        role_exists: !params?.data?.role_exists,
-      };
-      params.context.gridInstance
-        .updateRows({
-          rowsToUpdate: [updateData],
-        })
-        .then(() => params.context.vueStore.grid.forceUpdateAllGrids());
-    }
+    const removeData = {
+      id: params.data.id,
+    };
+    params.context.gridInstance.removeRows({
+      rowsToRemove: [removeData],
+    });
   },
 });
 
