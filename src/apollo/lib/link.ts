@@ -17,7 +17,7 @@ const authToken = process.env.VUE_APP_API;
 
 const getHeaders = () => {
   const username = storeInstance?.auth?.userName;
-  const project = storeInstance?.project?.project_number ?? '';
+  const project = storeInstance?.project?.project_number ?? 1;
   return {
     'x-hasura-admin-secret': authToken,
     'x-username': username,
