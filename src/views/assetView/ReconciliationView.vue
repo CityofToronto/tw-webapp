@@ -116,19 +116,13 @@ export default class ReconciliationView extends Vue {
   );
 
   private unassignedConfig: GridConfiguration = {
-    ...unassignedConfigObject,
+    ...unassignedConfigObject(0),
     title: 'Assets Without a Role',
     tableName: 'reconciliation_unassigned_asset_view',
   };
 
-  private orphanConfig: GridConfiguration = {
-    ...orphanLikeConfig,
-    title: 'Orphaned Roles',
-    tableName: 'reconciliation_orphan_view',
-  };
-
   private trashAssetConfig: GridConfiguration = {
-    ...unassignedConfigObject,
+    ...unassignedConfigObject(3),
     title: 'Deleted Assets',
     tableName: 'garbage_can_asset_view',
     toolbarItems: [
@@ -136,7 +130,12 @@ export default class ReconciliationView extends Vue {
       toolbarItems.fitColumns(),
       toolbarItems.sizeColumns(),
     ],
-    gridEvents: [],
+  };
+
+  private orphanConfig: GridConfiguration = {
+    ...orphanLikeConfig,
+    title: 'Orphaned Roles',
+    tableName: 'reconciliation_orphan_view',
   };
 
   private trashRoleConfig: GridConfiguration = {

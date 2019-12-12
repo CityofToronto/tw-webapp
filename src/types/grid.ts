@@ -168,6 +168,6 @@ export interface RemoveQuery {
 }
 
 export interface UpdateQuery {
-  rowsToUpdate: RowData[];
+  rowsToUpdate: (RowData | [RowData, [string, string | number]?])[];
   refresh?: boolean;
 }

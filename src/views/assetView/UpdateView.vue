@@ -101,13 +101,13 @@ export default class ChangeView extends Vue {
   );
 
   private trashAssetConfig: GridConfiguration = {
-    ...unassignedConfigObject,
+    ...unassignedConfigObject(0),
     title: 'Assets Without a Role',
     tableName: 'change_unassigned_asset_view',
   };
 
   private dumpsterAssetConfig: GridConfiguration = {
-    ...unassignedConfigObject,
+    ...unassignedConfigObject(3),
     title: 'Dumpster Assets',
     tableName: 'dumpster_asset_view',
     toolbarItems: [

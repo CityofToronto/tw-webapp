@@ -45,11 +45,7 @@ export default class GridWithToolbar extends Vue {
 
   created() {
     // Configuration passed down by props
-    this.internalConfig = {
-      tableName: this.configKey,
-      title: this.configKey,
-      ...this.config,
-    };
+    this.internalConfig = this.config;
     this.internalConfig.tableID = this.config?.tableID
       ? this.config.tableID
       : this.config.tableName;

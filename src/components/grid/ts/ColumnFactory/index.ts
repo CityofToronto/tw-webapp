@@ -218,6 +218,10 @@ export default class ColumnFactory {
         .map((col) => ({ field: col.name }));
 
       this.columnDefs.push(...debugFields);
+      this.columnDefs.push({
+        field: 'id',
+        hide: true,
+      });
     }
 
     return this.columnDefs;

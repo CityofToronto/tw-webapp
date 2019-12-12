@@ -4,8 +4,16 @@ import {
   RowDragEndEvent,
   RowNode,
   RowDragLeaveEvent,
+  RowDragMoveEvent,
+  GridApi,
 } from '@ag-grid-enterprise/all-modules';
 
+/**
+ * Expand And Fit Mixin
+ *
+ * Adds the functionality where the grid expands the highest level of tree
+ * and also fits the columns to the size of the grid
+ */
 export const expandAndFit: GridConfiguration = {
   gridInitializedEvent: ({ gridInstance }) => {
     gridInstance.gridApi.sizeColumnsToFit();
@@ -36,7 +44,12 @@ const isRowDrag = (event: DragEvent) => {
   return false;
 };
 
-// This mixin allows drag and drop between grids
+/**
+ * Drag Outside Mixin
+ *
+ * Allows for the grid it is applied to have its rows dragged outside the grid
+ * are and dropped onto an accepting grid. The accepting grid must also be using this mixin
+ */
 export const dragOutside: GridConfiguration = {
   gridEvents: (() => {
     let node: RowNode;
@@ -63,15 +76,21 @@ export const dragOutside: GridConfiguration = {
         return {
           type: 'drop',
           callback: () => {
-            if (!dragInProgress) return;
-            if (!getRowId(this.event.target as Element)) return;
+            const eventJSON = this.event.dataTransfer?.getData(
+              'application/json',
+            );
+            if (eventJSON) {
+              const eventData = JSON.parse(eventJSON);
+              if (eventData?.dragType === 'cell') return;
+            }
+
             const event: RowDragEndEvent = {
               api: this.gridInstance.gridApi,
               columnApi: this.gridInstance.columnApi,
               type: 'rowDragEnd',
               node,
               overNode,
-              overIndex: overNode.rowIndex,
+              overIndex: overNode?.rowIndex,
               event: this.event,
               y: this.event.y,
               vDirection: 'Up',
@@ -85,6 +104,7 @@ export const dragOutside: GridConfiguration = {
           type: 'dragover',
           callback: () => {
             if (!dragInProgress) return;
+            this.event.preventDefault();
             if (this.event.dataTransfer) {
               this.event.dataTransfer.dropEffect = 'move';
             }
@@ -155,3 +175,107 @@ export const dragOutside: GridConfiguration = {
     ];
   })(),
 };
+
+export const parentState: {
+  potentialParent: RowNode | null;
+  setPotentialParent(parentNode: RowNode | null, gridApi: GridApi): void;
+} = {
+  potentialParent: null,
+  setPotentialParent(parentNode, gridApi) {
+    const rowsToRefresh: RowNode[] = [];
+
+    let newPotentialParent: RowNode | null;
+
+    if (parentNode) {
+      newPotentialParent = parentNode;
+    } else {
+      newPotentialParent = null;
+    }
+
+    if (this.potentialParent === newPotentialParent) {
+      return;
+    }
+
+    if (this.potentialParent) {
+      rowsToRefresh.push(this.potentialParent);
+    }
+    if (newPotentialParent) {
+      rowsToRefresh.push(newPotentialParent);
+    }
+
+    this.potentialParent = newPotentialParent;
+    gridApi.refreshCells({
+      rowNodes: rowsToRefresh,
+      force: true,
+    });
+  },
+};
+
+/**
+ * @param parentToSet - The ID to set as parent if dropped not on a row
+ */
+export const rearrangeMixin = (parentToSet: number) => ({
+  gridEvents: [
+    createGridEvent<RowDragMoveEvent>(function() {
+      return {
+        type: 'rowDragLeave',
+        callback: () => parentState.setPotentialParent(null, this.event.api),
+      };
+    })(),
+    createGridEvent<RowDragMoveEvent>(function() {
+      return {
+        type: 'rowDragMove',
+        callback: () => {
+          // Can't set a row to its children or direct parent
+          if (
+            this.event.node.allLeafChildren.includes(this.event.overNode) ||
+            this.event.node.parent === this.event.overNode
+          ) {
+            parentState.setPotentialParent(null, this.event.api);
+            return;
+          }
+          parentState.setPotentialParent(this.event.overNode, this.event.api);
+        },
+      };
+    })(),
+    createGridEvent<RowDragMoveEvent>(function() {
+      return {
+        type: 'rowDragLeave',
+        callback: () => parentState.setPotentialParent(null, this.event.api),
+      };
+    })(),
+    createGridEvent<RowDragEndEvent>(function() {
+      return {
+        type: 'rowDragEnd',
+        callback: () => {
+          // Prevents from rearranging onto itself or its children
+          if (
+            this.event?.node?.allLeafChildren.includes(this.event.overNode) ||
+            this.event.node.parent === this.event.overNode
+          ) {
+            parentState.setPotentialParent(null, this.event.api);
+            return;
+          }
+
+          // Reset the parent state
+          parentState.setPotentialParent(null, this.event.api);
+
+          const rowToMove = this.event.node.data.id;
+          const newParent = this.event?.overNode?.data?.id ?? parentToSet;
+
+          this.gridInstance
+            .updateRows({
+              rowsToUpdate: [
+                {
+                  id: rowToMove,
+                  parent: newParent,
+                },
+              ],
+              refresh: false,
+            })
+            .then(() => this.vueStore.grid.forceUpdateAllGrids());
+        },
+      };
+    })(),
+  ],
+});
