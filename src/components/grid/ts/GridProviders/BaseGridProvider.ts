@@ -43,5 +43,8 @@ export default abstract class BaseGridProvider {
 
   abstract async removeData(idToRemove: string): Promise<RowData>;
 
-  abstract updateData(rowToUpdate: RowData): Promise<RowData>;
+  abstract updateData(
+    rowToUpdate: RowData,
+    where?: [string, string | number],
+  ): Promise<RowData>;
 }

@@ -80,6 +80,9 @@ router.beforeEach((to, from, next) => {
     return next('/login');
   }
   if (to.meta.requiresProject && projectedNotSelected) {
+    Vue.swal({
+      text: 'Please Select a Project before Proceeding!',
+    });
     return next('/');
   }
 

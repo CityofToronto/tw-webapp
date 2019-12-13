@@ -112,17 +112,21 @@ export default class GridInstance {
   }: UpdateQuery): Promise<void> {
     const updates = rowsToUpdate.map(async (rowData) => {
       // TODO Bug fix this
-      await this.gridProvider.updateData(rowData).then((response) => {
-        if (refresh) {
-          this.gridApi.updateRowData({
-            update: [response],
-          });
-          this.gridApi.refreshCells({
-            force: true,
-            rowNodes: [this.gridApi.getRowNode(rowData.id)],
-          });
-        }
-      });
+      if (Array.isArray(rowData)) {
+        await this.gridProvider.updateData(rowData[0], rowData[1]);
+      } else {
+        await this.gridProvider.updateData(rowData).then((response) => {
+          if (refresh) {
+            this.gridApi.updateRowData({
+              update: [response],
+            });
+            this.gridApi.refreshCells({
+              force: true,
+              rowNodes: [this.gridApi.getRowNode(rowData.id)],
+            });
+          }
+        });
+      }
     });
     await Promise.all(updates);
   }

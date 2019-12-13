@@ -1,13 +1,10 @@
 import { VueEventParams, VueEvent } from '@/types/config';
 import {
   CellDoubleClickedEvent,
-  RowDragMoveEvent,
   RowDragEndEvent,
 } from '@ag-grid-enterprise/all-modules';
 
 import { getColumGroupName } from '@/common/utils';
-
-// export * from './hierarchyRearrange';
 
 export type VueEventFunc<T> = (
   this: VueEventParams<T>,
@@ -57,18 +54,6 @@ export const dragOver = createGridEvent<DragEvent>(function() {
         this.event.dataTransfer.dropEffect = 'move';
       }
       this.event.preventDefault();
-    },
-  };
-});
-
-export const rowDragLeft = createGridEvent<RowDragMoveEvent>(function() {
-  return {
-    type: 'rowDragLeave',
-    callback: () => {
-      this.vueStore.grid.setPotentialParent({
-        parentNode: null,
-        gridApi: this.event.api,
-      });
     },
   };
 });
@@ -146,25 +131,6 @@ export const rowDragEnd = createGridEvent<RowDragEndEvent>(function() {
       openRows.forEach((node) =>
         this.gridInstance.gridApi.getRowNode(node.id).setExpanded(true),
       );
-    },
-  };
-});
-
-export const rowDragMoved = createGridEvent<RowDragMoveEvent>(function() {
-  return {
-    type: 'rowDragMove',
-    callback: () => {
-      if (this.event.node.allLeafChildren.includes(this.event.overNode)) {
-        this.vueStore.grid.setPotentialParent({
-          parentNode: null,
-          gridApi: this.event.api,
-        });
-        return;
-      }
-      this.vueStore.grid.setPotentialParent({
-        parentNode: this.event.overNode,
-        gridApi: this.event.api,
-      });
     },
   };
 });

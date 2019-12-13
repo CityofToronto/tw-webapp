@@ -57,7 +57,11 @@ export const addChildButton: GridButton = {
 
 export const createGridButton = (
   cellRendererParams: GridButtonRendererParams,
+  fieldToBindTo = '',
 ): GridButton => ({
   ...buttonDefault,
+  field: fieldToBindTo,
+  headerName: '',
+  suppressMenu: true,
   cellRendererParams,
 });

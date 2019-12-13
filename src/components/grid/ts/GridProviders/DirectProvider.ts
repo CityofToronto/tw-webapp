@@ -6,6 +6,11 @@ import { dispatchError, stringify } from '@/apollo/lib/utils';
 import { RowData, RequiredConfig } from '@/types/grid';
 import GridInstance from '../GridInstance';
 
+interface RowToUpdateQuery {
+  where?: Record<string, string | number>;
+  data: Record<string, any>;
+}
+
 /**
  * Methods to add, remove and update data.
  * Additionally provides a ServerSideDatasource for Ag-Grid
@@ -98,17 +103,23 @@ export class DirectProvider extends BaseGridProvider {
       .catch((error): never => dispatchError(error));
   }
 
-  public async updateData(rowToUpdate: RowData): Promise<RowData> {
+  public async updateData(
+    data: RowData,
+    where?: [string, string | number],
+  ): Promise<RowData> {
+    const whereId = where ? where[0] : 'id';
+    const whereValue = where ? where[1] : data.id;
+
     return apolloClient
       .mutate({
         mutation: gql`
         mutation updateRow {
           update_${this.tableName} (
             where: {
-              id: { _eq: ${rowToUpdate.id} }
+              ${whereId}: { _eq: ${whereValue} }
             },
             _set: {
-              ${stringify(rowToUpdate, this.tableID)}
+              ${stringify(data, this.tableID)}
             }
             ) {
               returning {

@@ -26,25 +26,28 @@ import { useGridMixin } from '@/components/grid/ts/gridConfigMixin';
  * This is disabled if the asset is reserved, approved or not reservable
  * It displays a check mark that commits an approval on the entity
  */
-const approveButton = createGridButton({
-  icon: (params) =>
-    params.data.reserved &&
-    !params.data.approved &&
-    params.data.reservable &&
-    isCurrentProject(params.data.project_id)
-      ? 'check'
-      : '',
-  clickFunction: (params) => {
-    params.context.gridInstance.updateRows({
-      rowsToUpdate: [
-        {
-          id: params.data.id,
-          approved: true,
-        },
-      ],
-    });
+const approveButton = createGridButton(
+  {
+    icon: (params) =>
+      params.data.reserved &&
+      !params.data.approved &&
+      params.data.reservable &&
+      isCurrentProject(params.data.project_id)
+        ? 'check'
+        : '',
+    clickFunction: (params) => {
+      params.context.gridInstance.updateRows({
+        rowsToUpdate: [
+          {
+            id: params.data.id,
+            approved: true,
+          },
+        ],
+      });
+    },
   },
-});
+  'reserved',
+);
 
 /**
  * Creates a custom grid button (rejectButton)
@@ -52,25 +55,28 @@ const approveButton = createGridButton({
  * It appears when a reservation is pending on the user's current project
  * It displays a X that commits an unapproved action
  */
-const rejectButton = createGridButton({
-  icon: (params) =>
-    params.data.reserved &&
-    params.data.reservable &&
-    !params.data.approved &&
-    isCurrentProject(params.data.project_id)
-      ? 'close'
-      : '',
-  clickFunction: (params) => {
-    params.context.gridInstance.updateRows({
-      rowsToUpdate: [
-        {
-          id: params.data.id,
-          approved: false,
-        },
-      ],
-    });
+const rejectButton = createGridButton(
+  {
+    icon: (params) =>
+      params.data.reserved &&
+      params.data.reservable &&
+      !params.data.approved &&
+      isCurrentProject(params.data.project_id)
+        ? 'close'
+        : '',
+    clickFunction: (params) => {
+      params.context.gridInstance.updateRows({
+        rowsToUpdate: [
+          {
+            id: params.data.id,
+            approved: false,
+          },
+        ],
+      });
+    },
   },
-});
+  'reserved',
+);
 
 @Component({
   components: {
