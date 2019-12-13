@@ -106,9 +106,6 @@ interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
   /**
    * State binds to the grid context.state and can be used
    */
-  state?: {
-    [k: string]: any;
-  };
 }
 
 export interface SimpleGridConfig extends BaseGridConfig {
