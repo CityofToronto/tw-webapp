@@ -46,21 +46,11 @@ export interface VueEvent<T> {
 }
 
 export type CustomProperties = Record<
-  keyof Omit<
-    SimpleGridConfig & TreeGridConfig & DropGridConfig,
-    keyof GridOptions
-  >,
+  keyof Omit<GridConfiguration, keyof GridOptions>,
   boolean
 >;
-
-export type GridConfiguration =
-  | SimpleGridConfig
-  | TreeGridConfig
-  | DropGridConfig;
-
-export type GridConfigurationInterface = Record<string, GridConfiguration>;
-
-interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
+export interface GridConfiguration
+  extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
   /**
    * ID of table to fetch from database
    * By default it uses the key of the this object
@@ -106,27 +96,6 @@ interface BaseGridConfig extends Omit<GridOptions, 'rowData' | 'columnDefs'> {
   /**
    * State binds to the grid context.state and can be used
    */
-}
-
-export interface SimpleGridConfig extends BaseGridConfig {
-  gridType?: 'normal';
-}
-
-export interface TreeGridConfig
-  extends MarkRequired<BaseGridConfig, 'getDataPath'> {
-  /**
-   * Table column field to group by.
-   * By default it uses the 'id' field.
-   */
-  gridType: 'tree';
-  /**
-   * This must be set to true
-   */
-  treeData: boolean;
-}
-
-export interface DropGridConfig extends BaseGridConfig {
-  gridType: 'drop';
 }
 
 export interface CustomColGroupDef extends ColGroupDef {
