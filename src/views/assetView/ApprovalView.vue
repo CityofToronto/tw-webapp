@@ -85,7 +85,6 @@ const rejectButton = createGridButton(
 })
 export default class ApprovalView extends Vue {
   private approvalConfig: GridConfiguration = useGridMixin([expandAndFit], {
-    gridType: 'normal',
     tableName: 'reservation_view',
     tableID: 'approval_view',
     title: 'Approval',

@@ -44,7 +44,6 @@ const reserveBranchItem: ContextMenuFunc = (params) => ({
 })
 export default class ReservationView extends Vue {
   private reservationConfig: GridConfiguration = useGridMixin([expandAndFit], {
-    gridType: 'normal',
     tableName: 'reservation_view',
     title: 'Reservation',
     toolbarItems: [
