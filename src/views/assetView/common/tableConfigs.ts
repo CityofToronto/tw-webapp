@@ -12,14 +12,10 @@ import {
   parentState,
 } from './mixins';
 import { RowStyleParams, MergeContext } from '@/types/grid';
-import {
-  ICellRendererParams,
-  RowDragEndEvent,
-} from '@ag-grid-enterprise/all-modules';
+import { ICellRendererParams } from '@ag-grid-enterprise/all-modules';
 import { roleClassRules, assetGetStyle } from './cssStyles';
 import { useGridMixin } from '@/components/grid/ts/gridConfigMixin';
 import { orphanBranch } from './orphanage';
-import _ from 'lodash';
 
 const isApproved = (data: {
   project_id: number;

@@ -9,10 +9,8 @@ import { getMainDefinition } from 'apollo-utilities';
 import { OperationDefinitionNode } from 'graphql';
 
 // TODO Proper authentication
-const GRAPH_ENDPOINT_HTTP =
-  'https://hasura.tw-webapp-next.duckdns.org/v1/graphql';
-const GRAPHQL_ENDPOINT_WS =
-  'wss://hasura.tw-webapp-next.duckdns.org/v1/graphql';
+const GRAPH_ENDPOINT_HTTP = 'https://hasura.tw-webapp.duckdns.org/v1/graphql';
+const GRAPHQL_ENDPOINT_WS = 'wss://hasura.tw-webapp.duckdns.org/v1/graphql';
 const authToken = process.env.VUE_APP_API;
 
 const getHeaders = () => {

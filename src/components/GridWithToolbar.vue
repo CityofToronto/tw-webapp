@@ -33,8 +33,6 @@ import GridComponent from './grid/GridComponent.vue';
   },
 })
 export default class GridWithToolbar extends Vue {
-  @Prop({ required: false, type: String }) readonly configKey!: string;
-
   @Prop(Object) readonly config!: GridConfiguration;
 
   internalConfig!: GridConfiguration;
